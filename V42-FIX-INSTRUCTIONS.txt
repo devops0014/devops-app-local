@@ -1,0 +1,23 @@
+DevOpsCrack v42 - local replacement instructions
+
+1. Keep a copy of your existing .env.local file.
+2. Replace your old application folder with this v42 folder.
+3. Put your existing .env.local file into the v42 folder.
+4. In Supabase, open SQL Editor and run this file once:
+   supabase/migrations/2026073103_import_reliability.sql
+5. In Terminal, inside the v42 folder, run:
+   npm install
+   npm run dev
+6. Sign in as admin and retry Bulk import.
+
+The import now:
+- inserts MCQs only into mcq_questions;
+- inserts general/scenario/troubleshooting/behavioral rows only into general_questions;
+- uploads in safe batches;
+- skips duplicates when selected;
+- reports the real database error and affected row instead of a generic failure.
+
+Also fixed:
+- students do not see Admin Panel in the sidebar;
+- the sign-out popup has a red Close button;
+- Close returns the user to the home page.

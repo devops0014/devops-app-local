@@ -1,0 +1,5 @@
+category,question_type,question_text,answer_text,difficulty,company_asked,explanation,tags
+Docker,general,What is a Docker image?,An immutable package containing an application and its dependencies.,Easy,TCS|Wipro,Images are built in reusable layers.,docker|images
+Kubernetes,scenario,Pods restart after deployment. How do you investigate?,Inspect events logs probes resource limits and recent changes.,Hard,Infosys|Cognizant,Use evidence to isolate application probe or resource failures.,kubernetes|troubleshooting
+Linux,troubleshooting,A server has high CPU. What do you check?,Inspect load processes logs and recent changes then isolate the cause.,Medium,Accenture|Cognizant,Use evidence before remediation.,linux|cpu|incident
+Git,behavioral,Tell me about a production change you safely rolled back.,Explain the context decision rollback controls communication and learning.,Medium,Deloitte|Capgemini,Use the STAR structure.,behavioral|rollback

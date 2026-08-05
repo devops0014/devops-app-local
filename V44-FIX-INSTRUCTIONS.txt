@@ -1,0 +1,52 @@
+DevOpsCrack v44 - Quiz capacity, Admin filters and module progression
+=====================================================================
+
+Keep your existing .env.local file.
+
+Database step
+-------------
+Run this migration once in Supabase Dashboard -> SQL Editor:
+
+  supabase/migrations/2026073105_quiz_admin_categories.sql
+
+This adds the GitHub category. It is safe to run more than once.
+
+Add any new category from Admin
+-------------------------------
+1. Sign in with the Admin account.
+2. Open Admin Panel.
+3. Select the Categories tab.
+4. Click New category.
+5. Example values:
+   Name: GitHub
+   Slug: github
+   Colour: #a1a1aa
+   Icon: Github
+   Sort order: 3
+6. Save the category.
+7. In CSV files, use either GitHub or github in the category column.
+
+Important: create a category before importing its questions. Unknown category
+names are rejected intentionally so spelling mistakes do not create unwanted
+categories.
+
+Quiz changes
+------------
+- Choose 5, 10, 20, 50 or 100 questions.
+- The default is 10 questions.
+- With several categories selected, questions are distributed round-robin
+  across those categories instead of being taken from only the first category.
+- If fewer published matching questions exist, the session uses all available
+  matching questions.
+
+Admin changes
+-------------
+- Questions has All questions, MCQs and General questions filters with counts.
+- Every row shows an MCQ or General bank badge.
+- Manage questions switches to Questions and scrolls directly to the manager.
+
+Dashboard changes
+-----------------
+- Continue Learning skips a category after every question in it is Mastered.
+- Example: after Azure reaches 100%, the card automatically shows the next
+  category that still contains an unmastered question.

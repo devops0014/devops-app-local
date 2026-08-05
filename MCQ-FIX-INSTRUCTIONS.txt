@@ -1,0 +1,44 @@
+DevOpsCrack MCQ visibility fix
+================================
+
+This package fixes published Supabase MCQs showing as 0 questions on /quiz.
+
+What was corrected
+------------------
+1. Supabase JSON options are normalised into a string array.
+2. correct_option values are safely converted to numbers.
+3. correct_option = 0 is accepted as a valid first answer.
+4. Invalid or out-of-range correct answers are excluded safely.
+5. The duplicate client-side review_status filter was removed. Supabase RLS
+   remains responsible for showing only approved questions to students.
+
+Full-project replacement
+------------------------
+1. Back up your existing project.
+2. Keep a copy of your current .env.local file.
+3. Extract the full-source ZIP.
+4. Copy your .env.local into the extracted project.
+5. Run:
+
+   npm install
+   rm -rf .next dist
+   npm run dev
+
+6. Log in as a subscribed student.
+7. Open /quiz and select Docker -> MCQ -> Mixed -> Any company.
+
+Small-fix replacement
+---------------------
+If you do not want to replace the full project, the small patch contains these
+two ready-made files:
+
+lib/repositories/content-repository.ts
+app/(platform)/quiz/page.tsx
+
+Copy them to the same paths in your local project and replace the existing
+files. Then restart using the commands above.
+
+Important
+---------
+Do not copy or share SUPABASE_SERVICE_ROLE_KEY, Razorpay secrets, OpenAI keys,
+or passwords. The ZIP intentionally excludes .env and .env.local.
