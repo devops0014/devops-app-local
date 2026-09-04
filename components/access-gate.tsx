@@ -23,9 +23,17 @@ export function SubscriptionGate({ children }: { children: React.ReactNode }) {
 
       const { data: profile } = await supabase
         .from("profiles")
-        .select("subscription_status, subscription_expires_at")
+        .select("role, subscription_status, subscription_expires_at")
         .eq("id", sessionData.session.user.id)
         .single();
+
+      // Administrators manage the platform and must not be blocked by the
+      // student subscription gate. AdminGate still performs the dedicated
+      // authorization check on /admin.
+      if (profile?.role === "admin") {
+        if (mounted) setReady(true);
+        return;
+      }
 
       const expiresAt = profile?.subscription_expires_at
         ? new Date(profile.subscription_expires_at).getTime()
@@ -95,3 +103,4 @@ export function AdminGate({ children }: { children: React.ReactNode }) {
 
   return ready ? <>{children}</> : null;
 }
+
