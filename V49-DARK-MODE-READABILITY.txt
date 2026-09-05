@@ -1,0 +1,26 @@
+DevOpsCrack v49 - Application-wide Dark Mode Readability
+
+Changes
+- Increased dark-mode contrast for text-zinc-500, text-zinc-600 and text-zinc-700 content.
+- Raised 8px and 9px platform labels to a readable 11px minimum.
+- Raised 10px platform labels to 12px.
+- Improved input and textarea placeholder contrast.
+- Preserved disabled-state distinction.
+- Applied throughout the authenticated Student and Admin application.
+- Includes the v48 question-bank pagination and large-import fixes.
+
+Example fixed
+- Quiz category cards such as Ansible now show "24 questions" with brighter text at a readable size.
+
+Deployment
+1. Preserve your production environment variables; never commit .env files.
+2. Replace the repository source with this package.
+3. Commit and push to the main branch.
+4. Wait for Cloudflare to deploy the new commit.
+5. Hard-refresh the browser (Cmd+Shift+R on Mac) to replace cached CSS/service-worker assets.
+
+No Supabase migration is required.
+
+Validation
+- 21 unit tests passed.
+- Cloudflare/Vinext production build passed.

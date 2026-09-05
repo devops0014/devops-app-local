@@ -1,0 +1,2 @@
+category,question_text,answer_text,difficulty,company_asked,option_1,option_2,option_3,option_4,correct_option,explanation,tags
+Docker,Which command lists running containers?,docker ps,Easy,Accenture|TCS,docker ps,docker ls,docker run,docker show,1,docker ps lists running containers.,docker|commands

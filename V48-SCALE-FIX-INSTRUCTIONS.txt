@@ -1,0 +1,26 @@
+DevOpsCrack v48 - Question Bank Scale Fix
+
+What changed
+- Admin Questions retrieves every MCQ and General question in safe database pages.
+- Admin table displays 100 questions per UI page with Previous/Next controls.
+- Quiz, Practice, Flashcards and Mock Interview retrieve every published question.
+- Category totals include the full question bank.
+- Large import duplicate checks run in batches to avoid oversized database requests.
+
+Deployment
+1. Replace the repository source with this v48 source while preserving production secrets.
+2. Do not commit .env or .env.local.
+3. Commit and push the changes to the main branch.
+4. In Cloudflare, wait for the new deployment to complete successfully.
+5. No Supabase migration or Max Rows setting change is required.
+
+Verification
+1. Open Admin -> Questions.
+2. Confirm the filter shows 1,359 MCQs (or your latest database count).
+3. Use Previous and Next to browse all records.
+4. Select a quiz category and confirm all eligible published MCQs are included.
+5. Import the remaining question CSV with Skip duplicates enabled.
+
+Validated before packaging
+- 20 unit tests passed.
+- Vinext/Cloudflare production build passed.

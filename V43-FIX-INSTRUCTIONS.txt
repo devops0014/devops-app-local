@@ -1,0 +1,27 @@
+DevOpsCrack v43 - Draft, Quiz and Categories fix
+================================================
+
+1. Keep your existing .env.local file. Do not copy it into public folders.
+2. In Supabase Dashboard -> SQL Editor, open and run:
+   supabase/migrations/2026073104_publish_imported_questions.sql
+3. In Terminal, from this project folder, run:
+   npm install
+   npm run dev
+4. Sign in as Admin and open Admin -> Questions.
+5. Existing valid drafts should now show Published. If any invalid draft remains,
+   edit it and supply the required answer/options/correct option, then publish it.
+6. New bulk imports have "Publish valid questions immediately" enabled by default.
+   This does not require OpenAI.
+7. Open Quiz. MCQ, Rapid Fire and Adaptive use published MCQs. Interview,
+   Scenario and Hands-on use published General questions by their question type.
+
+What changed
+------------
+- Imported valid questions publish immediately by default.
+- Existing valid drafts are safely published by the migration.
+- Admin has a "Publish all drafts" action for future draft batches.
+- AI Engine now reads mcq_questions and general_questions instead of the removed
+  legacy questions workflow.
+- Approval actions include the correct question bank.
+- Category totals, published counts and draft counts are calculated live from
+  both question tables.
