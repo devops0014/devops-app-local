@@ -140,6 +140,28 @@
 .light textarea,
 .light select { color: #18181b !important; }
 
+/*
+ * Platform-wide dark-mode readability.
+ * Muted zinc utilities were originally designed as decorative labels, but are
+ * also used for important counts, instructions and metadata throughout the
+ * student and admin experience. Keep the hierarchy while meeting a readable
+ * contrast floor on the near-black application background.
+ */
+html:not(.light) .app-shell [class*="text-zinc-700"] { color: #a1a1aa !important; }
+html:not(.light) .app-shell [class*="text-zinc-600"] { color: #b4b4bc !important; }
+html:not(.light) .app-shell [class*="text-zinc-500"] { color: #c4c4cc !important; }
+
+/* Critical secondary information must not render below a practical UI size. */
+html:not(.light) .app-shell [class*="text-[7px]"] { font-size: 0.625rem !important; }
+html:not(.light) .app-shell [class*="text-[8px]"],
+html:not(.light) .app-shell [class*="text-[9px]"] { font-size: 0.6875rem !important; }
+html:not(.light) .app-shell [class*="text-[10px]"] { font-size: 0.75rem !important; }
+
+html:not(.light) .app-shell input::placeholder,
+html:not(.light) .app-shell textarea::placeholder { color: #a1a1aa !important; }
+
+html:not(.light) .app-shell :disabled { opacity: 0.62; }
+
 * {
   box-sizing: border-box;
   border-color: var(--border);

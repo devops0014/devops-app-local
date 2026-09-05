@@ -82,16 +82,23 @@ function parseOptions(value: unknown) {
 
 async function listBank(bank: Bank): Promise<Question[]> {
   if (!supabase) return [];
-  const { data, error } = await supabase
-    .from(bank)
-    .select(bank === "mcq_questions"
-      ? "id,source_key,question_text,answer_text,difficulty,tags,company_asked,options,correct_option,explanation,is_published,categories(name,slug)"
-      : "id,source_key,question_text,answer_text,difficulty,tags,company_asked,question_type,hints,expected_keywords,is_published,categories(name,slug)")
-    .eq("is_published", true)
-    .order("created_at", { ascending: false })
-    .limit(2000);
-  if (error) throw error;
-  return ((data ?? []) as unknown as BankRow[]).map((row) => {
+  const rows: BankRow[] = [];
+  const pageSize = 500;
+  for (let offset = 0; ; offset += pageSize) {
+    const { data, error } = await supabase
+      .from(bank)
+      .select(bank === "mcq_questions"
+        ? "id,source_key,question_text,answer_text,difficulty,tags,company_asked,options,correct_option,explanation,is_published,categories(name,slug)"
+        : "id,source_key,question_text,answer_text,difficulty,tags,company_asked,question_type,hints,expected_keywords,is_published,categories(name,slug)")
+      .eq("is_published", true)
+      .order("created_at", { ascending: false })
+      .range(offset, offset + pageSize - 1);
+    if (error) throw error;
+    const page = (data ?? []) as unknown as BankRow[];
+    rows.push(...page);
+    if (page.length < pageSize) break;
+  }
+  return rows.map((row) => {
     const category = Array.isArray(row.categories) ? row.categories[0] : row.categories;
     const options = parseOptions("options" in row ? row.options : null);
     const correctOption = row.correct_option == null ? undefined : Number(row.correct_option);

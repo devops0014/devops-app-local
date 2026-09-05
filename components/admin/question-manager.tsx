@@ -33,6 +33,7 @@ export function QuestionManager() {
   const [categories, setCategories] = useState<AdminCategory[]>([]);
   const [query, setQuery] = useState("");
   const [bankFilter, setBankFilter] = useState<"all" | "mcq" | "general">("all");
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
@@ -83,6 +84,12 @@ export function QuestionManager() {
         item.tags.some((tag) => tag.toLowerCase().includes(term))),
     );
   }, [bankFilter, questions, query]);
+  const pageSize = 100;
+  const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const visibleQuestions = filtered.slice((page - 1) * pageSize, page * pageSize);
+
+  useEffect(() => { setPage(1); }, [bankFilter, query]);
+  useEffect(() => { if (page > pageCount) setPage(pageCount); }, [page, pageCount]);
 
   const remove = async (question: AdminQuestion) => {
     if (!window.confirm("Delete this question permanently?")) return;
@@ -226,7 +233,7 @@ export function QuestionManager() {
           <div className="overflow-x-auto">
             <table className="w-full min-w-[850px] text-left">
               <thead><tr className="border-b border-white/[.06] text-[9px] uppercase tracking-wider text-zinc-600"><th className="px-5 py-3">Question</th><th className="px-3 py-3">Category</th><th className="px-3 py-3">Difficulty</th><th className="px-3 py-3">Companies</th><th className="px-5 py-3 text-right">Actions</th></tr></thead>
-              <tbody>{filtered.map((question) => (
+              <tbody>{visibleQuestions.map((question) => (
                 <tr key={question.id} className="border-b border-white/[.05] last:border-0 hover:bg-white/[.02]">
                   <td className="max-w-xl px-5 py-4"><div className="flex items-center gap-2"><Badge tone={question.bank === "mcq" ? "violet" : "cyan"}>{question.bank === "mcq" ? "MCQ" : "General"}</Badge><p className="line-clamp-2 text-xs">{question.question_text}</p></div><p className="mt-1 text-[9px] text-zinc-600">{question.tags.join(", ") || "No tags"} · {question.is_published ? "Published" : "Draft"}</p></td>
                   <td className="px-3 py-4"><Badge>{question.categories?.name ?? "Unknown"}</Badge></td>
@@ -241,6 +248,14 @@ export function QuestionManager() {
           <div className="grid min-h-60 place-items-center p-6 text-center"><div><FileSpreadsheet size={30} className="mx-auto text-violet-400" /><p className="mt-3 text-sm font-medium">No questions found</p><p className="mt-1 text-xs text-zinc-500">Add one manually or import your question bank.</p></div></div>
         )}
       </Card>
+      {!loading && filtered.length > 0 && <div className="mt-4 flex flex-col gap-3 text-[10px] text-zinc-500 sm:flex-row sm:items-center sm:justify-between">
+        <span>Showing {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, filtered.length)} of {filtered.length.toLocaleString()} questions</span>
+        <div className="flex items-center gap-2">
+          <Button variant="secondary" onClick={() => setPage((current) => Math.max(1, current - 1))} disabled={page === 1}>Previous</Button>
+          <span>Page {page} of {pageCount}</span>
+          <Button variant="secondary" onClick={() => setPage((current) => Math.min(pageCount, current + 1))} disabled={page === pageCount}>Next</Button>
+        </div>
+      </div>}
 
       <QuestionEditor
         state={editor}

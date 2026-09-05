@@ -25,11 +25,15 @@ export async function POST(request: Request) {
     const validation = validateRows(body.rows, categoryMap, body.bank);
     const targetTable = body.bank === "mcq" ? "mcq_questions" : "general_questions";
     const hashes = validation.valid.map((row) => row.source_hash);
-    const { data: existing, error: duplicateError } = hashes.length
-      ? await supabaseAdmin!.from(targetTable).select("source_hash,question_text").in("source_hash", hashes)
-      : { data: [], error: null };
-    if (duplicateError) throw duplicateError;
-    const existingHashes = new Set((existing ?? []).map((row) => row.source_hash));
+    const existingHashes = new Set<string>();
+    for (let offset = 0; offset < hashes.length; offset += 200) {
+      const { data: existing, error: duplicateError } = await supabaseAdmin!
+        .from(targetTable)
+        .select("source_hash")
+        .in("source_hash", hashes.slice(offset, offset + 200));
+      if (duplicateError) throw duplicateError;
+      for (const row of existing ?? []) existingHashes.add(row.source_hash);
+    }
     const duplicatesInDatabase = validation.valid
       .filter((row) => existingHashes.has(row.source_hash))
       .map((row) => ({ rowNumber: row.rowNumber, question: row.question_text }));

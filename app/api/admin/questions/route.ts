@@ -24,15 +24,24 @@ function validateOptions(body: Record<string, unknown>, bank: "mcq" | "general")
 export async function GET(request: Request) {
   try {
     await requireAdmin(request);
+    const fetchAll = async (table: "mcq_questions" | "general_questions", select: string) => {
+      const rows: Record<string, unknown>[] = [];
+      const pageSize = 500;
+      for (let offset = 0; ; offset += pageSize) {
+        const page = await supabaseAdmin!.from(table).select(select).order("created_at", { ascending: false }).range(offset, offset + pageSize - 1);
+        if (page.error) throw page.error;
+        rows.push(...((page.data ?? []) as Record<string, unknown>[]));
+        if ((page.data?.length ?? 0) < pageSize) break;
+      }
+      return rows;
+    };
     const [mcq, general] = await Promise.all([
-      supabaseAdmin!.from("mcq_questions").select(`${COMMON},options,correct_option,explanation`).order("created_at", { ascending: false }).limit(1000),
-      supabaseAdmin!.from("general_questions").select(`${COMMON},question_type,explanation,expected_keywords,hints`).order("created_at", { ascending: false }).limit(1000),
+      fetchAll("mcq_questions", `${COMMON},options,correct_option,explanation`),
+      fetchAll("general_questions", `${COMMON},question_type,explanation,expected_keywords,hints`),
     ]);
-    if (mcq.error) throw mcq.error;
-    if (general.error) throw general.error;
     const questions = [
-      ...(mcq.data ?? []).map((row) => ({ ...row, bank: "mcq", question_type: "mcq" })),
-      ...(general.data ?? []).map((row) => ({ ...row, bank: "general", options: null, correct_option: null })),
+      ...mcq.map((row) => ({ ...row, bank: "mcq", question_type: "mcq" })),
+      ...general.map((row) => ({ ...row, bank: "general", options: null, correct_option: null })),
     ].sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)));
     return Response.json({ questions });
   } catch (cause) { return apiError(cause); }
