@@ -132,10 +132,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="app-shell min-h-screen bg-[var(--background)] text-[var(--foreground)]">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-[244px] border-r border-white/[.07] bg-[#0c0c0e] lg:flex lg:flex-col">
         <div className="flex h-[72px] items-center px-5">
-          <Brand />
+          <Brand href="/dashboard" />
         </div>
 
         <div className="px-3">
@@ -218,7 +218,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <Menu size={20} />
           </button>
           <div className="lg:hidden">
-            <Brand compact />
+            <Brand compact href="/dashboard" />
           </div>
           <button
             onClick={() => setCommandOpen(true)}

@@ -20,22 +20,16 @@ const DEFAULT_CATEGORIES = [
 ];
 
 async function categories() {
-  const categoryResult = await supabaseAdmin!.from("categories").select("id,name,slug,color,icon,sort_order").order("sort_order");
+  const [categoryResult, mcqResult, generalResult] = await Promise.all([
+    supabaseAdmin!.from("categories").select("id,name,slug,color,icon,sort_order").order("sort_order"),
+    supabaseAdmin!.from("mcq_questions").select("category_id,is_published"),
+    supabaseAdmin!.from("general_questions").select("category_id,is_published"),
+  ]);
   if (categoryResult.error) throw categoryResult.error;
-  const fetchCountRows = async (table: "mcq_questions" | "general_questions") => {
-    const rows: Array<{ category_id: string; is_published: boolean }> = [];
-    const pageSize = 500;
-    for (let offset = 0; ; offset += pageSize) {
-      const page = await supabaseAdmin!.from(table).select("category_id,is_published").range(offset, offset + pageSize - 1);
-      if (page.error) throw page.error;
-      rows.push(...(page.data ?? []));
-      if ((page.data?.length ?? 0) < pageSize) break;
-    }
-    return rows;
-  };
-  const [mcqRows, generalRows] = await Promise.all([fetchCountRows("mcq_questions"), fetchCountRows("general_questions")]);
+  if (mcqResult.error) throw mcqResult.error;
+  if (generalResult.error) throw generalResult.error;
   const counts = new Map<string, { total: number; published: number; draft: number }>();
-  for (const row of [...mcqRows, ...generalRows]) {
+  for (const row of [...(mcqResult.data ?? []), ...(generalResult.data ?? [])]) {
     const current = counts.get(row.category_id) ?? { total: 0, published: 0, draft: 0 };
     current.total++;
     if (row.is_published) current.published++; else current.draft++;

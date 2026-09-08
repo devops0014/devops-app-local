@@ -1,0 +1,16 @@
+DEVOPSCRACK V47 - ADMIN ACCESS FIX
+
+Cause:
+The shared platform SubscriptionGate checked subscription status before the
+dedicated AdminGate could validate the administrator role. An administrator
+without a paid student subscription was therefore redirected to /pricing.
+
+Fix:
+SubscriptionGate now reads profiles.role and immediately allows role=admin.
+AdminGate continues to enforce administrator authorization on /admin.
+
+Deploy:
+1. Replace components/access-gate.tsx in the Git repository with this version.
+2. Commit and push to main.
+3. Wait for the Cloudflare Workers build to complete.
+4. Sign out and sign back in using the administrator account.

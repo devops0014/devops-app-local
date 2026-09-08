@@ -474,16 +474,16 @@ export default function QuizPage() {
       <div className="mt-8 grid gap-5 lg:grid-cols-[1fr_340px]">
         <Card className="p-5 sm:p-7">
           <h2 className="text-sm font-semibold">1. Choose focus areas</h2>
-          <p className="mt-1 text-[10px] text-zinc-600">Leave empty for all categories</p>
+          <p className="mt-1 text-xs text-zinc-400">Leave empty for all categories. Select one or more technologies.</p>
           <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3">
-            {categories.slice(0, 12).map((category) => {
+            {categories.map((category) => {
               const selected = selectedCategories.includes(category.slug);
               return (
                 <button key={category.slug} onClick={() => toggleCategory(category.slug)} className={`flex items-center gap-3 rounded-xl border p-3 text-left transition ${selected ? "border-violet-400/25 bg-violet-400/[.08] text-violet-200" : "border-white/[.065] bg-white/[.022] text-zinc-500 hover:bg-white/[.04]"}`}>
                   <span className="grid size-8 place-items-center rounded-lg bg-white/[.045] text-[10px] font-semibold">{category.name.slice(0, 2).toUpperCase()}</span>
                   <span className="min-w-0 text-[11px] font-medium">
                     <span className="block truncate">{category.name}</span>
-                    <span className={`mt-0.5 block text-[8px] font-normal ${selected ? "text-violet-300/65" : "text-zinc-700"}`}>
+                    <span className={`mt-0.5 block text-[10px] font-normal ${selected ? "text-violet-200" : "text-zinc-400"}`}>
                       {categoryQuestionCounts[category.slug] ?? 0} questions
                     </span>
                   </span>

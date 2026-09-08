@@ -1,0 +1,28 @@
+DevOpsCrack v50 — Consolidated UI, authentication and quiz-category release
+
+Included changes
+1. Removed the 12-category display limit from Quiz.
+2. Practice and Quiz render every category returned by Supabase.
+3. Added the slowly scrolling technology-logo rail.
+4. Selected technologies remain visible, glow and increase in size.
+5. Added the category selector to both Practice and Quiz.
+6. Restored the improved homepage typography and readability rules.
+7. The authenticated DevOpsCrack logo opens /dashboard.
+8. Logo navigation preserves the active authenticated session.
+9. Added a clear email-confirmation modal after registration.
+10. The modal displays the entered email plus Spam/Promotions guidance.
+11. No database migration is required.
+
+Validation
+- Production build passed.
+- 23 automated tests passed.
+- Clean source package includes build/sites-vite-plugin.ts.
+
+Update procedure
+1. Keep a safe copy of the current .env.local file.
+2. Extract this ZIP into a new folder.
+3. Copy the existing .env.local into the new folder.
+4. Run: npm install
+5. Run: npm run dev
+6. Verify homepage, signup, authenticated logo navigation, Practice and Quiz.
+7. Deploy only after the local verification succeeds.

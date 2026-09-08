@@ -1,0 +1,9 @@
+DevOpsCrack v51 — Classic Quiz category layout
+
+- Removed the scrolling technology-logo rail from Quiz only.
+- Restored the classic category-card grid in Quiz.
+- Quiz still renders every category returned by Supabase.
+- No 12-category cap and no internal category scroller.
+- Practice/Question Bank keeps its technology-logo rail.
+- All v50 typography, authentication and signup-confirmation fixes remain included.
+- No database migration is required.

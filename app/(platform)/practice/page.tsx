@@ -32,7 +32,7 @@ import { useContentCatalog } from "@/lib/hooks/use-content-catalog";
 import { difficultyTone } from "@/lib/utils";
 import { questionState, statusOptions, useAppStore } from "@/lib/store";
 import type { Difficulty, ProgressStatus, Question } from "@/lib/types";
-import { CategoryUniverse } from "@/components/three/category-universe";
+import { CategoryLogoRail } from "@/components/category-logo-rail";
 
 function MarkdownAnswer({ answer }: { answer: string }) {
   return (
@@ -425,19 +425,21 @@ function PracticeContent() {
 
         <section className="relative mt-6 overflow-hidden rounded-[28px] border border-white/[.08] bg-[#08080b] shadow-[0_30px_100px_rgba(0,0,0,.35)]">
           <div className="cinematic-grid absolute inset-0 opacity-35" />
-          <div className="relative h-[460px] sm:h-[390px]">
-            <CategoryUniverse activeSlug={category} onSelect={(slug) => setCategory(category === slug ? null : slug)} />
-            <div className="pointer-events-none absolute left-5 top-5 z-10 max-w-xs sm:left-7 sm:top-7">
+          <div className="relative px-4 pb-5 pt-5 sm:px-6 sm:pb-6 sm:pt-6">
+            <div className="relative z-10 max-w-xl">
               <Badge tone="violet">Spatial knowledge map</Badge>
               <h2 className="mt-3 text-xl font-semibold tracking-[-.035em] sm:text-2xl">Choose a system to enter.</h2>
-              <p className="mt-2 text-[10px] leading-5 text-zinc-500">Select an infrastructure object to focus the question library.</p>
+              <p className="mt-2 text-xs leading-5 text-zinc-400">Select a technology to focus the question library. Every category from Supabase remains available.</p>
             </div>
-            <div className="absolute inset-x-4 bottom-4 z-10 flex gap-2 overflow-x-auto pb-1 sm:inset-x-6 sm:grid sm:grid-cols-10 sm:overflow-visible">
+            <div className="relative z-10 mt-5">
+              <CategoryLogoRail categories={categories} activeSlugs={category ? [category] : []} onSelect={(slug) => setCategory(category === slug ? null : slug)} />
+            </div>
+            <div className="relative z-10 mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
               {categories.map((item) => (
                 <button
                   key={item.slug}
                   onClick={() => setCategory(category === item.slug ? null : item.slug)}
-                  className={`min-w-[92px] shrink-0 rounded-lg border px-2 py-2.5 text-[8px] uppercase tracking-[.08em] backdrop-blur-md transition sm:min-w-0 sm:text-[9px] ${
+                  className={`rounded-xl border px-3 py-3 text-[10px] font-medium uppercase tracking-[.08em] backdrop-blur-md transition ${
                     category === item.slug
                       ? "border-violet-400/35 bg-violet-400/15 text-white shadow-[0_0_24px_rgba(139,92,246,.18)]"
                       : "border-white/[.07] bg-black/40 text-zinc-600 hover:text-zinc-300"

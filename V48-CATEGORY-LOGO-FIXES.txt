@@ -1,0 +1,14 @@
+DevOpsCrack v48 category logo update
+
+- Replaced text initials with official colored technology marks where available.
+- Added relevant visual icons for conceptual categories such as security, networking,
+  monitoring, behavioral, databases, SRE, AWS, Azure, EKS and DevSecOps.
+- Replaced unreliable optimized PNG rendering for Jenkins, Kubernetes and GitHub
+  Actions with locally bundled SVG assets.
+- Added a fixed selected-category spotlight. Clicking a category now immediately
+  brings its logo into the highlighted area even if its marquee card is off-screen.
+- Improved logo surfaces and contrast in both dark and light themes.
+
+Brand marks are used only to identify their respective technologies. Jenkins is a
+trademark of LF Charities Inc. The Jenkins mark is sourced through the Simple Icons
+project; official Jenkins artwork and usage information: https://www.jenkins.io/artwork/

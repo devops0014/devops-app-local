@@ -1,0 +1,26 @@
+DevOpsCrack v47.1 — Category, typography and authentication UX fixes
+
+Included changes
+1. Practice and Quiz display every category returned by the live Supabase content catalog.
+2. The old 12-category Quiz display cap has been removed.
+3. A continuously scrolling technology-logo rail appears above category cards.
+4. Selected categories glow, enlarge and remain synchronized with the filters.
+5. The homepage uses the updated, more readable typography scale.
+6. The authenticated DevOpsCrack logo opens /dashboard and never initiates logout.
+7. New accounts receive a clear email-confirmation modal with the destination email and next steps.
+
+Update procedure
+1. Keep a safe copy of your current .env.local file.
+2. Extract this ZIP into a new folder.
+3. Copy your existing .env.local into the new folder.
+4. Run: npm install
+5. Run: npm run dev
+6. Test Practice, Quiz, logo navigation and new-account signup.
+7. Commit and push the verified source to GitHub for Cloudflare deployment.
+
+No database migration is required for this update.
+
+Validation
+- Production build passed.
+- 23 unit tests passed.
+- Clean-package verification confirms build/sites-vite-plugin.ts is included.

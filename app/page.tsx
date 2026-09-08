@@ -46,7 +46,7 @@ const plans = [
 export default function LandingPage() {
   const reducedMotion = useReducedMotion();
   return (
-    <main id="main-content" tabIndex={-1} className="min-h-screen overflow-hidden bg-[#07070a] text-white">
+    <main id="main-content" tabIndex={-1} className="landing-page min-h-screen overflow-hidden bg-[#07070a] text-white">
       <Header />
       <section id="pipeline" className="living-background relative min-h-screen border-b border-white/[.055] pt-[72px]">
         <div className="cinematic-grid absolute inset-0 opacity-55" />

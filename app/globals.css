@@ -140,28 +140,6 @@
 .light textarea,
 .light select { color: #18181b !important; }
 
-/*
- * Platform-wide dark-mode readability.
- * Muted zinc utilities were originally designed as decorative labels, but are
- * also used for important counts, instructions and metadata throughout the
- * student and admin experience. Keep the hierarchy while meeting a readable
- * contrast floor on the near-black application background.
- */
-html:not(.light) .app-shell [class*="text-zinc-700"] { color: #a1a1aa !important; }
-html:not(.light) .app-shell [class*="text-zinc-600"] { color: #b4b4bc !important; }
-html:not(.light) .app-shell [class*="text-zinc-500"] { color: #c4c4cc !important; }
-
-/* Critical secondary information must not render below a practical UI size. */
-html:not(.light) .app-shell [class*="text-[7px]"] { font-size: 0.625rem !important; }
-html:not(.light) .app-shell [class*="text-[8px]"],
-html:not(.light) .app-shell [class*="text-[9px]"] { font-size: 0.6875rem !important; }
-html:not(.light) .app-shell [class*="text-[10px]"] { font-size: 0.75rem !important; }
-
-html:not(.light) .app-shell input::placeholder,
-html:not(.light) .app-shell textarea::placeholder { color: #a1a1aa !important; }
-
-html:not(.light) .app-shell :disabled { opacity: 0.62; }
-
 * {
   box-sizing: border-box;
   border-color: var(--border);
@@ -177,6 +155,125 @@ body {
   font-family: "Inter", "SF Pro Display", ui-sans-serif, system-ui, sans-serif;
   min-height: 100vh;
   overflow-x: hidden;
+}
+
+.landing-page {
+  font-family: "Inter", "SF Pro Display", ui-sans-serif, system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 450;
+  letter-spacing: -0.012em;
+}
+
+.landing-page :is(.text-\[7px\], .text-\[8px\]) { font-size: 0.625rem; line-height: 1rem; }
+.landing-page .text-\[9px\] { font-size: 0.6875rem; line-height: 1.05rem; }
+.landing-page .text-\[10px\] { font-size: 0.75rem; line-height: 1.15rem; }
+.landing-page .text-\[11px\] { font-size: 0.8125rem; line-height: 1.2rem; }
+
+.category-logo-experience { position: relative; }
+
+.category-logo-spotlight {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 8.5rem;
+  margin: .4rem 0 .8rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid color-mix(in srgb, var(--category-color, #8b5cf6) 25%, rgba(255,255,255,.08));
+  border-radius: 1.25rem;
+  background: radial-gradient(circle at 82% 50%, color-mix(in srgb, var(--category-color, #8b5cf6) 13%, transparent), transparent 38%), rgba(255,255,255,.02);
+}
+.category-logo-spotlight-copy { display: grid; gap: .2rem; color: #a1a1aa; font-size: .72rem; }
+.category-logo-spotlight-copy strong { color: #f4f4f5; font-size: 1rem; }
+.category-logo-spotlight .category-logo-item { flex: 0 0 124px; width: 124px; }
+.category-logo-selected-label {
+  position: absolute; top: -.55rem; padding: .18rem .5rem; border-radius: 999px;
+  background: var(--category-color); color: white; font-size: .52rem; font-weight: 800;
+  letter-spacing: .08em; text-transform: uppercase;
+}
+
+.category-logo-rail {
+  position: relative;
+  overflow: hidden;
+  padding: .75rem 0 1rem;
+  mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+}
+
+.category-logo-track {
+  display: flex;
+  width: max-content;
+  gap: 1rem;
+  animation: category-logo-marquee 58s linear infinite;
+}
+
+.category-logo-rail:hover .category-logo-track,
+.category-logo-rail:focus-within .category-logo-track { animation-play-state: paused; }
+
+.category-logo-item {
+  --category-color: #8b5cf6;
+  display: grid;
+  width: 112px;
+  flex: 0 0 112px;
+  place-items: center;
+  border: 1px solid rgba(255,255,255,.075);
+  border-radius: 1rem;
+  background: rgba(255,255,255,.028);
+  padding: .8rem .55rem .7rem;
+  color: #a1a1aa;
+  transition: transform .28s ease, border-color .28s ease, background .28s ease, color .28s ease, box-shadow .28s ease;
+  position: relative;
+}
+
+.category-logo-item:hover { transform: translateY(-3px); color: #fff; }
+.category-logo-item.is-active {
+  z-index: 2;
+  border-color: color-mix(in srgb, var(--category-color) 70%, white 8%);
+  background: color-mix(in srgb, var(--category-color) 14%, rgba(255,255,255,.025));
+  color: #fff;
+  transform: scale(1.1);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--category-color) 42%, transparent), 0 16px 38px rgba(0,0,0,.35);
+}
+
+.category-logo-visual {
+  display: grid;
+  width: 3.25rem;
+  height: 3.25rem;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--category-color) 25%, rgba(255,255,255,.08));
+  border-radius: .9rem;
+  background: rgba(255,255,255,.94);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.25), 0 8px 20px rgba(0,0,0,.16);
+  filter: saturate(1.08);
+  transition: filter .28s ease, transform .28s ease;
+}
+.category-logo-visual img { display: block; width: 2.55rem; height: 2.55rem; object-fit: contain; }
+.category-logo-concept { width: 2.45rem; height: 2.45rem; color: var(--category-color); stroke-width: 1.8; }
+.category-logo-item.is-active .category-logo-visual { filter: saturate(1.35); transform: scale(1.08); }
+.category-logo-item.is-spotlight { transform: scale(1.04); animation: category-selected-arrive .42s ease-out; }
+.category-logo-name { margin-top:.45rem; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:.7rem; font-weight:700; }
+.category-logo-count { margin-top:.12rem; font-size:.58rem; color:#71717a; }
+.category-logo-item.is-active .category-logo-count { color:#d4d4d8; }
+
+@keyframes category-logo-marquee { to { transform: translateX(calc(-50% - .5rem)); } }
+@keyframes category-selected-arrive { from { opacity: .25; transform: translateX(22px) scale(.88); } }
+
+.light .category-logo-item { border-color: rgba(15,23,42,.11); background: rgba(255,255,255,.68); color: #475569; }
+.light .category-logo-item:hover,
+.light .category-logo-item.is-active { color: #0f172a; }
+.light .category-logo-count { color: #64748b; }
+.light .category-logo-item.is-active .category-logo-count { color: #334155; }
+.light .category-logo-spotlight { border-color: rgba(15,23,42,.1); background-color: rgba(255,255,255,.55); }
+.light .category-logo-spotlight-copy { color: #64748b; }
+.light .category-logo-spotlight-copy strong { color: #0f172a; }
+
+@media (prefers-reduced-motion: reduce) {
+  .category-logo-track { animation: none; }
+  .category-logo-item.is-spotlight { animation: none; }
+}
+
+@media (max-width: 640px) {
+  .category-logo-spotlight { min-height: 7.5rem; padding: .75rem; }
+  .category-logo-spotlight-copy strong { font-size: .9rem; }
 }
 
 .company-marquee-section {

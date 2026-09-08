@@ -15,6 +15,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [confirmationEmail, setConfirmationEmail] = useState("");
 
   const submitAuth = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -43,7 +44,8 @@ export default function LoginPage() {
           return;
         }
         if (!data.session) {
-          setNotice("Check your inbox to verify your email, then sign in.");
+          setConfirmationEmail(email);
+          setNotice("We sent an account confirmation link to your email address. Open that email and confirm your account before signing in.");
           setMode("login");
           setLoading(false);
           return;
@@ -187,6 +189,8 @@ export default function LoginPage() {
             <span className="mx-auto grid size-16 place-items-center rounded-[22px] border border-emerald-400/20 bg-emerald-400/[.08] text-emerald-300 shadow-[0_0_50px_rgba(52,211,153,.12)]"><CheckCircle2 size={30} /></span>
             <h2 id="verification-title" className="mt-6 text-2xl font-semibold tracking-[-.04em] sm:text-3xl">Verify your email</h2>
             <p className="mx-auto mt-3 max-w-sm text-sm leading-7 text-zinc-400">{notice}</p>
+            {confirmationEmail && <p className="mx-auto mt-4 max-w-sm rounded-xl border border-white/[.08] bg-black/25 px-4 py-3 text-sm font-semibold text-white">{confirmationEmail}</p>}
+            <p className="mt-4 text-xs leading-6 text-zinc-500">If it is not visible, check your Spam or Promotions folder. The link may take a minute to arrive.</p>
             <button onClick={() => setNotice("")} className="mt-7 h-12 w-full rounded-xl bg-gradient-to-r from-violet-500 to-cyan-500 text-sm font-semibold text-white">Return to sign in</button>
           </div>
         </div>
