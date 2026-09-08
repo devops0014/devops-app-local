@@ -32,3 +32,15 @@ test("mutating high-value endpoints have abuse and payload controls", async () =
     assert.match(source, /rejectOversizedJson/);
   }
 });
+
+test("dark platform UI raises muted-text contrast and minimum label sizes", async () => {
+  const css = await read("app/globals.css");
+  const shell = await read("components/app-shell.tsx");
+  assert.match(shell, /app-shell min-h-screen/);
+  for (const utility of ["text-zinc-700", "text-zinc-600", "text-zinc-500"]) {
+    assert.match(css, new RegExp(`app-shell.*${utility}`));
+  }
+  for (const size of ["text-\\[8px\\]", "text-\\[9px\\]", "text-\\[10px\\]"]) {
+    assert.match(css, new RegExp(`app-shell.*${size}`));
+  }
+});
