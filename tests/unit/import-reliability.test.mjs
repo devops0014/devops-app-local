@@ -19,6 +19,6 @@ test("Supabase object errors are surfaced to the admin", async () => {
 
 test("student navigation hides the admin link by role", async () => {
   const shell = await readFile(new URL("../../components/app-shell.tsx", import.meta.url), "utf8");
-  assert.match(shell, /profile\?\.role === "admin"/);
+  assert.match(shell, /staffNav\.filter\(\(item\) => can\(profile\?\.role, item\.permission\)\)/);
   assert.match(shell, /GoodbyeMoment open=\{goodbyeOpen\} onClose=\{closeGoodbye\}/);
 });

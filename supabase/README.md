@@ -49,3 +49,14 @@ and the private `question-imports` Storage bucket.
 Run `migrations/2026101201_free_access.sql` last. It removes the subscription
 requirement from question access so the platform is free for every signed-in
 user, and retires the AI mock-interview credit function.
+
+## Leads, WhatsApp verification and roles
+
+Run `migrations/2026101202_leads_rbac.sql` after the free-access migration. It
+adds the `sales` and `super_admin` roles, WhatsApp phone verification fields,
+the `leads` and `lead_activity` tables, and a trigger that stops students from
+changing their own role, XP or verified phone. Then promote yourself:
+
+```sql
+update public.profiles set role = 'super_admin' where email = 'you@example.com';
+```

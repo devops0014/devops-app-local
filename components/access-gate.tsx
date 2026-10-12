@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { LoaderCircle } from "lucide-react";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase/client";
+import { asRole, can, isStaff, type Permission } from "@/lib/rbac";
 
 /**
  * The platform is free for everyone. This gate only makes sure the visitor is
@@ -22,6 +23,22 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
       const { data: sessionData } = await supabase.auth.getSession();
       if (!sessionData.session) {
         router.replace(`/login?returnTo=${encodeURIComponent(pathname)}`);
+        return;
+      }
+      // Students must verify their WhatsApp number once before using the
+      // platform. Team members (sales/admin/super admin) skip this step.
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role, phone_verified_at")
+        .eq("id", sessionData.session.user.id)
+        .maybeSingle();
+      if (!isStaff(asRole(profile?.role)) && !profile?.phone_verified_at) {
+        router.replace(`/verify-phone?returnTo=${encodeURIComponent(pathname)}`);
+        return;
+      }
+      // The sales team's home is the leads dashboard.
+      if (asRole(profile?.role) === "sales" && pathname === "/dashboard") {
+        router.replace("/leads");
         return;
       }
       if (mounted) setReady(true);
@@ -47,7 +64,8 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-export function AdminGate({ children }: { children: React.ReactNode }) {
+/** Shows children only when the signed-in user's role grants `permission`. */
+export function RoleGate({ permission, children }: { permission: Permission; children: React.ReactNode }) {
   const router = useRouter();
   const [ready, setReady] = useState(!isSupabaseConfigured);
 
@@ -66,7 +84,7 @@ export function AdminGate({ children }: { children: React.ReactNode }) {
         .select("role")
         .eq("id", sessionData.session.user.id)
         .single();
-      if (profile?.role !== "admin") {
+      if (!can(asRole(profile?.role), permission)) {
         router.replace("/dashboard");
         return;
       }
@@ -77,7 +95,11 @@ export function AdminGate({ children }: { children: React.ReactNode }) {
     return () => {
       mounted = false;
     };
-  }, [router]);
+  }, [permission, router]);
 
   return ready ? <>{children}</> : null;
+}
+
+export function AdminGate({ children }: { children: React.ReactNode }) {
+  return <RoleGate permission="content.manage">{children}</RoleGate>;
 }

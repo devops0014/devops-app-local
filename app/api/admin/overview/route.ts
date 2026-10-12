@@ -18,7 +18,7 @@ export async function GET(request: Request) {
     if (studentError) throw studentError;
     if (logError) throw logError;
     return Response.json({
-      students: (students ?? []).filter((student) => student.role !== "admin").map((student) => {
+      students: (students ?? []).filter((student) => student.role === "student").map((student) => {
         const userQuizzes = (quizzes ?? []).filter((item) => item.user_id === student.id);
         const userProgress = (progress ?? []).filter((item) => item.user_id === student.id);
         const quizAverage = average(userQuizzes.map((item) => Number(item.score) / Math.max(1, Number(item.total_questions)) * 100));

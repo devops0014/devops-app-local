@@ -1,6 +1,6 @@
 const CACHE = "devopscrack-shell-v2";
 const SHELL = ["/", "/offline", "/favicon.svg", "/manifest.webmanifest"];
-const PRIVATE_PATHS = ["/api/", "/login", "/reset-password", "/forgot-password"];
+const PRIVATE_PATHS = ["/api/", "/login", "/reset-password", "/forgot-password", "/verify-phone", "/leads", "/team"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(SHELL)));

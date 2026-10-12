@@ -59,7 +59,7 @@ export default function LoginPage() {
         }
       }
       window.sessionStorage.removeItem("devopscrack-welcome-shown");
-      router.push("/dashboard");
+      router.push(returnTo());
       return;
     }
 
@@ -67,6 +67,11 @@ export default function LoginPage() {
       setNotice("Demo account created. Opening your command centre…");
     }
     window.setTimeout(() => router.push("/dashboard"), 650);
+  };
+
+  const returnTo = () => {
+    const value = new URLSearchParams(window.location.search).get("returnTo");
+    return value && value.startsWith("/") && !value.startsWith("//") ? value : "/dashboard";
   };
 
   const switchMode = (nextMode: "login" | "signup") => {
@@ -142,7 +147,7 @@ export default function LoginPage() {
             )}
             {mode === "signup" && (
               <label className="block">
-                <span className="mb-2 block text-[10px] font-medium text-zinc-500">Mobile number</span>
+                <span className="mb-2 block text-[10px] font-medium text-zinc-500">WhatsApp number</span>
                 <span className="auth-field">
                   <Phone size={17} />
                   <input name="mobile" type="tel" required autoComplete="tel" inputMode="tel" pattern="[+]?[0-9 ()-]{8,18}" placeholder="+91 98765 43210" />
@@ -167,6 +172,7 @@ export default function LoginPage() {
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="text-zinc-700 hover:text-zinc-400">{showPassword ? <EyeOff size={15} /> : <Eye size={15} />}</button>
               </span>
             </label>
+            {mode === "signup" && <p className="text-[10px] leading-5 text-zinc-600">After signing in you'll verify this number with a one-time WhatsApp code. Free access, no payment.</p>}
             {error && <p className="rounded-xl border border-rose-400/15 bg-rose-400/[.06] px-3 py-2.5 text-[10px] text-rose-300">{error}</p>}
             <Button type="submit" size="lg" disabled={loading} className="w-full">
               {loading ? "Please wait…" : mode === "login" ? "Sign in" : "Create account"}

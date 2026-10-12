@@ -5,6 +5,7 @@ import { CheckCircle2, KeyRound, LogOut, Mail, Phone, UserRound, X } from "lucid
 import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
+import { roleLabels } from "@/lib/rbac";
 import type { CurrentUserProfile } from "@/lib/hooks/use-current-user";
 import { Button } from "@/components/ui";
 
@@ -21,10 +22,9 @@ export function AccountMenu({ profile, onUpdated, onSignOut }: { profile: Curren
     setSaved(false);
     const form = new FormData(event.currentTarget);
     const name = String(form.get("name") ?? "").trim();
-    const mobile = String(form.get("mobile") ?? "").trim();
     await Promise.all([
-      supabase.from("profiles").update({ name, mobile, updated_at: new Date().toISOString() }).eq("id", profile.id),
-      supabase.auth.updateUser({ data: { name, full_name: name, phone: mobile } }),
+      supabase.from("profiles").update({ name, updated_at: new Date().toISOString() }).eq("id", profile.id),
+      supabase.auth.updateUser({ data: { name, full_name: name } }),
     ]);
     await onUpdated();
     setSaving(false);
@@ -45,7 +45,7 @@ export function AccountMenu({ profile, onUpdated, onSignOut }: { profile: Curren
           </span>
           <span className="hidden text-left sm:block">
             <span className="block max-w-32 truncate text-[11px] font-medium leading-none">{profile?.name ?? "Loading…"}</span>
-            <span className="mt-1 block text-[9px] text-zinc-600">{profile?.role === "admin" ? "Administrator" : "Student"}</span>
+            <span className="mt-1 block text-[9px] text-zinc-600">{roleLabels[profile?.role ?? "student"]}</span>
           </span>
         </button>
       </Dialog.Trigger>
@@ -58,7 +58,7 @@ export function AccountMenu({ profile, onUpdated, onSignOut }: { profile: Curren
           </div>
           <form onSubmit={save} className="mt-7 space-y-4">
             <AccountField icon={UserRound} label="Full name" name="name" defaultValue={profile?.name ?? ""} />
-            <AccountField icon={Phone} label="Mobile number" name="mobile" defaultValue={profile?.mobile ?? ""} placeholder="+91 98765 43210" />
+            <AccountField icon={Phone} label={profile?.phoneVerified ? "WhatsApp number · verified" : "WhatsApp number"} name="mobile" defaultValue={profile?.mobile ?? ""} disabled />
             <AccountField icon={Mail} label="Email address" name="email" defaultValue={profile?.email ?? ""} disabled />
             {saved && <p className="flex items-center gap-2 rounded-xl border border-emerald-400/15 bg-emerald-400/[.06] p-3 text-xs text-emerald-300"><CheckCircle2 size={15} /> Profile updated successfully.</p>}
             <div className="flex flex-col gap-2 border-t border-white/[.07] pt-5 sm:flex-row">

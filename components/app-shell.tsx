@@ -25,6 +25,8 @@ import {
   Zap,
   Cloud,
   Award,
+  PhoneCall,
+  UsersRound,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Brand } from "./brand";
@@ -35,6 +37,7 @@ import { useAppStore } from "@/lib/store";
 import { levelProgress, nextLevelForXp } from "@/lib/gamification";
 import { useCurrentUser } from "@/lib/hooks/use-current-user";
 import { AccountMenu } from "@/components/account-menu";
+import { can, type Permission } from "@/lib/rbac";
 import { NotificationCenter } from "@/components/notification-center";
 import { supabase } from "@/lib/supabase/client";
 import { GoodbyeMoment, WelcomeMoment } from "@/components/session-moment";
@@ -49,6 +52,12 @@ const navItems = [
   { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
   { href: "/achievements", label: "Achievements", icon: Award },
 ];
+
+const staffNav = [
+  { href: "/leads", label: "Leads", icon: PhoneCall, permission: "leads.view" },
+  { href: "/team", label: "Team & roles", icon: UsersRound, permission: "team.manage" },
+  { href: "/admin", label: "Content admin", icon: ShieldCheck, permission: "content.manage" },
+] as const satisfies readonly { href: string; label: string; icon: unknown; permission: Permission }[];
 
 const mobileItems = [
   { href: "/dashboard", label: "Home", icon: Home },
@@ -65,6 +74,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [welcomeOpen, setWelcomeOpen] = useState(false);
   const [goodbyeOpen, setGoodbyeOpen] = useState(false);
   const { profile, refresh } = useCurrentUser();
+  const staffItems = staffNav.filter((item) => can(profile?.role, item.permission));
   const { theme, setTheme, commandOpen, setCommandOpen, xp, level, levelName, cloudStatus } = useAppStore();
   const nextLevel = nextLevelForXp(xp);
 
@@ -172,6 +182,29 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               );
             })}
           </nav>
+          {staffItems.length > 0 && <>
+            <p className="px-3 pb-2 pt-5 text-[10px] font-semibold uppercase tracking-[.18em] text-zinc-600">
+              Team workspace
+            </p>
+            <nav className="space-y-1">
+              {staffItems.map((item) => {
+                const active = pathname.startsWith(item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(
+                      "flex h-10 items-center gap-3 rounded-xl px-3 text-[13px] font-medium transition-colors",
+                      active ? "bg-white/[.075] text-white" : "text-zinc-500 hover:bg-white/[.035] hover:text-zinc-200",
+                    )}
+                  >
+                    <item.icon size={17} className={active ? "text-violet-400" : "text-zinc-600"} />
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </nav>
+          </>}
         </div>
 
         <div className="mt-auto p-3">
@@ -187,13 +220,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <ProgressBar value={levelProgress(xp)} className="mt-2.5" />
             <p className="mt-2 text-[9px] text-zinc-600">{Math.max(0, nextLevel.minXp - xp).toLocaleString()} XP to {nextLevel.name}</p>
           </div>
-          {profile?.role === "admin" && <Link
-              href="/admin"
-              className="flex h-10 items-center gap-3 rounded-xl px-3 text-[13px] text-zinc-500 hover:bg-white/[.04] hover:text-zinc-200"
-            >
-              <ShieldCheck size={17} />
-              Admin Panel
-            </Link>}
           <button
             onClick={signOut}
             className="flex h-10 items-center gap-3 rounded-xl px-3 text-[13px] text-zinc-500 hover:bg-white/[.04] hover:text-zinc-200"
@@ -313,7 +339,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 </button>
               </div>
               <nav className="mt-8 space-y-1">
-                {navItems.map((item) => (
+                {[...navItems, ...staffItems].map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
