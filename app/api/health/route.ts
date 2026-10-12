@@ -10,6 +10,8 @@ export async function GET() {
       timestamp: new Date().toISOString(),
       capabilities: {
         supabase: Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
+        phoneVerifyMethod: process.env.PHONE_VERIFY_METHOD === "otp" ? "otp" : "inbound",
+        whatsappWebhook: Boolean(process.env.WHATSAPP_BUSINESS_NUMBER && process.env.WHATSAPP_APP_SECRET && process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN),
         whatsappOtp: Boolean(process.env.WHATSAPP_ACCESS_TOKEN && process.env.WHATSAPP_PHONE_NUMBER_ID && process.env.WHATSAPP_OTP_TEMPLATE),
         adminAi: Boolean(process.env.OPENAI_API_KEY),
       },

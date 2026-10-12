@@ -172,7 +172,7 @@ export default function LoginPage() {
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="text-zinc-700 hover:text-zinc-400">{showPassword ? <EyeOff size={15} /> : <Eye size={15} />}</button>
               </span>
             </label>
-            {mode === "signup" && <p className="text-[10px] leading-5 text-zinc-600">After signing in you'll verify this number with a one-time WhatsApp code. Free access, no payment.</p>}
+            {mode === "signup" && <p className="text-[10px] leading-5 text-zinc-600">After signing in you'll confirm your number by sending us one WhatsApp message. Free access, no payment.</p>}
             {error && <p className="rounded-xl border border-rose-400/15 bg-rose-400/[.06] px-3 py-2.5 text-[10px] text-rose-300">{error}</p>}
             <Button type="submit" size="lg" disabled={loading} className="w-full">
               {loading ? "Please wait…" : mode === "login" ? "Sign in" : "Create account"}

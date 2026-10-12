@@ -61,3 +61,30 @@ test("leads use India Standard Time for daily boundaries", () => {
   assert.match(source, /330 \* 60_000/);
   assert.equal(new Date("2026-10-12T00:00:00+05:30").toISOString(), "2026-10-11T18:30:00.000Z");
 });
+
+test("free inbound WhatsApp verification: signed webhook, expiring codes, default method", () => {
+  const webhook = read("app/api/webhooks/whatsapp/route.ts");
+  const lib = read("lib/phone-verification.ts");
+  const start = read("app/api/phone/start/route.ts");
+  const dev = read("app/api/phone/dev-verify/route.ts");
+  assert.match(webhook, /verifyWebhookSignature\(raw, request\.headers\.get\("x-hub-signature-256"\)\)/);
+  assert.match(webhook, /hub\.verify_token/);
+  assert.match(lib, /=== "otp" \? "otp" : "inbound"/);
+  assert.match(lib, /expires_at/);
+  assert.match(lib, /already linked to another account/);
+  assert.match(start, /consent/);
+  assert.match(dev, /if \(!inboundDevMode\(\)\) throw new ApiError\("Not available\.", 404\)/);
+  const sql = read("supabase/migrations/2026101203_whatsapp_inbound_verify.sql");
+  assert.match(sql, /token text not null unique/);
+  assert.match(sql, /enable row level security/);
+});
+
+test("verify code parser accepts the pre-filled message and rejects junk", () => {
+  const source = read("lib/phone-verification.ts");
+  const pattern = new RegExp(source.match(/text\.toUpperCase\(\)\.match\(\/(.+?)\/\)/)[1]);
+  const extract = (text) => { const match = text.toUpperCase().match(pattern); return match ? `DC-${match[1]}` : null; };
+  assert.equal(extract("VERIFY DC-7K3P9QXM"), "DC-7K3P9QXM");
+  assert.equal(extract("verify dc-7k3p9qxm"), "DC-7K3P9QXM");
+  assert.equal(extract("hello"), null);
+  assert.equal(extract("DC-7K3P9QXMZZ"), null);
+});

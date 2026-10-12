@@ -49,26 +49,41 @@ update public.profiles set role = 'super_admin' where email = 'you@example.com';
 From then on, add teammates from **Team & roles** in the app: they sign up
 normally, you enter their email and pick a role.
 
-### WhatsApp OTP setup (Meta WhatsApp Business Cloud API)
+### WhatsApp verification setup (free, Meta WhatsApp Business Cloud API)
 
-1. In Meta Business Manager, add a WhatsApp Business account and a sender phone number.
-2. In WhatsApp Manager create an **Authentication** template with a **Copy code**
-   button (e.g. named `verification_code`, language `en`) and wait for approval.
-3. Create a System User with a permanent token that has `whatsapp_business_messaging`.
-4. Set `WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_OTP_TEMPLATE`
-   and `WHATSAPP_OTP_LANGUAGE` on the server.
+Students verify by **sending** a message to your WhatsApp Business number: they
+tap "Verify on WhatsApp", WhatsApp opens with `VERIFY DC-XXXXXXXX` pre-filled,
+they press Send, and the webhook unlocks their account. Meta doesn't bill
+inbound messages, and the "You're verified" reply is free inside the 24-hour
+customer service window. The phone number comes from WhatsApp itself, so it
+can't be mistyped or faked.
 
-For local testing without WhatsApp, set `OTP_DEV_MODE=1`; the code is shown on
-screen instead of being sent. Never enable it in production.
+1. In Meta for Developers, create an app (type **Business**) and add the
+   **WhatsApp** product. Add your business phone number in WhatsApp Manager.
+2. Set on the server:
+   - `WHATSAPP_BUSINESS_NUMBER` — that number, digits only (e.g. `919876543210`)
+   - `WHATSAPP_APP_SECRET` — App settings → Basic → App secret
+   - `WHATSAPP_WEBHOOK_VERIFY_TOKEN` — any long random string you choose
+   - `WHATSAPP_ACCESS_TOKEN` and `WHATSAPP_PHONE_NUMBER_ID` — for the confirmation
+     reply (System User permanent token with `whatsapp_business_messaging`)
+3. In the app's **WhatsApp → Configuration → Webhook**, set the callback URL to
+   `https://YOUR-DOMAIN/api/webhooks/whatsapp`, paste the same verify token,
+   click **Verify and save**, then subscribe to the **messages** field.
 
-Codes are 6 digits, stored hashed, expire after 10 minutes, allow 5 attempts,
-and can be re-sent once a minute (max 5 per hour). One verified number per account.
+**Testing on your laptop:** Meta must reach the webhook over public HTTPS. Run
+`ngrok http 5173` and use the ngrok URL as the callback URL while testing. Or set
+`WHATSAPP_DEV_MODE=1` (with the webhook variables unset) to get a "Simulate"
+box on the verify screen. Never enable dev mode in production.
+
+Codes are valid for 15 minutes, one verified number per account. To switch to
+the old "we send you a 6-digit code" flow (billed by Meta as authentication
+messages), set `PHONE_VERIFY_METHOD=otp` and `WHATSAPP_OTP_TEMPLATE`.
 
 ### Upgrading an existing database
 
 Run any migrations you haven't applied yet, in filename order. The two newest are
-`2026101201_free_access.sql` and `2026101202_leads_rbac.sql` (roles, WhatsApp
-verification, leads). `2026101201_free_access.sql` lets every signed-in user
+`2026101201_free_access.sql`, `2026101202_leads_rbac.sql` (roles, leads) and
+`2026101203_whatsapp_inbound_verify.sql` (free WhatsApp verification). `2026101201_free_access.sql` lets every signed-in user
 read questions, stops new accounts getting an expiring trial, and clears any
 expired plans. Neither deletes data; an optional cleanup block at the bottom of
 the free-access file drops the old payment and mock-interview tables if you want

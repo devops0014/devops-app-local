@@ -60,3 +60,8 @@ changing their own role, XP or verified phone. Then promote yourself:
 ```sql
 update public.profiles set role = 'super_admin' where email = 'you@example.com';
 ```
+
+## Free WhatsApp verification
+
+Run `migrations/2026101203_whatsapp_inbound_verify.sql` after the leads migration.
+It stores the short `DC-XXXXXXXX` codes students send to your WhatsApp number.

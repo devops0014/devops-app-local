@@ -3,7 +3,9 @@ const groups = [
     name: "Supabase",
     keys: ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_ANON_KEY", "SUPABASE_SERVICE_ROLE_KEY"],
   },
-  { name: "WhatsApp OTP", keys: ["WHATSAPP_ACCESS_TOKEN", "WHATSAPP_PHONE_NUMBER_ID", "WHATSAPP_OTP_TEMPLATE"] },
+  process.env.PHONE_VERIFY_METHOD === "otp"
+    ? { name: "WhatsApp OTP (fallback)", keys: ["WHATSAPP_ACCESS_TOKEN", "WHATSAPP_PHONE_NUMBER_ID", "WHATSAPP_OTP_TEMPLATE"] }
+    : { name: "WhatsApp verification", keys: ["WHATSAPP_BUSINESS_NUMBER", "WHATSAPP_APP_SECRET", "WHATSAPP_WEBHOOK_VERIFY_TOKEN"] },
   { name: "Admin AI content engine (optional)", keys: ["OPENAI_API_KEY"] },
 ];
 

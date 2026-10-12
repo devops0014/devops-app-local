@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { ApiError, requireUser, supabaseAdmin } from "@/lib/supabase/server";
 import { checkRateLimit, rateLimitResponse, rejectOversizedJson, requestIdentity } from "@/lib/security/rate-limit";
 import { OTP_MAX_ATTEMPTS, otpMatches } from "@/lib/whatsapp";
+import { completePhoneVerification } from "@/lib/phone-verification";
 
 export async function POST(request: Request) {
   const limit = checkRateLimit(`otp-verify:${requestIdentity(request)}`, 20, 10 * 60_000);
@@ -30,19 +31,8 @@ export async function POST(request: Request) {
 
     const now = new Date().toISOString();
     await supabaseAdmin!.from("phone_otps").update({ consumed_at: now }).eq("id", otp.id);
-    const { error: profileError } = await supabaseAdmin!.from("profiles").update({
-      mobile: otp.phone,
-      phone_verified_at: now,
-      marketing_consent: true,
-      marketing_consent_at: now,
-      updated_at: now,
-    }).eq("id", user.id);
-    if (profileError) {
-      if (profileError.code === "23505") throw new ApiError("This number is already verified on another account.", 409);
-      throw new ApiError("Could not save your verified number.", 500);
-    }
-    await supabaseAdmin!.from("leads").upsert({ user_id: user.id }, { onConflict: "user_id", ignoreDuplicates: true });
-    await supabaseAdmin!.auth.admin.updateUserById(user.id, { user_metadata: { ...user.user_metadata, phone: otp.phone, mobile: otp.phone } });
+    const result = await completePhoneVerification(user.id, otp.phone, now);
+    if (!result.ok) throw new ApiError(result.error, 409);
 
     return NextResponse.json({ verified: true, phone: otp.phone });
   } catch (error) {
