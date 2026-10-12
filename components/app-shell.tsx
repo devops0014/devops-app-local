@@ -10,7 +10,6 @@ import {
   ChevronRight,
   CircleHelp,
   Gamepad2,
-  GraduationCap,
   Home,
   LayoutDashboard,
   LogOut,
@@ -25,7 +24,6 @@ import {
   X,
   Zap,
   Cloud,
-  CreditCard,
   Award,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -47,11 +45,9 @@ const navItems = [
   { href: "/roadmap", label: "Learning Roadmap", icon: Map },
   { href: "/quiz", label: "Quiz Mode", icon: Zap },
   { href: "/flashcards", label: "Flashcards", icon: Gamepad2 },
-  { href: "/mock-interview", label: "Mock Interview", icon: GraduationCap },
   { href: "/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
   { href: "/achievements", label: "Achievements", icon: Award },
-  { href: "/billing", label: "Billing", icon: CreditCard },
 ];
 
 const mobileItems = [

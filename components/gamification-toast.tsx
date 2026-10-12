@@ -12,7 +12,6 @@ const badgeNames: Record<string, string> = {
   "streak-seven": "Seven Day Uptime",
   "streak-thirty": "Always On",
   "xp-7500": "Platform Engineer",
-  "mock-ace": "Interview Ace",
 };
 
 export function GamificationToast() {

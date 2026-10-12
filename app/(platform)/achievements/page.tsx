@@ -21,7 +21,6 @@ const fallbackBadges: EarnedBadge[] = [
   { slug: "streak-seven", name: "Seven Day Uptime", description: "Maintain a seven-day learning streak.", rarity: "rare", xp_reward: 200, earned: true },
   { slug: "streak-thirty", name: "Always On", description: "Maintain a thirty-day learning streak.", rarity: "epic", xp_reward: 500, earned: false },
   { slug: "xp-7500", name: "Platform Engineer", description: "Earn 7,500 total XP.", rarity: "epic", xp_reward: 300, earned: true },
-  { slug: "mock-ace", name: "Interview Ace", description: "Score at least 85 in a mock interview.", rarity: "legendary", xp_reward: 500, earned: false },
 ];
 
 export default function AchievementsPage() {
@@ -38,7 +37,7 @@ export default function AchievementsPage() {
       const [challengeResult, progressResult, badgeResult, earnedResult] = await Promise.all([
         supabase.from("challenges").select("id,name,description,cadence,target,xp_reward").eq("is_active", true).order("ends_at"),
         supabase.from("user_challenge_progress").select("challenge_id,progress").eq("user_id", auth.user.id),
-        supabase.from("badges").select("id,slug,name,description,rarity,xp_reward"),
+        supabase.from("badges").select("id,slug,name,description,rarity,xp_reward").neq("slug", "mock-ace"),
         supabase.from("user_badges").select("badge_id").eq("user_id", auth.user.id),
       ]);
       if (challengeResult.data?.length) {

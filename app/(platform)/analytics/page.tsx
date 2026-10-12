@@ -36,7 +36,7 @@ const heatColors = [
 export default function AnalyticsPage() {
   const { questions, categories: contentCategories } = useContentCatalog();
   const quizAttempts = useAppStore((state) => state.quizAttempts);
-  const mockReports = useAppStore((state) => state.mockReports);
+  const flashcardReviews = useAppStore((state) => state.flashcardReviews);
   const progress = useAppStore((state) => state.progress);
   const streak = useAppStore((state) => state.streak);
   const liveAttempts = quizAttempts.map((attempt) => ({
@@ -52,7 +52,7 @@ export default function AnalyticsPage() {
     ? Math.round(liveAttempts.reduce((sum, attempt) => sum + attempt.score, 0) / liveAttempts.length)
     : 0;
   const mastered = Object.values(progress).filter((item) => item.status === "Mastered").length;
-  const practiceSeconds = quizAttempts.reduce((sum, item) => sum + item.timeSeconds, 0) + mockReports.reduce((sum, item) => sum + item.timeSeconds, 0);
+  const practiceSeconds = quizAttempts.reduce((sum, item) => sum + item.timeSeconds, 0);
   const categories = contentCategories.map((category, index) => {
     const categoryQuestions = questions.filter((question) => question.categorySlug === category.slug);
     const categoryMastered = categoryQuestions.filter((question) => progress[question.id]?.status === "Mastered").length;
@@ -76,7 +76,7 @@ export default function AnalyticsPage() {
         {[
           { icon: Target, label: "Overall accuracy", value: `${currentAccuracy}%`, delta: quizAttempts.length ? `${quizAttempts.length} live` : "+6.2%", color: "text-violet-300 bg-violet-400/10" },
           { icon: CheckCircle2, label: "Mastered", value: String(mastered), delta: "Synced", color: "text-emerald-300 bg-emerald-400/10" },
-          { icon: Clock3, label: "Practice time", value: `${(practiceSeconds / 3600).toFixed(1)}h`, delta: `${quizAttempts.length + mockReports.length} sessions`, color: "text-cyan-300 bg-cyan-400/10" },
+          { icon: Clock3, label: "Practice time", value: `${(practiceSeconds / 3600).toFixed(1)}h`, delta: `${quizAttempts.length} sessions`, color: "text-cyan-300 bg-cyan-400/10" },
           { icon: Flame, label: "Consistency", value: `${streak} days`, delta: "Current streak", color: "text-amber-300 bg-amber-400/10" },
         ].map((stat) => (
           <Card key={stat.label} className="p-5">
@@ -107,25 +107,25 @@ export default function AnalyticsPage() {
 
       <section className="mt-5 grid gap-5 lg:grid-cols-2">
         <Card className="p-5">
-          <SectionTitle eyebrow="AI interview history" title="Mock interview trajectory" />
-          {mockReports.length ? (
+          <SectionTitle eyebrow="Quiz history" title="Recent quiz results" />
+          {attempts.length ? (
             <div className="mt-5 space-y-3">
-              {mockReports.slice(0, 4).map((report) => (
-                <div key={report.id} className="flex items-center gap-3 rounded-xl border border-white/[.06] bg-white/[.02] p-3">
-                  <span className="grid size-10 place-items-center rounded-xl bg-cyan-400/[.07] text-sm font-semibold text-cyan-300">{report.score}</span>
+              {attempts.slice(0, 4).map((attempt) => (
+                <div key={attempt.id} className="flex items-center gap-3 rounded-xl border border-white/[.06] bg-white/[.02] p-3">
+                  <span className="grid size-10 place-items-center rounded-xl bg-cyan-400/[.07] text-sm font-semibold text-cyan-300">{attempt.score}</span>
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs text-zinc-300">{report.technology} · {report.company}</p>
-                    <p className="mt-1 text-[9px] text-zinc-600">{report.answered} answers · {Math.max(1, Math.ceil(report.timeSeconds / 60))} min</p>
+                    <p className="text-xs capitalize text-zinc-300">{attempt.mode} quiz</p>
+                    <p className="mt-1 text-[9px] text-zinc-600">{attempt.total} questions · {attempt.time} · {attempt.date}</p>
                   </div>
-                  <Badge tone={report.score >= 80 ? "green" : "amber"}>{report.level}</Badge>
+                  <Badge tone={attempt.score >= 80 ? "green" : "amber"}>{attempt.score >= 80 ? "Strong" : "Keep going"}</Badge>
                 </div>
               ))}
             </div>
           ) : (
             <div className="mt-5 rounded-2xl border border-dashed border-white/[.08] bg-white/[.015] p-6 text-center">
               <BrainCircuit size={24} className="mx-auto text-violet-300" />
-              <p className="mt-3 text-xs text-zinc-400">Your first AI interview report will appear here.</p>
-              <Link href="/mock-interview" className="mt-3 inline-flex items-center gap-1 text-[10px] text-violet-300">Start interview <ArrowRight size={12} /></Link>
+              <p className="mt-3 text-xs text-zinc-400">Your first quiz result will appear here.</p>
+              <Link href="/quiz" className="mt-3 inline-flex items-center gap-1 text-[10px] text-violet-300">Start a quiz <ArrowRight size={12} /></Link>
             </div>
           )}
         </Card>
@@ -134,8 +134,8 @@ export default function AnalyticsPage() {
           <div className="mt-5 grid grid-cols-3 gap-2">
             {[
               [String(quizAttempts.length), "Quizzes"],
-              [String(Object.keys(useAppStore.getState().flashcardReviews).length), "Cards reviewed"],
-              [String(mockReports.length), "Mock sessions"],
+              [String(Object.keys(flashcardReviews).length), "Cards reviewed"],
+              [String(mastered), "Mastered"],
             ].map(([value, label]) => (
               <div key={label} className="rounded-xl border border-white/[.06] bg-white/[.02] p-4 text-center">
                 <p className="text-xl font-semibold">{value}</p><p className="mt-1 text-[9px] text-zinc-600">{label}</p>
@@ -143,7 +143,7 @@ export default function AnalyticsPage() {
             ))}
           </div>
           <div className="mt-4 rounded-xl border border-violet-400/10 bg-violet-400/[.04] p-4 text-[10px] leading-5 text-zinc-500">
-            Complete one adaptive quiz and one mock interview this week to unlock a reliable cross-mode readiness trend.
+            Complete one quiz and one flashcard session this week to unlock a reliable cross-mode readiness trend.
           </div>
         </Card>
       </section>

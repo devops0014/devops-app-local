@@ -227,7 +227,7 @@ export default function RoadmapPage() {
           <div className="rounded-2xl border border-cyan-400/10 bg-cyan-400/[.035] p-4">
             <div className="flex gap-3">
               <Sparkles size={16} className="mt-0.5 shrink-0 text-cyan-300" />
-              <p className="text-[10px] leading-5 text-zinc-500">The roadmap recalculates after quizzes and mock interviews, prioritizing concepts that reduce your interview risk fastest.</p>
+              <p className="text-[10px] leading-5 text-zinc-500">The roadmap recalculates after quizzes and flashcard reviews, prioritizing concepts that reduce your interview risk fastest.</p>
             </div>
           </div>
         </aside>

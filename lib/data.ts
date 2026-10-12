@@ -274,6 +274,6 @@ export const radarData = [
 export const attempts = [
   { id: "QA-2048", mode: "Mixed Quiz", date: "Today, 10:24 AM", score: 86, total: 20, time: "18m 42s" },
   { id: "QA-2031", mode: "Kubernetes Drill", date: "Yesterday", score: 72, total: 15, time: "14m 08s" },
-  { id: "QA-1994", mode: "Mock Interview", date: "24 Jul 2026", score: 78, total: 10, time: "31m 12s" },
+  { id: "QA-1994", mode: "Flashcards", date: "24 Jul 2026", score: 78, total: 10, time: "31m 12s" },
   { id: "QA-1932", mode: "AWS Flashcards", date: "22 Jul 2026", score: 91, total: 25, time: "12m 51s" },
 ];

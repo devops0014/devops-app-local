@@ -15,7 +15,7 @@ test("PWA manifest and offline shell are configured", async () => {
 
 test("private API and auth routes are never cached by the service worker", async () => {
   const worker = await read("public/sw.js");
-  for (const path of ["/api/", "/login", "/billing"]) assert.match(worker, new RegExp(path.replaceAll("/", "\\/")));
+  for (const path of ["/api/", "/login"]) assert.match(worker, new RegExp(path.replaceAll("/", "\\/")));
 });
 
 test("runtime adds baseline security headers", async () => {
@@ -26,7 +26,7 @@ test("runtime adds baseline security headers", async () => {
 });
 
 test("mutating high-value endpoints have abuse and payload controls", async () => {
-  for (const route of ["app/api/gamification/event/route.ts", "app/api/payments/create-checkout/route.ts"]) {
+  for (const route of ["app/api/gamification/event/route.ts"]) {
     const source = await read(route);
     assert.match(source, /checkRateLimit/);
     assert.match(source, /rejectOversizedJson/);

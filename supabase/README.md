@@ -15,23 +15,13 @@ set role = 'admin'
 where email = 'your-admin-email@example.com';
 ```
 
-Never expose the service-role key to browser code. Payment webhooks, privileged
-AI processing, audit writes, and subscription changes must use server-side
-functions with the service role.
+Never expose the service-role key to browser code. Privileged AI content
+processing and audit writes must use server-side functions with the service role.
 
-## Phase 6 payment setup
+## Phase 6 (retired)
 
-Run `migrations/2026072702_phase6_payments.sql`, then configure the payment
-variables listed in `.env.example` on the hosting platform.
-
-- Razorpay webhook: `/api/webhooks/razorpay`
-- Razorpay events: `subscription.authenticated`, `subscription.activated`,
-  `subscription.charged`, `subscription.pending`, `subscription.cancelled`
-
-Create matching monthly, half-yearly, and yearly Razorpay subscription plans
-and copy their IDs into the corresponding environment variables.
-Checkout, signature verification, subscription activation, idempotency, and
-cancellation all run server-side.
+`migrations/2026072702_phase6_payments.sql` created the old payment tables. The
+app no longer uses them; it is kept so existing databases migrate in order.
 
 ## Phase 7 gamification setup
 
@@ -53,3 +43,9 @@ and the private `question-imports` Storage bucket.
 3. Open **AI Engine → Processing queue** and run enrichment.
 4. Review enriched questions in **Approval desk**.
 5. Approve to publish to `/practice`, or reject to keep a question private.
+
+## Free access
+
+Run `migrations/2026101201_free_access.sql` last. It removes the subscription
+requirement from question access so the platform is free for every signed-in
+user, and retires the AI mock-interview credit function.

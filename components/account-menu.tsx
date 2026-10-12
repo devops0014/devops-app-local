@@ -45,7 +45,7 @@ export function AccountMenu({ profile, onUpdated, onSignOut }: { profile: Curren
           </span>
           <span className="hidden text-left sm:block">
             <span className="block max-w-32 truncate text-[11px] font-medium leading-none">{profile?.name ?? "Loading…"}</span>
-            <span className="mt-1 block text-[9px] text-zinc-600">{profile?.subscriptionStatus === "active" ? "Pro Member" : "Student"}</span>
+            <span className="mt-1 block text-[9px] text-zinc-600">{profile?.role === "admin" ? "Administrator" : "Student"}</span>
           </span>
         </button>
       </Dialog.Trigger>

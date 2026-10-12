@@ -1,5 +1,7 @@
 # Testing and deployment
 
+> **Note (Oct 2026):** The platform is now free. Razorpay payments, subscriptions, pricing/billing pages and the AI mock interview have been removed, so skip any steps below about them. See `supabase/migrations/2026101201_free_access.sql`.
+
 ## Local testing
 
 1. Copy `.env.example` to `.env.local` and add test credentials.

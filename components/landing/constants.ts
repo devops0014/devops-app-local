@@ -44,8 +44,8 @@ export const pipelineStages: PipelineStage[] = [
 export const workflowStages = [
   { step: "01", title: "Learn", copy: "Build the production foundations.", tags: ["Linux", "Git", "Docker"], icon: BookOpenCheck, color: "#8b5cf6" },
   { step: "02", title: "Practice", copy: "Turn knowledge into fast recall.", tags: ["Questions", "MCQs", "Labs"], icon: TerminalSquare, color: "#22d3ee" },
-  { step: "03", title: "AI Mock", copy: "Think aloud under real pressure.", tags: ["Technical", "Scenario", "Feedback"], icon: BrainCircuit, color: "#60a5fa" },
-  { step: "04", title: "Resume Review", copy: "Make your experience credible.", tags: ["Impact", "Keywords", "Clarity"], icon: FileCheck2, color: "#34d399" },
+  { step: "03", title: "Quiz", copy: "Test yourself against the clock.", tags: ["Timed", "Classic", "Scores"], icon: BrainCircuit, color: "#60a5fa" },
+  { step: "04", title: "Flashcards", copy: "Lock in what you learned.", tags: ["Recall", "Review", "Retain"], icon: FileCheck2, color: "#34d399" },
   { step: "05", title: "Get Hired", copy: "Walk in with systems confidence.", tags: ["Interview", "Offer", "Growth"], icon: BriefcaseBusiness, color: "#f59e0b" },
 ] as const;
 

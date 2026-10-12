@@ -5,7 +5,11 @@ import { usePathname, useRouter } from "next/navigation";
 import { LoaderCircle } from "lucide-react";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase/client";
 
-export function SubscriptionGate({ children }: { children: React.ReactNode }) {
+/**
+ * The platform is free for everyone. This gate only makes sure the visitor is
+ * signed in so their progress, XP and flashcard reviews can be saved.
+ */
+export function AuthGate({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [ready, setReady] = useState(!isSupabaseConfigured);
@@ -18,32 +22,6 @@ export function SubscriptionGate({ children }: { children: React.ReactNode }) {
       const { data: sessionData } = await supabase.auth.getSession();
       if (!sessionData.session) {
         router.replace(`/login?returnTo=${encodeURIComponent(pathname)}`);
-        return;
-      }
-
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("role, subscription_status, subscription_expires_at")
-        .eq("id", sessionData.session.user.id)
-        .single();
-
-      // Administrators manage the platform and must not be blocked by the
-      // student subscription gate. AdminGate still performs the dedicated
-      // authorization check on /admin.
-      if (profile?.role === "admin") {
-        if (mounted) setReady(true);
-        return;
-      }
-
-      const expiresAt = profile?.subscription_expires_at
-        ? new Date(profile.subscription_expires_at).getTime()
-        : Number.POSITIVE_INFINITY;
-      const subscribed =
-        ["trialing", "active"].includes(profile?.subscription_status ?? "") &&
-        expiresAt > Date.now();
-
-      if (!subscribed) {
-        router.replace("/pricing");
         return;
       }
       if (mounted) setReady(true);
@@ -60,7 +38,7 @@ export function SubscriptionGate({ children }: { children: React.ReactNode }) {
       <div className="grid min-h-[calc(100vh-72px)] place-items-center">
         <div className="text-center">
           <LoaderCircle size={24} className="mx-auto animate-spin text-violet-400" />
-          <p className="mt-3 text-xs text-zinc-600">Verifying your subscription…</p>
+          <p className="mt-3 text-xs text-zinc-600">Loading your workspace…</p>
         </div>
       </div>
     );

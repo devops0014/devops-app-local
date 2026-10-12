@@ -6,10 +6,9 @@ They do not mock authentication or the database.
 ## One-time setup
 
 1. Create two dedicated Supabase Auth users.
-2. Set the student profile to `subscription_status = 'active'`.
-3. Set the admin profile to `role = 'admin'`.
-4. Copy `.env.e2e.example` to `.env.e2e` and enter those test credentials.
-5. Install the browser: `npx playwright install chromium`.
+2. Set the admin profile to `role = 'admin'`.
+3. Copy `.env.e2e.example` to `.env.e2e` and enter those test credentials.
+4. Install the browser: `npx playwright install chromium`.
 
 ## Run
 

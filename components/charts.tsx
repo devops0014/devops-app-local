@@ -95,36 +95,3 @@ export function MasteryRadarChart() {
     </ResponsiveContainer>
   );
 }
-
-export function RevenueChart() {
-  const data = [
-    { month: "Feb", revenue: 328000 },
-    { month: "Mar", revenue: 396000 },
-    { month: "Apr", revenue: 458000 },
-    { month: "May", revenue: 521000 },
-    { month: "Jun", revenue: 612000 },
-    { month: "Jul", revenue: 748000 },
-  ];
-  return (
-    <ResponsiveContainer width="100%" height="100%">
-      <AreaChart data={data} margin={{ top: 10, right: 10, left: -16, bottom: 0 }}>
-        <defs>
-          <linearGradient id="revenueFill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#22d3ee" stopOpacity={0.28} />
-            <stop offset="100%" stopColor="#22d3ee" stopOpacity={0} />
-          </linearGradient>
-        </defs>
-        <CartesianGrid stroke="rgba(255,255,255,.05)" strokeDasharray="4 4" vertical={false} />
-        <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: "#71717a", fontSize: 10 }} />
-        <YAxis
-          axisLine={false}
-          tickLine={false}
-          tick={{ fill: "#52525b", fontSize: 10 }}
-          tickFormatter={(value) => `₹${value / 1000}k`}
-        />
-        <Tooltip contentStyle={tooltipStyle} formatter={(value) => [`₹${Number(value).toLocaleString("en-IN")}`, "Revenue"]} />
-        <Area type="monotone" dataKey="revenue" stroke="#22d3ee" strokeWidth={2.5} fill="url(#revenueFill)" />
-      </AreaChart>
-    </ResponsiveContainer>
-  );
-}

@@ -49,13 +49,3 @@ export type FlashcardReview = {
   reviewCount: number;
 };
 
-export type MockInterviewReport = {
-  id: string;
-  technology: string;
-  company: string;
-  level: string;
-  score: number;
-  timeSeconds: number;
-  answered: number;
-  createdAt: string;
-};

@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     template: "%s · DevOpsCrack",
   },
   description:
-    "Master DevOps interviews with expert questions, practice modes, mock interviews, and performance analytics.",
+    "Master DevOps interviews with expert questions, quizzes, flashcards, and performance analytics.",
   manifest: "/manifest.webmanifest",
   applicationName: "DevOpsCrack",
   appleWebApp: {

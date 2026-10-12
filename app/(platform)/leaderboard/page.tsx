@@ -57,7 +57,7 @@ export default function LeaderboardPage() {
       <div className="text-center">
         <Badge tone="amber"><Trophy size={11} className="mr-1" /> Live league</Badge>
         <h1 className="mt-4 text-3xl font-semibold tracking-[-.045em] sm:text-4xl">DevOps Champions</h1>
-        <p className="mt-2 text-xs text-zinc-500">Earn verified XP through practice, quizzes, streaks, and mock interviews.</p>
+        <p className="mt-2 text-xs text-zinc-500">Earn verified XP through practice, quizzes, flashcards, and streaks.</p>
       </div>
 
       <div className="mx-auto mt-10 grid max-w-3xl grid-cols-3 items-end gap-3">

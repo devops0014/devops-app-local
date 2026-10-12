@@ -7,7 +7,7 @@ test.describe("student journey", () => {
     await expect(page).toHaveURL(/\/login\?returnTo=/);
   });
 
-  test("subscribed student can sign in and use the learning surfaces", async ({ page }) => {
+  test("student can sign in and use the learning surfaces", async ({ page }) => {
     await login(page, "student");
 
     await page.goto("/practice");

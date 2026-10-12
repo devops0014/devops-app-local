@@ -28,13 +28,13 @@ import { AccountOverview } from "@/components/dashboard/account-overview";
 import { useCurrentUser } from "@/lib/hooks/use-current-user";
 
 export default function DashboardPage() {
-  const { xp, level, levelName, streak, bestStreak, progress, quizAttempts, mockReports } = useAppStore();
+  const { xp, level, levelName, streak, bestStreak, progress, quizAttempts, flashcardReviews } = useAppStore();
   const { questions, categories: contentCategories } = useContentCatalog();
   const { profile } = useCurrentUser();
   const firstName = profile?.name?.split(/\s+/)[0] ?? "Student";
   const solved = Object.values(progress).filter((item) => item.status !== "Not Started").length;
   const accuracy = quizAttempts.length ? Math.round(quizAttempts.reduce((sum, item) => sum + item.score / Math.max(1, item.total) * 100, 0) / quizAttempts.length) : 0;
-  const practiceSeconds = quizAttempts.reduce((sum, item) => sum + item.timeSeconds, 0) + mockReports.reduce((sum, item) => sum + item.timeSeconds, 0);
+  const practiceSeconds = quizAttempts.reduce((sum, item) => sum + item.timeSeconds, 0);
   const categories = contentCategories.map((category, index) => {
     const categoryQuestions = questions.filter((question) => question.categorySlug === category.slug);
     const mastered = categoryQuestions.filter((question) => progress[question.id]?.status === "Mastered").length;
@@ -64,7 +64,7 @@ export default function DashboardPage() {
     { label: "Questions solved", value: solved.toLocaleString(), delta: `${questions.length} available`, icon: BookOpenCheck, gradient: "from-violet-500/18 to-violet-500/[.02]", iconClass: "bg-violet-400/10 text-violet-300" },
     { label: "Overall accuracy", value: `${accuracy}%`, delta: `${quizAttempts.length} quizzes`, icon: Target, gradient: "from-cyan-500/16 to-cyan-500/[.02]", iconClass: "bg-cyan-400/10 text-cyan-300" },
     { label: "Current level", value: String(Math.max(1, Math.floor(xp / 1000) + 1)), delta: `${xp.toLocaleString()} XP`, icon: Trophy, gradient: "from-amber-500/16 to-amber-500/[.02]", iconClass: "bg-amber-400/10 text-amber-300" },
-    { label: "Hours practiced", value: `${(practiceSeconds / 3600).toFixed(1)}h`, delta: `${mockReports.length} mocks`, icon: Clock3, gradient: "from-emerald-500/14 to-emerald-500/[.02]", iconClass: "bg-emerald-400/10 text-emerald-300" },
+    { label: "Hours practiced", value: `${(practiceSeconds / 3600).toFixed(1)}h`, delta: `${Object.keys(flashcardReviews).length} flashcards`, icon: Clock3, gradient: "from-emerald-500/14 to-emerald-500/[.02]", iconClass: "bg-emerald-400/10 text-emerald-300" },
   ];
 
   return (

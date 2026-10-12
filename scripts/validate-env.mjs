@@ -3,11 +3,7 @@ const groups = [
     name: "Supabase",
     keys: ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_ANON_KEY", "SUPABASE_SERVICE_ROLE_KEY"],
   },
-  {
-    name: "Razorpay",
-    keys: ["RAZORPAY_KEY_ID", "RAZORPAY_KEY_SECRET", "RAZORPAY_WEBHOOK_SECRET", "RAZORPAY_PLAN_MONTHLY", "RAZORPAY_PLAN_HALF_YEARLY", "RAZORPAY_PLAN_YEARLY"],
-  },
-  { name: "AI", keys: ["OPENAI_API_KEY"] },
+  { name: "Admin AI content engine (optional)", keys: ["OPENAI_API_KEY"] },
 ];
 
 const missing = groups

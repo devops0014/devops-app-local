@@ -62,7 +62,7 @@ export function DeviceSessionProvider({ children }: { children: React.ReactNode 
         <div className="w-full max-w-lg rounded-3xl border border-white/10 bg-[#111113] p-6 shadow-2xl">
           <span className="grid size-12 place-items-center rounded-2xl bg-amber-400/10 text-amber-300"><ShieldAlert size={22} /></span>
           <h2 className="mt-5 text-xl font-semibold">Maximum devices reached</h2>
-          <p className="mt-2 text-xs leading-6 text-zinc-500">Your subscription supports two active devices. Sign out one device to continue securely.</p>
+          <p className="mt-2 text-xs leading-6 text-zinc-500">Each account supports two active devices. Sign out one device to continue securely.</p>
           <div className="mt-5 space-y-2">
             {blockedSessions.map((session) => {
               const mobile = /iPhone|iPad|Android/i.test(`${session.device_name} ${session.os}`);
