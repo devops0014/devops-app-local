@@ -39,8 +39,18 @@ Core student learning modes require Supabase so local testing matches production
 | Content admin | Questions, categories, imports, AI content engine |
 | Super admin | Everything, plus CSV export of leads and managing team roles |
 
-After running the migrations, sign up with your own email, then run once in the
-Supabase SQL editor:
+After running the migrations, create your super admin from the project folder:
+
+```bash
+npm run create-admin -- --email you@example.com --password 'YourStrongPassword'
+```
+
+It uses `SUPABASE_SERVICE_ROLE_KEY` from `.env.local`, creates a confirmed
+account (or upgrades an existing one) and prints the sign-in details. Leave out
+`--password` to get a generated one. Use `--role sales` or `--role admin` for
+team accounts.
+
+Or, if you already signed up in the app, run once in the Supabase SQL editor:
 
 ```sql
 update public.profiles set role = 'super_admin' where email = 'you@example.com';
