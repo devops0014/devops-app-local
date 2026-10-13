@@ -45,11 +45,27 @@ export function captureAttribution() {
   try { window.localStorage.setItem(KEY, JSON.stringify(value)); } catch { /* storage may be blocked */ }
 }
 
+const TOPIC_KEY = "dc-interest-topic";
+
+/** Remembers the tool a visitor picked on the home page (e.g. "kubernetes"). */
+export function rememberInterestTopic(slug: string) {
+  try { window.localStorage.setItem(TOPIC_KEY, slug.slice(0, 40)); } catch { /* storage may be blocked */ }
+}
+
+export function interestTopic() {
+  try { return window.localStorage.getItem(TOPIC_KEY) || null; } catch { return null; }
+}
+
 /** Fields to attach to a new account. */
 export function attributionForSignup(): Record<string, string> {
   const value = read();
-  if (!value) return {};
-  const { captured_at: _ignored, ...fields } = value;
-  void _ignored;
-  return Object.fromEntries(Object.entries(fields).filter(([, item]) => typeof item === "string" && item)) as Record<string, string>;
+  const topic = typeof window === "undefined" ? null : interestTopic();
+  const fields: Record<string, string> = {};
+  if (value) {
+    const { captured_at: _ignored, ...rest } = value;
+    void _ignored;
+    for (const [key, item] of Object.entries(rest)) if (typeof item === "string" && item) fields[key] = item;
+  }
+  if (topic) fields.interest_topic = topic;
+  return fields;
 }

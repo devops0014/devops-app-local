@@ -26,6 +26,7 @@ type ProfileRow = {
   utm_source: string | null; utm_medium: string | null; utm_campaign: string | null; utm_content: string | null;
   referrer: string | null; landing_path: string | null;
   experience_level: string | null; job_title: string | null; career_goal: string | null; city: string | null;
+  interest_topic?: string | null;
 };
 type LeadRow = {
   user_id: string; status: string; status_updated_at: string | null; status_updated_by: string | null;
@@ -36,7 +37,7 @@ type ActivityRow = { user_id: string; body: string | null; created_at: string };
 const profileColumns = [
   "id,name,email,mobile,phone_verified_at,created_at",
   "utm_source,utm_medium,utm_campaign,utm_content,referrer,landing_path",
-  "experience_level,job_title,career_goal,city",
+  "experience_level,job_title,career_goal,city,interest_topic",
 ].join(",");
 
 export type LeadQuery =
@@ -128,7 +129,7 @@ export async function loadLeads(query: LeadQuery): Promise<Lead[]> {
         utmSource: row.utm_source, utmMedium: row.utm_medium, utmCampaign: row.utm_campaign,
         utmContent: row.utm_content, referrer: row.referrer, landingPath: row.landing_path,
       },
-      profile: { experience: row.experience_level, jobTitle: row.job_title, goal: row.career_goal, city: row.city },
+      profile: { experience: row.experience_level, jobTitle: row.job_title, goal: row.career_goal, city: row.city, interestTopic: row.interest_topic ?? null },
     };
   });
 }

@@ -122,7 +122,8 @@ request a callback. Optimise your campaigns for **CompleteRegistration**.
 Run any migrations you haven't applied yet, in filename order. The two newest are
 `2026101201_free_access.sql`, `2026101202_leads_rbac.sql` (roles, leads) and
 `2026101203_whatsapp_inbound_verify.sql` (free WhatsApp verification) and
-`2026101301_sales_tools.sql` (lead source, onboarding answers, follow-ups, callbacks). `2026101201_free_access.sql` lets every signed-in user
+`2026101301_sales_tools.sql` (lead source, onboarding answers, follow-ups, callbacks) and
+`2026101302_interest_topic.sql` (the tool a student picked on the home page). `2026101201_free_access.sql` lets every signed-in user
 read questions, stops new accounts getting an expiring trial, and clears any
 expired plans. Neither deletes data; an optional cleanup block at the bottom of
 the free-access file drops the old payment and mock-interview tables if you want

@@ -4,10 +4,11 @@ import { useState } from "react";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import {
-  BadgeCheck, BookOpenCheck, Check, ChevronDown, GraduationCap, Layers, MessageCircle, Timer, X,
+  BadgeCheck, BookOpenCheck, Check, Cloud, GraduationCap, Layers, MessageCircle, Timer, X,
 } from "lucide-react";
 import { Brand } from "@/components/brand";
 import { siteConfig } from "@/lib/site-config";
+import { rememberInterestTopic } from "@/lib/attribution";
 import { cn } from "@/lib/utils";
 
 const SIGNUP = "/login?mode=signup";
@@ -39,13 +40,20 @@ const samples: Sample[] = [
   },
 ];
 
-const topics = ["Linux", "Git", "Docker", "Kubernetes", "Helm", "Terraform", "Ansible", "AWS", "Jenkins", "GitHub Actions", "ArgoCD", "Prometheus", "Grafana", "Nginx"];
-
-const faqs = [
-  { q: "Is it really free?", a: "Yes. The question bank, quizzes and flashcards are free, with no card and no trial that runs out." },
-  { q: "Why do I verify with WhatsApp?", a: "It keeps out fake accounts and takes about ten seconds: tap a button, press Send in WhatsApp, and you're in. It doesn't cost you anything." },
-  { q: "Will someone call me?", a: `Only if you agree when you sign up. Our team may reach out about your preparation and the ${siteConfig.course.name}. You can switch this off any time in Account settings, or reply STOP on WhatsApp.` },
-  { q: "Who is it for?", a: "Freshers going for their first DevOps role, engineers switching from support, testing or development, and working DevOps engineers preparing for their next move." },
+/** Hero tool picker. `slug` matches the question bank category; `icon` is a file in /public/category-icons. */
+const interviewTools: { name: string; slug: string; icon?: string; color: string }[] = [
+  { name: "Linux", slug: "linux", icon: "linux", color: "#FCC624" },
+  { name: "Git", slug: "git", icon: "git", color: "#F05032" },
+  { name: "Docker", slug: "docker", icon: "docker", color: "#2496ED" },
+  { name: "Kubernetes", slug: "kubernetes", icon: "kubernetes", color: "#326CE5" },
+  { name: "Helm", slug: "helm", icon: "helm", color: "#277A9F" },
+  { name: "Terraform", slug: "terraform", icon: "terraform", color: "#844FBA" },
+  { name: "Ansible", slug: "ansible", icon: "ansible", color: "#EE0000" },
+  { name: "AWS", slug: "aws", color: "#FF9900" },
+  { name: "Jenkins", slug: "jenkins", icon: "jenkins", color: "#D24939" },
+  { name: "GitHub Actions", slug: "github-actions", icon: "githubactions", color: "#2088FF" },
+  { name: "ArgoCD", slug: "argocd", icon: "argo", color: "#EF7B4D" },
+  { name: "Prometheus", slug: "prometheus", icon: "prometheus", color: "#E6522C" },
 ];
 
 export default function LandingPage() {
@@ -53,11 +61,10 @@ export default function LandingPage() {
     <main id="main-content" tabIndex={-1} className="min-h-screen bg-[#09090b] text-zinc-100">
       <Header />
       <Hero />
-      <Topics />
+      <TrySection />
       <Tools />
       <Steps />
       <Course />
-      <Faq />
       <FinalCta />
       <Footer />
     </main>
@@ -70,9 +77,9 @@ function Header() {
       <div className="mx-auto flex h-16 max-w-6xl items-center gap-6 px-4 sm:px-6">
         <Brand />
         <nav className="hidden items-center gap-6 text-sm text-zinc-400 md:flex" aria-label="Page sections">
+          <a href="#try" className="hover:text-white">Try a question</a>
           <a href="#tools" className="hover:text-white">What you get</a>
           <a href="#how" className="hover:text-white">How it works</a>
-          <a href="#faq" className="hover:text-white">FAQ</a>
         </nav>
         <div className="ml-auto flex items-center gap-2">
           <Link href="/login" className="hidden h-10 items-center rounded-xl px-4 text-sm text-zinc-300 hover:text-white sm:inline-flex">Sign in</Link>
@@ -103,23 +110,68 @@ function Hero() {
             <Link href={SIGNUP} className="inline-flex h-12 items-center justify-center rounded-xl bg-violet-500 px-6 text-base font-semibold text-white shadow-[0_14px_40px_rgba(139,92,246,.3)] transition hover:bg-violet-400">
               Start preparing free
             </Link>
-            <a href="#try" className="inline-flex h-12 items-center justify-center rounded-xl border border-white/[.12] px-6 text-base text-zinc-200 transition hover:border-white/25 lg:hidden">
-              Try a question first
+            <a href="#try" className="inline-flex h-12 items-center justify-center rounded-xl border border-white/[.12] px-6 text-base text-zinc-200 transition hover:border-white/25">
+              Try 3 questions first
             </a>
           </div>
           <p className="mt-4 flex items-center gap-2 text-sm text-zinc-400">
             <MessageCircle size={15} className="text-emerald-400" /> Sign up with email or Google · verify on WhatsApp in 10 seconds
           </p>
         </div>
-        <motion.div id="try" initial={reduced ? false : { opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: "easeOut" }} className="scroll-mt-24">
-          <TryQuestion />
+        <motion.div initial={reduced ? false : { opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: "easeOut" }}>
+          <ToolPicker />
         </motion.div>
       </div>
     </section>
   );
 }
 
-/** The hero: answer a real interview question right on the page. */
+/** The hero: "What's your interview on?" — one tap opens sign-up for that topic. */
+function ToolPicker() {
+  const pick = (slug: string) => rememberInterestTopic(slug);
+  return (
+    <div className="rounded-[22px] border border-white/[.09] bg-[#111113] p-5 shadow-[0_30px_100px_rgba(0,0,0,.45)] sm:p-6">
+      <h2 className="text-xl font-semibold tracking-[-.02em] text-white">What&rsquo;s your interview on?</h2>
+      <p className="mt-1 text-sm text-zinc-400">Pick a tool and start with its questions.</p>
+      <ul className="mt-5 grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-2.5">
+        {interviewTools.map((tool) => (
+          <li key={tool.slug}>
+            <Link
+              href={SIGNUP}
+              onClick={() => pick(tool.slug)}
+              className="group flex aspect-square flex-col items-center justify-center gap-2 rounded-2xl border border-white/[.08] bg-white/[.02] p-2 text-center transition hover:-translate-y-0.5 focus-visible:-translate-y-0.5"
+              style={{ ["--tool" as string]: tool.color }}
+            >
+              <span className="grid size-11 place-items-center rounded-xl bg-white shadow-[0_6px_20px_rgba(0,0,0,.25)] transition group-hover:shadow-[0_0_0_3px_var(--tool)] sm:size-12">
+                {tool.icon
+                  ? <img src={`/category-icons/${tool.icon}.svg`} alt="" width={26} height={26} className="size-6 sm:size-7" />
+                  : <Cloud size={24} style={{ color: tool.color }} aria-hidden />}
+              </span>
+              <span className="text-[13px] font-medium leading-tight text-zinc-200 group-hover:text-white">{tool.name}</span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-4 text-sm text-zinc-500">Plus Nginx, Grafana, Python and more inside.</p>
+    </div>
+  );
+}
+
+function TrySection() {
+  return (
+    <section id="try" className="scroll-mt-20 border-b border-white/[.06] py-16 sm:py-20">
+      <div className="mx-auto grid max-w-6xl gap-10 px-4 sm:px-6 lg:grid-cols-[.8fr_1.2fr] lg:items-start lg:gap-14">
+        <div>
+          <h2 className="text-3xl font-semibold tracking-[-.03em] text-white sm:text-4xl">Try three real interview questions</h2>
+          <p className="mt-4 max-w-md text-[15px] leading-7 text-zinc-300">No sign-up needed. Each answer comes with a short explanation, the same way every question in the bank does.</p>
+        </div>
+        <TryQuestion />
+      </div>
+    </section>
+  );
+}
+
+/** Answer a real interview question right on the page. */
 function TryQuestion() {
   const [index, setIndex] = useState(0);
   const [picked, setPicked] = useState<number | null>(null);
@@ -196,21 +248,6 @@ function TryQuestion() {
         </>
       )}
     </div>
-  );
-}
-
-function Topics() {
-  return (
-    <section className="border-b border-white/[.06] py-10">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <h2 className="text-base font-medium text-zinc-300">Every topic interviewers ask about</h2>
-        <ul className="mt-4 flex flex-wrap gap-2">
-          {topics.map((topic) => (
-            <li key={topic} className="rounded-full border border-white/[.09] px-3.5 py-1.5 text-sm text-zinc-300">{topic}</li>
-          ))}
-        </ul>
-      </div>
-    </section>
   );
 }
 
@@ -301,31 +338,6 @@ function Course() {
           {siteConfig.course.url && (
             <a href={siteConfig.course.url} target="_blank" rel="noreferrer" className="mt-5 inline-flex h-11 items-center rounded-xl border border-white/[.12] px-5 text-sm text-zinc-100 hover:border-white/25">About the course</a>
           )}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Faq() {
-  const [open, setOpen] = useState<number | null>(0);
-  return (
-    <section id="faq" className="scroll-mt-20 border-b border-white/[.06] py-16 sm:py-20">
-      <div className="mx-auto max-w-3xl px-4 sm:px-6">
-        <h2 className="text-3xl font-semibold tracking-[-.03em] text-white sm:text-4xl">Questions</h2>
-        <div className="mt-8 divide-y divide-white/[.08] border-y border-white/[.08]">
-          {faqs.map((item, index) => {
-            const isOpen = open === index;
-            return (
-              <div key={item.q}>
-                <button onClick={() => setOpen(isOpen ? null : index)} aria-expanded={isOpen} className="flex w-full items-center justify-between gap-4 py-5 text-left text-lg font-medium text-white">
-                  {item.q}
-                  <ChevronDown size={20} className={cn("shrink-0 text-zinc-400 transition-transform", isOpen && "rotate-180")} />
-                </button>
-                {isOpen && <p className="pb-5 text-[15px] leading-7 text-zinc-300">{item.a}</p>}
-              </div>
-            );
-          })}
         </div>
       </div>
     </section>

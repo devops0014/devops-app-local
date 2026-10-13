@@ -66,7 +66,7 @@ export type Lead = {
   callbackRequestedAt: string | null;
   doNotContact: boolean;
   source: { utmSource: string | null; utmMedium: string | null; utmCampaign: string | null; utmContent: string | null; referrer: string | null; landingPath: string | null };
-  profile: { experience: string | null; jobTitle: string | null; goal: string | null; city: string | null };
+  profile: { experience: string | null; jobTitle: string | null; goal: string | null; city: string | null; interestTopic: string | null };
 };
 
 /** Human label for where a lead came from. */
@@ -124,4 +124,11 @@ export function normalizePhone(raw: string) {
   if (/^0[6-9]\d{9}$/.test(bare)) return `+91${bare.slice(1)}`;
   if (/^91[6-9]\d{9}$/.test(bare)) return `+${bare}`;
   return null;
+}
+
+/** "github-actions" → "GitHub Actions" for display. */
+export function topicLabel(slug: string | null | undefined) {
+  if (!slug) return null;
+  const known: Record<string, string> = { aws: "AWS", argocd: "ArgoCD", "github-actions": "GitHub Actions" };
+  return known[slug] ?? slug.split("-").map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(" ");
 }

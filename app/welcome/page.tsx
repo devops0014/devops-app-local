@@ -8,6 +8,7 @@ import { Badge, Button } from "@/components/ui";
 import { experienceLabels, goalLabels } from "@/lib/leads";
 import { supabase } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
+import { interestTopic } from "@/lib/attribution";
 
 /** Three quick questions after WhatsApp verification. Helps the team (and the roadmap) fit the student. */
 export default function WelcomePage() {
@@ -22,7 +23,10 @@ export default function WelcomePage() {
 
   const next = () => {
     const value = new URLSearchParams(window.location.search).get("returnTo");
-    return value && value.startsWith("/") && !value.startsWith("//") ? value : "/dashboard";
+    const safe = value && value.startsWith("/") && !value.startsWith("//") ? value : "/dashboard";
+    // Picked a tool on the home page? Start them on that topic.
+    const topic = interestTopic();
+    return safe === "/dashboard" && topic ? `/practice?category=${encodeURIComponent(topic)}` : safe;
   };
 
   useEffect(() => {

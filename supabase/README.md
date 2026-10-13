@@ -71,3 +71,6 @@ It stores the short `DC-XXXXXXXX` codes students send to your WhatsApp number.
 Run `migrations/2026101301_sales_tools.sql` last. It adds the lead source
 (UTM) and onboarding answers to profiles, the "No answer" and "Enrolled"
 statuses, follow-up dates, lead owners, callback requests and do-not-contact.
+
+Then run `migrations/2026101302_interest_topic.sql`. It saves the tool a student
+picked on the home page ("What's your interview on?") so callers can see it.

@@ -70,3 +70,17 @@ test("mobile bottom bar shows quiz and flashcards to students and leads to the t
   assert.match(shell, /studentMobileItems[\s\S]*"\/quiz"[\s\S]*"\/flashcards"/);
   assert.match(shell, /salesMobileItems[\s\S]*"\/leads"/);
 });
+
+test("home page opens with the tool picker, keeps the sample quiz, and has no FAQ", () => {
+  const landing = read("app/page.tsx");
+  assert.match(landing, /function ToolPicker/);
+  assert.match(landing, /What&rsquo;s your interview on\?/);
+  assert.match(landing, /rememberInterestTopic\(slug\)/);
+  assert.match(landing, /<TrySection \/>/);
+  assert.doesNotMatch(landing, /function Faq|faqs|href="#faq"/);
+  for (const match of landing.matchAll(/icon: "([a-z]+)"/g)) {
+    assert.ok(existsSync(new URL(`../../public/category-icons/${match[1]}.svg`, import.meta.url)), `missing icon ${match[1]}`);
+  }
+  assert.match(read("app/welcome/page.tsx"), /\/practice\?category=/);
+  assert.match(read("supabase/migrations/2026101302_interest_topic.sql"), /interest_topic/);
+});

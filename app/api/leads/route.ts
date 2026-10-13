@@ -1,6 +1,6 @@
 import { AdminApiError, apiError, requirePermission } from "@/lib/admin/server";
 import {
-  experienceLabels, formatIst, goalLabels, heatLabel, istRange, istToday, leadStatuses, leadStatusMeta, sourceLabel, type Lead,
+  experienceLabels, formatIst, goalLabels, heatLabel, istRange, istToday, leadStatuses, leadStatusMeta, sourceLabel, topicLabel, type Lead,
 } from "@/lib/leads";
 import { loadCallers, loadLeads, type LeadQuery } from "@/lib/leads-server";
 
@@ -67,11 +67,11 @@ export async function GET(request: Request) {
 function csvResponse(leads: Lead[], label: string) {
   const rows = [
     ["Name", "Email", "Phone", "WhatsApp verified", "Registered (IST)", "Status", "Follow-up", "Assigned to", "Heat", "Score",
-      "Experience", "Role", "Goal", "City", "Source", "Medium", "Campaign", "Ad", "Quizzes", "Flashcards", "Callback requested", "Do not contact", "Notes", "Latest note"],
+      "Interested in", "Experience", "Role", "Goal", "City", "Source", "Medium", "Campaign", "Ad", "Quizzes", "Flashcards", "Callback requested", "Do not contact", "Notes", "Latest note"],
     ...leads.map((lead) => [
       lead.name ?? "", lead.email, lead.mobile ?? "", lead.phoneVerified ? "Yes" : "No", formatIst(lead.registeredAt),
       leadStatusMeta[lead.status].label, lead.followUpAt ?? "", lead.assignedToName ?? "", heatLabel(lead.score).label, lead.score,
-      lead.profile.experience ? experienceLabels[lead.profile.experience] ?? lead.profile.experience : "", lead.profile.jobTitle ?? "",
+      topicLabel(lead.profile.interestTopic) ?? "", lead.profile.experience ? experienceLabels[lead.profile.experience] ?? lead.profile.experience : "", lead.profile.jobTitle ?? "",
       lead.profile.goal ? goalLabels[lead.profile.goal] ?? lead.profile.goal : "", lead.profile.city ?? "",
       lead.source.utmSource ?? (lead.source.referrer ? "referral" : "direct"), lead.source.utmMedium ?? "", lead.source.utmCampaign ?? "", lead.source.utmContent ?? "",
       lead.quizAttempts, lead.flashcards, lead.callbackRequestedAt ? formatIst(lead.callbackRequestedAt) : "", lead.doNotContact ? "Yes" : "No",

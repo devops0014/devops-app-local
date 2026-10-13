@@ -13,8 +13,14 @@ export async function POST(request: Request) {
     const user = await requireUser(request);
     const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
     const { data: profile } = await supabaseAdmin!.from("profiles")
-      .select("created_at,utm_source,referrer,landing_path").eq("id", user.id).maybeSingle();
-    if (!profile || profile.utm_source || profile.referrer || profile.landing_path) return NextResponse.json({ saved: false });
+      .select("created_at,utm_source,referrer,landing_path,interest_topic").eq("id", user.id).maybeSingle();
+    if (!profile) return NextResponse.json({ saved: false });
+    // Topic picked on the home page (Google sign-ups can't carry it in metadata).
+    const topic = typeof body?.interest_topic === "string" ? body.interest_topic.trim().toLowerCase() : "";
+    if (!profile.interest_topic && /^[a-z0-9-]{1,40}$/.test(topic)) {
+      await supabaseAdmin!.from("profiles").update({ interest_topic: topic }).eq("id", user.id);
+    }
+    if (profile.utm_source || profile.referrer || profile.landing_path) return NextResponse.json({ saved: false });
     if (Date.now() - Date.parse(profile.created_at) > 2 * 24 * 60 * 60_000) return NextResponse.json({ saved: false });
     const update = Object.fromEntries(fields
       .map((key) => [key, typeof body?.[key] === "string" ? String(body[key]).trim().slice(0, key === "referrer" || key === "landing_path" ? 300 : 150) : ""])

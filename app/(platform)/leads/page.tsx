@@ -10,7 +10,7 @@ import { RoleGate } from "@/components/access-gate";
 import { Badge, Button, Card } from "@/components/ui";
 import { useCurrentUser } from "@/lib/hooks/use-current-user";
 import {
-  experienceLabels, formatIst, goalLabels, heatLabel, istShift, istToday, leadStatuses, leadStatusMeta, sourceLabel,
+  experienceLabels, formatIst, goalLabels, heatLabel, istShift, istToday, leadStatuses, leadStatusMeta, sourceLabel, topicLabel,
   type Lead, type LeadActivity, type LeadStatus,
 } from "@/lib/leads";
 import { can } from "@/lib/rbac";
@@ -321,7 +321,7 @@ function LeadRow({ lead, today, canUpdate, onStatus, onOpen }: { lead: Lead; tod
         <span className="min-w-0">
           <span className="block truncate text-[15px] font-medium text-zinc-100">{lead.name || "Unnamed student"}</span>
           <span className="mt-0.5 block truncate text-xs text-zinc-400">
-            {[lead.profile.experience && experienceLabels[lead.profile.experience], lead.profile.city].filter(Boolean).join(" · ") || lead.email}
+            {[topicLabel(lead.profile.interestTopic), lead.profile.experience && experienceLabels[lead.profile.experience], lead.profile.city].filter(Boolean).join(" · ") || lead.email}
           </span>
         </span>
       </button>
@@ -462,8 +462,9 @@ function LeadDrawer({ lead, today, callers, canUpdate, onClose, onPatch, onNoteA
                 <Fact label="Goal" value={lead.profile.goal ? goalLabels[lead.profile.goal] : null} />
                 <Fact label="Current role" value={lead.profile.jobTitle} />
                 <Fact label="City" value={lead.profile.city} />
+                <Fact label="Interested in" value={topicLabel(lead.profile.interestTopic)} />
                 <Fact label="Came from" value={sourceLabel(lead.source)} />
-                <Fact label="Registered" value={formatIst(lead.registeredAt)} />
+                <Fact label="Registered" value={formatIst(lead.registeredAt)} wide />
                 <Fact label="Activity" value={`${lead.quizAttempts} quizzes · ${lead.flashcards} cards · ${lead.activeDays} days active`} wide />
               </dl>
               <div className="mt-3 flex items-center gap-2"><HeatBadge score={lead.score} /><span className="text-xs text-zinc-500">Engagement score {lead.score}/100</span></div>
