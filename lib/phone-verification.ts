@@ -1,6 +1,7 @@
 import { randomInt } from "node:crypto";
 import { supabaseAdmin } from "@/lib/supabase/server";
 import { isWhatsAppDevMode } from "@/lib/whatsapp";
+import { sendMetaEvent, verifiedSignupEventId } from "@/lib/meta-capi";
 
 /**
  * "inbound" (default, free): student sends `VERIFY DC-XXXXXXXX` to your number.
@@ -71,6 +72,13 @@ export async function completePhoneVerification(userId: string, phoneE164: strin
   await supabaseAdmin!.auth.admin.updateUserById(userId, {
     user_metadata: { ...(authUser.user?.user_metadata ?? {}), phone: phoneE164, mobile: phoneE164 },
   });
+  await sendMetaEvent({
+    eventName: "CompleteRegistration",
+    eventId: verifiedSignupEventId(userId),
+    userId,
+    email: authUser.user?.email,
+    phone: phoneE164,
+  });
   return { ok: true, phone: phoneE164 };
 }
 
@@ -91,4 +99,28 @@ export async function handleInboundToken(token: string, fromWaId: string) {
     ? { status: "verified", phone, verified_at: new Date().toISOString(), error: null }
     : { status: "failed", phone, error: result.error }).eq("id", request.id);
   return result.ok ? { ok: true as const, phone, already: false } : result;
+}
+
+/** "STOP" on WhatsApp: withdraw contact consent for the account that owns this number. */
+export async function handleInboundStop(fromWaId: string) {
+  const phone = `+${fromWaId.replace(/\D/g, "")}`;
+  const { data: profile } = await supabaseAdmin!.from("profiles")
+    .select("id,role").eq("mobile", phone).not("phone_verified_at", "is", null).maybeSingle();
+  if (!profile) return false;
+  const now = new Date().toISOString();
+  await supabaseAdmin!.from("profiles").update({ marketing_consent: false, marketing_consent_at: now }).eq("id", profile.id);
+  if (profile.role === "student") {
+    await supabaseAdmin!.from("leads").upsert(
+      { user_id: profile.id, do_not_contact: true, do_not_contact_at: now, follow_up_at: null },
+      { onConflict: "user_id" },
+    );
+    await supabaseAdmin!.from("lead_activity").insert({
+      user_id: profile.id, author_id: profile.id, kind: "opt_out", body: "Replied STOP on WhatsApp — do not contact",
+    });
+  }
+  return true;
+}
+
+export function isStopMessage(text: string) {
+  return /^\s*(stop|unsubscribe|stop all|opt ?out)\s*[.!]?\s*$/i.test(text);
 }

@@ -46,11 +46,11 @@ export default function ResetPasswordPage() {
           <form onSubmit={submit} className="mt-7 space-y-4">
             {["password", "confirmation"].map((name, index) => (
               <label key={name} className="block">
-                <span className="mb-2 block text-[10px] font-medium text-zinc-500">{index === 0 ? "New password" : "Confirm password"}</span>
+                <span className="mb-2 block text-xs font-medium text-zinc-500">{index === 0 ? "New password" : "Confirm password"}</span>
                 <input name={name} type="password" minLength={8} required className="h-11 w-full rounded-xl border border-white/[.08] bg-white/[.025] px-3 text-xs text-zinc-200 focus:border-violet-400/30" />
               </label>
             ))}
-            {error && <p className="rounded-xl border border-rose-400/15 bg-rose-400/[.06] px-3 py-2.5 text-[10px] text-rose-300">{error}</p>}
+            {error && <p className="rounded-xl border border-rose-400/15 bg-rose-400/[.06] px-3 py-2.5 text-xs text-rose-300">{error}</p>}
             <Button type="submit" size="lg" disabled={loading} className="w-full">{loading ? "Updating…" : <><CheckCircle2 size={14} /> Update password</>}</Button>
           </form>
         </section>

@@ -5,8 +5,14 @@ import { supabase } from "@/lib/supabase/client";
 import type { Lead, LeadActivity, LeadStatus } from "@/lib/leads";
 import type { Role } from "@/lib/rbac";
 
-export type LeadFilters = { from: string; to: string; status: string; verified: string; q: string };
-export type LeadCounts = Record<LeadStatus, number> & { total: number; verified: number };
+export type LeadView = "registered" | "followups" | "callbacks";
+export type LeadFilters = {
+  view: LeadView; from: string; to: string; status: string; verified: string; q: string;
+  owner: string; source: string; sort: "recent" | "hot";
+};
+export type LeadCounts = Record<LeadStatus, number> & { total: number; verified: number; hot: number };
+export type Caller = { id: string; name: string };
+export type LeadPatch = { status?: LeadStatus; followUpAt?: string | null; assignedTo?: string | null };
 export type TeamMember = { id: string; name: string | null; email: string; role: Role; created_at: string };
 
 function query(filters: LeadFilters, extra: Record<string, string> = {}) {
@@ -14,11 +20,11 @@ function query(filters: LeadFilters, extra: Record<string, string> = {}) {
 }
 
 export async function listLeads(filters: LeadFilters) {
-  return adminFetch<{ leads: Lead[]; counts: LeadCounts; range: { from: string; to: string } }>(`/api/leads?${query(filters)}`);
+  return adminFetch<{ leads: Lead[]; counts: LeadCounts; sources: string[]; callers: Caller[]; range: { from: string; to: string } }>(`/api/leads?${query(filters)}`);
 }
 
-export async function updateLeadStatus(id: string, status: LeadStatus) {
-  return adminFetch<{ status: LeadStatus; statusUpdatedAt: string }>(`/api/leads/${id}`, { method: "PATCH", body: JSON.stringify({ status }) });
+export async function updateLead(id: string, patch: LeadPatch) {
+  return adminFetch<{ ok: true; updatedAt: string }>(`/api/leads/${id}`, { method: "PATCH", body: JSON.stringify(patch) });
 }
 
 export async function listLeadActivity(id: string) {
@@ -41,7 +47,7 @@ export async function downloadLeadsCsv(filters: LeadFilters) {
   const url = URL.createObjectURL(await response.blob());
   const anchor = document.createElement("a");
   anchor.href = url;
-  anchor.download = filters.from === filters.to ? `leads-${filters.from}.csv` : `leads-${filters.from}-to-${filters.to}.csv`;
+  anchor.download = filters.view !== "registered" ? `leads-${filters.view}.csv` : filters.from === filters.to ? `leads-${filters.from}.csv` : `leads-${filters.from}-to-${filters.to}.csv`;
   anchor.click();
   URL.revokeObjectURL(url);
 }

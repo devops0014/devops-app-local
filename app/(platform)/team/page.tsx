@@ -88,7 +88,7 @@ function TeamManager() {
           return (
             <div key={member.id} className="grid gap-3 border-b border-white/[.05] p-4 last:border-0 sm:grid-cols-[1fr_180px_110px] sm:items-center">
               <div className="min-w-0">
-                <p className="truncate text-sm">{member.name || member.email} {self && <span className="text-[10px] text-zinc-500">(you)</span>}</p>
+                <p className="truncate text-sm">{member.name || member.email} {self && <span className="text-xs text-zinc-500">(you)</span>}</p>
                 <p className="truncate text-[11px] text-zinc-500">{member.email} · joined {formatIst(member.created_at, { dateStyle: "medium" })}</p>
               </div>
               <select value={member.role} disabled={self || busy} onChange={(event) => void assign(member.email, event.target.value as Role)} className="h-9 rounded-lg border border-white/[.08] bg-[var(--panel)] px-2.5 text-xs disabled:opacity-60" aria-label={`Role for ${member.email}`}>

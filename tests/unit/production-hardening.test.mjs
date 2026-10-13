@@ -40,7 +40,13 @@ test("dark platform UI raises muted-text contrast and minimum label sizes", asyn
   for (const utility of ["text-zinc-700", "text-zinc-600", "text-zinc-500"]) {
     assert.match(css, new RegExp(`app-shell.*${utility}`));
   }
-  for (const size of ["text-\\[8px\\]", "text-\\[9px\\]", "text-\\[10px\\]"]) {
-    assert.match(css, new RegExp(`app-shell.*${size}`));
+});
+
+test("no UI text is smaller than 11px", async () => {
+  const { readdir } = await import("node:fs/promises");
+  const walk = async (dir) => (await Promise.all((await readdir(new URL(`../../${dir}`, import.meta.url), { withFileTypes: true }))
+    .map((entry) => entry.isDirectory() ? walk(`${dir}/${entry.name}`) : entry.name.endsWith(".tsx") ? [`${dir}/${entry.name}`] : []))).flat();
+  for (const file of [...await walk("app"), ...await walk("components")]) {
+    assert.doesNotMatch(await read(file), /text-\[(?:[1-9]|10)px\]/, `${file} uses text smaller than 11px`);
   }
 });

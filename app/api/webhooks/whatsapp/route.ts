@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { extractVerifyToken, handleInboundToken } from "@/lib/phone-verification";
+import { extractVerifyToken, handleInboundStop, handleInboundToken, isStopMessage } from "@/lib/phone-verification";
 import { sendWhatsAppText, verifyWebhookSignature } from "@/lib/whatsapp";
 import { supabaseAdmin } from "@/lib/supabase/server";
 
@@ -37,6 +37,16 @@ export async function POST(request: Request) {
   for (const message of messages.slice(0, 20)) {
     const from = message.from?.replace(/\D/g, "");
     const text = message.text?.body ?? message.button?.text ?? "";
+    if (from && isStopMessage(text)) {
+      try {
+        if (await handleInboundStop(from)) {
+          await sendWhatsAppText(from, "You won't be contacted by our team any more. You can keep using the platform, and turn this back on any time in Account settings.");
+        }
+      } catch (cause) {
+        console.error("WhatsApp opt-out failed", cause);
+      }
+      continue;
+    }
     const token = extractVerifyToken(text);
     if (!from || !token) continue;
     try {

@@ -30,7 +30,7 @@ export function PlatformManager({ mode, query = "" }: { mode: "students" | "audi
   if (loading) return <Card className="mt-4 grid min-h-64 place-items-center"><LoaderCircle className="animate-spin text-violet-400" /></Card>;
   if (error) return <p className="mt-4 rounded-xl border border-rose-400/15 bg-rose-400/[.05] p-4 text-xs text-rose-300">{error}</p>;
   if (mode === "audit") return <Card className="mt-4 overflow-hidden">
-    {visibleLogs.length ? visibleLogs.map((log) => <div key={log.id} className="flex items-start gap-3 border-b border-white/[.05] p-4 last:border-0"><span className="grid size-9 shrink-0 place-items-center rounded-xl bg-violet-400/10 text-violet-300"><Activity size={15} /></span><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><p className="text-xs font-medium">{humanize(log.action)}</p><Badge>{log.entity_type}</Badge></div><p className="mt-1 text-[9px] text-zinc-600">{log.profiles?.name || log.profiles?.email || "System administrator"} · {new Date(log.created_at).toLocaleString()}</p></div></div>) : <Empty label="No admin activity has been recorded yet." />}
+    {visibleLogs.length ? visibleLogs.map((log) => <div key={log.id} className="flex items-start gap-3 border-b border-white/[.05] p-4 last:border-0"><span className="grid size-9 shrink-0 place-items-center rounded-xl bg-violet-400/10 text-violet-300"><Activity size={15} /></span><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><p className="text-xs font-medium">{humanize(log.action)}</p><Badge>{log.entity_type}</Badge></div><p className="mt-1 text-xs text-zinc-600">{log.profiles?.name || log.profiles?.email || "System administrator"} · {new Date(log.created_at).toLocaleString()}</p></div></div>) : <Empty label="No admin activity has been recorded yet." />}
   </Card>;
   return <>
     <div className="mt-4 flex flex-wrap gap-2">
@@ -43,13 +43,13 @@ export function PlatformManager({ mode, query = "" }: { mode: "students" | "audi
         const open = expanded === student.id;
         return <button key={student.id} onClick={() => setExpanded(open ? null : student.id)} className="block w-full border-b border-white/[.05] p-4 text-left last:border-0 hover:bg-white/[.02]">
           <div className="grid gap-3 sm:grid-cols-[1fr_130px_80px_90px_90px] sm:items-center">
-            <div className="flex min-w-0 items-center gap-3"><span className="relative grid size-10 shrink-0 place-items-center rounded-xl bg-violet-400/10 text-[10px] font-semibold text-violet-300">{initials(student.name || student.email)}<i className={`absolute -right-1 -top-1 size-2.5 rounded-full border-2 border-[var(--panel)] ${student.is_online ? "bg-emerald-400" : "bg-zinc-700"}`} /></span><div className="min-w-0"><p className="truncate text-xs">{student.name || "Profile incomplete"}</p><p className={`mt-1 text-[9px] ${student.is_online ? "text-emerald-400" : "text-zinc-600"}`}>{student.is_online ? "Online · practicing now" : "Offline"}</p><p className="mt-0.5 truncate text-[9px] text-zinc-600">{student.email}</p></div></div>
+            <div className="flex min-w-0 items-center gap-3"><span className="relative grid size-10 shrink-0 place-items-center rounded-xl bg-violet-400/10 text-xs font-semibold text-violet-300">{initials(student.name || student.email)}<i className={`absolute -right-1 -top-1 size-2.5 rounded-full border-2 border-[var(--panel)] ${student.is_online ? "bg-emerald-400" : "bg-zinc-700"}`} /></span><div className="min-w-0"><p className="truncate text-xs">{student.name || "Profile incomplete"}</p><p className={`mt-1 text-xs ${student.is_online ? "text-emerald-400" : "text-zinc-600"}`}>{student.is_online ? "Online · practicing now" : "Offline"}</p><p className="mt-0.5 truncate text-xs text-zinc-600">{student.email}</p></div></div>
             <Badge tone="violet">Joined {new Date(student.created_at).toLocaleDateString("en-IN", { dateStyle: "medium" })}</Badge>
             <Badge tone={student.is_online ? "green" : "amber"}>{student.is_online ? "online" : "offline"}</Badge>
-            <span className="text-[10px]"><strong>{student.performance_score}</strong>/100</span>
-            <span className="flex items-center gap-1 text-[9px] text-zinc-500"><Laptop size={11} /> {student.active_devices} devices</span>
+            <span className="text-xs"><strong>{student.performance_score}</strong>/100</span>
+            <span className="flex items-center gap-1 text-xs text-zinc-500"><Laptop size={11} /> {student.active_devices} devices</span>
           </div>
-          {open && <div className="mt-4 grid gap-3 rounded-xl border border-white/[.06] bg-white/[.02] p-4 text-[10px] sm:grid-cols-3 lg:grid-cols-6">
+          {open && <div className="mt-4 grid gap-3 rounded-xl border border-white/[.06] bg-white/[.02] p-4 text-xs sm:grid-cols-3 lg:grid-cols-6">
             <Metric label="Mobile" value={student.mobile || "Not provided"} />
             <Metric label="Quiz attempts" value={String(student.quiz_attempts)} />
             <Metric label="Quiz average" value={`${student.quiz_average}%`} />

@@ -16,6 +16,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { AccuracyAreaChart, MasteryRadarChart } from "@/components/charts";
+import { trendDelta, weeklyAccuracy } from "@/lib/progress-series";
 import { useContentCatalog } from "@/lib/hooks/use-content-catalog";
 import { Badge, Button, Card, ProgressBar, SectionTitle } from "@/components/ui";
 import { useAppStore } from "@/lib/store";
@@ -58,23 +59,29 @@ export default function AnalyticsPage() {
     const categoryMastered = categoryQuestions.filter((question) => progress[question.id]?.status === "Mastered").length;
     return { ...category, mastery: category.total ? Math.round(categoryMastered / category.total * 100) : 0, color: ["#a78bfa","#22d3ee","#34d399","#f59e0b"][index % 4] };
   });
+  const weekly = weeklyAccuracy(quizAttempts);
+  const weeklyDelta = trendDelta(weekly);
+  const radar = categories
+    .filter((category) => questions.some((question) => question.categorySlug === category.slug && progress[question.id] && progress[question.id].status !== "Not Started"))
+    .slice(0, 8)
+    .map((category) => ({ category: category.name.length > 12 ? `${category.name.slice(0, 11)}…` : category.name, score: category.mastery }));
   return (
     <div className="mx-auto max-w-[1500px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[.17em] text-violet-400">Performance intelligence</p>
+          <p className="text-xs font-semibold uppercase tracking-[.17em] text-violet-400">Performance intelligence</p>
           <h1 className="mt-1 text-2xl font-semibold tracking-[-.04em] sm:text-3xl">Analytics</h1>
           <p className="mt-2 text-xs text-zinc-500">See what is improving, what needs revision, and where to focus next.</p>
         </div>
         <div className="flex items-center gap-2">
-          <button className="flex h-10 items-center gap-2 rounded-xl border border-white/[.08] bg-white/[.035] px-3 text-[10px] text-zinc-500"><CalendarDays size={14} /> Last 8 weeks <ChevronRight size={12} className="rotate-90" /></button>
+          <button className="flex h-10 items-center gap-2 rounded-xl border border-white/[.08] bg-white/[.035] px-3 text-xs text-zinc-500"><CalendarDays size={14} /> Last 8 weeks <ChevronRight size={12} className="rotate-90" /></button>
           <Button variant="secondary"><Download size={14} /> Export</Button>
         </div>
       </div>
 
       <section className="mt-7 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {[
-          { icon: Target, label: "Overall accuracy", value: `${currentAccuracy}%`, delta: quizAttempts.length ? `${quizAttempts.length} live` : "+6.2%", color: "text-violet-300 bg-violet-400/10" },
+          { icon: Target, label: "Overall accuracy", value: `${currentAccuracy}%`, delta: quizAttempts.length ? `${quizAttempts.length} quizzes` : "No quizzes yet", color: "text-violet-300 bg-violet-400/10" },
           { icon: CheckCircle2, label: "Mastered", value: String(mastered), delta: "Synced", color: "text-emerald-300 bg-emerald-400/10" },
           { icon: Clock3, label: "Practice time", value: `${(practiceSeconds / 3600).toFixed(1)}h`, delta: `${quizAttempts.length} sessions`, color: "text-cyan-300 bg-cyan-400/10" },
           { icon: Flame, label: "Consistency", value: `${streak} days`, delta: "Current streak", color: "text-amber-300 bg-amber-400/10" },
@@ -85,7 +92,7 @@ export default function AnalyticsPage() {
               <Badge tone="green"><TrendingUp size={10} className="mr-1" />{stat.delta}</Badge>
             </div>
             <p className="mt-5 text-2xl font-semibold tracking-tight">{stat.value}</p>
-            <p className="mt-1 text-[10px] text-zinc-600">{stat.label}</p>
+            <p className="mt-1 text-xs text-zinc-600">{stat.label}</p>
           </Card>
         ))}
       </section>
@@ -95,13 +102,13 @@ export default function AnalyticsPage() {
           <SectionTitle
             eyebrow="8-week trend"
             title="Accuracy over time"
-            action={<Badge tone="green"><TrendingUp size={10} className="mr-1" /> +36 pts</Badge>}
+            action={weeklyDelta !== null ? <Badge tone={weeklyDelta >= 0 ? "green" : "amber"}><TrendingUp size={12} className="mr-1" /> {weeklyDelta >= 0 ? "+" : ""}{weeklyDelta} pts</Badge> : undefined}
           />
-          <div className="mt-5 h-[300px]"><AccuracyAreaChart /></div>
+          <div className="mt-5 h-[300px]"><AccuracyAreaChart data={weekly} /></div>
         </Card>
         <Card className="p-5">
           <SectionTitle eyebrow="Current mastery" title="Category radar" />
-          <div className="mt-2 h-[320px]"><MasteryRadarChart /></div>
+          <div className="mt-2 h-[320px]"><MasteryRadarChart data={radar} /></div>
         </Card>
       </section>
 
@@ -115,7 +122,7 @@ export default function AnalyticsPage() {
                   <span className="grid size-10 place-items-center rounded-xl bg-cyan-400/[.07] text-sm font-semibold text-cyan-300">{attempt.score}</span>
                   <div className="min-w-0 flex-1">
                     <p className="text-xs capitalize text-zinc-300">{attempt.mode} quiz</p>
-                    <p className="mt-1 text-[9px] text-zinc-600">{attempt.total} questions · {attempt.time} · {attempt.date}</p>
+                    <p className="mt-1 text-xs text-zinc-600">{attempt.total} questions · {attempt.time} · {attempt.date}</p>
                   </div>
                   <Badge tone={attempt.score >= 80 ? "green" : "amber"}>{attempt.score >= 80 ? "Strong" : "Keep going"}</Badge>
                 </div>
@@ -125,7 +132,7 @@ export default function AnalyticsPage() {
             <div className="mt-5 rounded-2xl border border-dashed border-white/[.08] bg-white/[.015] p-6 text-center">
               <BrainCircuit size={24} className="mx-auto text-violet-300" />
               <p className="mt-3 text-xs text-zinc-400">Your first quiz result will appear here.</p>
-              <Link href="/quiz" className="mt-3 inline-flex items-center gap-1 text-[10px] text-violet-300">Start a quiz <ArrowRight size={12} /></Link>
+              <Link href="/quiz" className="mt-3 inline-flex items-center gap-1 text-xs text-violet-300">Start a quiz <ArrowRight size={12} /></Link>
             </div>
           )}
         </Card>
@@ -138,11 +145,11 @@ export default function AnalyticsPage() {
               [String(mastered), "Mastered"],
             ].map(([value, label]) => (
               <div key={label} className="rounded-xl border border-white/[.06] bg-white/[.02] p-4 text-center">
-                <p className="text-xl font-semibold">{value}</p><p className="mt-1 text-[9px] text-zinc-600">{label}</p>
+                <p className="text-xl font-semibold">{value}</p><p className="mt-1 text-xs text-zinc-600">{label}</p>
               </div>
             ))}
           </div>
-          <div className="mt-4 rounded-xl border border-violet-400/10 bg-violet-400/[.04] p-4 text-[10px] leading-5 text-zinc-500">
+          <div className="mt-4 rounded-xl border border-violet-400/10 bg-violet-400/[.04] p-4 text-xs leading-5 text-zinc-500">
             Complete one quiz and one flashcard session this week to unlock a reliable cross-mode readiness trend.
           </div>
         </Card>
@@ -152,10 +159,10 @@ export default function AnalyticsPage() {
         <Card className="p-5">
           <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[.15em] text-violet-400">154-day streak map</p>
+              <p className="text-xs font-semibold uppercase tracking-[.15em] text-violet-400">154-day streak map</p>
               <h2 className="mt-1 text-lg font-semibold">Practice activity</h2>
             </div>
-            <div className="flex items-center gap-2 text-[9px] text-zinc-600">
+            <div className="flex items-center gap-2 text-xs text-zinc-600">
               <span>Less</span>
               {heatColors.map((color) => <span key={color} className={`size-3 rounded-[3px] ${color}`} />)}
               <span>More</span>
@@ -171,7 +178,7 @@ export default function AnalyticsPage() {
                 />
               ))}
             </div>
-            <div className="mt-2 flex min-w-[760px] justify-between text-[9px] text-zinc-700">
+            <div className="mt-2 flex min-w-[760px] justify-between text-xs text-zinc-700">
               <span>March</span><span>April</span><span>May</span><span>June</span><span>July</span>
             </div>
           </div>
@@ -184,7 +191,7 @@ export default function AnalyticsPage() {
           <div className="mt-5 space-y-4">
             {categories.slice().sort((a, b) => b.mastery - a.mastery).slice(0, 4).map((category, index) => (
               <div key={category.slug} className="flex items-center gap-3">
-                <span className="grid size-8 place-items-center rounded-lg bg-emerald-400/[.07] text-[10px] font-semibold text-emerald-300">#{index + 1}</span>
+                <span className="grid size-8 place-items-center rounded-lg bg-emerald-400/[.07] text-xs font-semibold text-emerald-300">#{index + 1}</span>
                 <div className="min-w-0 flex-1">
                   <div className="flex justify-between text-xs"><span>{category.name}</span><span className="text-emerald-300">{category.mastery}%</span></div>
                   <ProgressBar value={category.mastery} color="from-emerald-500 to-cyan-400" className="mt-2" />
@@ -199,7 +206,7 @@ export default function AnalyticsPage() {
           <div className="mt-5 space-y-4">
             {categories.slice().sort((a, b) => a.mastery - b.mastery).slice(0, 4).map((category) => (
               <div key={category.slug} className="flex items-center gap-3">
-                <span className="grid size-8 place-items-center rounded-lg bg-amber-400/[.07] text-[10px] font-semibold text-amber-300"><TrendingDown size={14} /></span>
+                <span className="grid size-8 place-items-center rounded-lg bg-amber-400/[.07] text-xs font-semibold text-amber-300"><TrendingDown size={14} /></span>
                 <div className="min-w-0 flex-1">
                   <div className="flex justify-between text-xs"><span>{category.name}</span><span className="text-amber-300">{category.mastery}%</span></div>
                   <ProgressBar value={category.mastery} color="from-rose-500 to-amber-400" className="mt-2" />
@@ -223,7 +230,7 @@ export default function AnalyticsPage() {
               ["Other", 11.9, 25, "from-zinc-500 to-zinc-400"],
             ].map(([label, hours, percentage, color]) => (
               <div key={String(label)}>
-                <div className="flex justify-between text-[10px]"><span className="text-zinc-500">{label}</span><span>{hours}h</span></div>
+                <div className="flex justify-between text-xs"><span className="text-zinc-500">{label}</span><span>{hours}h</span></div>
                 <ProgressBar value={Number(percentage) * 3.2} color={String(color)} className="mt-2" />
               </div>
             ))}
@@ -233,7 +240,7 @@ export default function AnalyticsPage() {
         <Card className="overflow-hidden">
           <div className="flex items-center justify-between border-b border-white/[.07] p-5">
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[.15em] text-violet-400">Recent history</p>
+              <p className="text-xs font-semibold uppercase tracking-[.15em] text-violet-400">Recent history</p>
               <h2 className="mt-1 text-lg font-semibold">Quiz attempts</h2>
             </div>
             <Badge>{attempts.length} attempts</Badge>
@@ -241,7 +248,7 @@ export default function AnalyticsPage() {
           <div className="overflow-x-auto">
             <table className="w-full min-w-[620px] text-left">
               <thead>
-                <tr className="border-b border-white/[.06] text-[9px] uppercase tracking-wider text-zinc-700">
+                <tr className="border-b border-white/[.06] text-xs uppercase tracking-wider text-zinc-700">
                   <th className="px-5 py-3 font-medium">Mode</th>
                   <th className="px-3 py-3 font-medium">Date</th>
                   <th className="px-3 py-3 font-medium">Score</th>
@@ -252,11 +259,11 @@ export default function AnalyticsPage() {
               <tbody>
                 {attempts.map((attempt) => (
                   <tr key={attempt.id} className="border-b border-white/[.05] last:border-0 hover:bg-white/[.02]">
-                    <td className="px-5 py-4"><p className="text-xs text-zinc-300">{attempt.mode}</p><p className="mt-1 text-[9px] text-zinc-700">{attempt.id}</p></td>
-                    <td className="px-3 py-4 text-[10px] text-zinc-600">{attempt.date}</td>
+                    <td className="px-5 py-4"><p className="text-xs text-zinc-300">{attempt.mode}</p><p className="mt-1 text-xs text-zinc-700">{attempt.id}</p></td>
+                    <td className="px-3 py-4 text-xs text-zinc-600">{attempt.date}</td>
                     <td className="px-3 py-4"><Badge tone={attempt.score >= 80 ? "green" : "amber"}>{attempt.score}%</Badge></td>
-                    <td className="px-3 py-4 text-[10px] text-zinc-600">{attempt.time}</td>
-                    <td className="px-5 py-4 text-right"><Link href="/quiz" className="inline-flex items-center gap-1 text-[10px] text-violet-300"><RotateCcw size={12} /> Retry</Link></td>
+                    <td className="px-3 py-4 text-xs text-zinc-600">{attempt.time}</td>
+                    <td className="px-5 py-4 text-right"><Link href="/quiz" className="inline-flex items-center gap-1 text-xs text-violet-300"><RotateCcw size={12} /> Retry</Link></td>
                   </tr>
                 ))}
               </tbody>
@@ -272,7 +279,7 @@ export default function AnalyticsPage() {
             <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-violet-400/10 text-violet-300"><BrainCircuit size={22} /></span>
             <div className="flex-1">
               <p className="text-sm font-semibold">Your personalized focus plan is ready</p>
-              <p className="mt-1 max-w-2xl text-[10px] leading-5 text-zinc-500">Spend 20 minutes on Kubernetes networking, then take a 5-question Terraform state drill. This is the fastest route to lifting your overall score this week.</p>
+              <p className="mt-1 max-w-2xl text-xs leading-5 text-zinc-500">Spend 20 minutes on Kubernetes networking, then take a 5-question Terraform state drill. This is the fastest route to lifting your overall score this week.</p>
             </div>
             <Link href="/quiz" className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-violet-500 px-4 text-xs font-medium text-white">Start focus session <ChevronRight size={14} /></Link>
           </div>

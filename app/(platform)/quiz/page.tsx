@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { CourseCallout } from "@/components/course-callout";
 import confetti from "canvas-confetti";
 import {
   ArrowLeft,
@@ -305,7 +306,7 @@ export default function QuizPage() {
         <div className="flex items-center gap-3">
           <button aria-label="Exit quiz" onClick={() => setStage("setup")} className="grid size-10 place-items-center rounded-xl border border-white/[.08] text-zinc-500 hover:bg-white/[.05]"><X size={17} /></button>
           <div className="flex-1">
-            <div className="flex items-center justify-between text-[10px] text-zinc-600">
+            <div className="flex items-center justify-between text-xs text-zinc-600">
               <span>Question {index + 1} of {mode === "Adaptive" ? sessionTargetCount : sessionQuestions.length}</span>
               <span>{mode === "Adaptive" ? `Adaptive target · ${adaptiveDifficulty}` : mode}</span>
             </div>
@@ -326,7 +327,7 @@ export default function QuizPage() {
                 <Badge>{current.category}</Badge>
                 <Badge tone={difficultyTone(current.difficulty)}>{current.difficulty}</Badge>
                 <Badge tone="violet">{mode}</Badge>
-                <span className="ml-auto text-[10px] text-zinc-700">+40 correct · −10 incorrect</span>
+                <span className="ml-auto text-xs text-zinc-700">+40 correct · −10 incorrect</span>
               </div>
             </div>
             <div className="p-5 sm:p-8 lg:p-10">
@@ -344,7 +345,7 @@ export default function QuizPage() {
                         onClick={() => setAnswers((items) => ({ ...items, [current.id]: optionIndex }))}
                         className={`flex min-h-14 items-center gap-4 rounded-2xl border p-4 text-left text-sm transition ${selected ? "border-violet-400/35 bg-violet-400/[.09] text-violet-100" : "border-white/[.07] bg-white/[.025] text-zinc-400 hover:border-white/[.14] hover:bg-white/[.045]"}`}
                       >
-                        <span className={`grid size-7 shrink-0 place-items-center rounded-lg border font-mono text-[10px] ${selected ? "border-violet-400 bg-violet-500 text-white" : "border-white/10 text-zinc-600"}`}>{String.fromCharCode(65 + optionIndex)}</span>
+                        <span className={`grid size-7 shrink-0 place-items-center rounded-lg border font-mono text-xs ${selected ? "border-violet-400 bg-violet-500 text-white" : "border-white/10 text-zinc-600"}`}>{String.fromCharCode(65 + optionIndex)}</span>
                         <span>{option}</span>
                         {selected && <Check size={16} className="ml-auto text-violet-300" />}
                       </motion.button>
@@ -353,7 +354,7 @@ export default function QuizPage() {
                 </div>
               ) : (
                 <div className="mt-7">
-                  <label className="text-[10px] font-medium uppercase tracking-[.16em] text-zinc-600">
+                  <label className="text-xs font-medium uppercase tracking-[.16em] text-zinc-600">
                     {mode === "Hands-on" ? "Commands / code" : "Your response"}
                   </label>
                   <textarea
@@ -368,7 +369,7 @@ export default function QuizPage() {
                         {listening ? <MicOff size={14} /> : <Mic size={14} />}
                         {listening ? "Stop listening" : "Answer by voice"}
                       </Button>
-                      {speechMessage && <span className="text-[10px] text-zinc-500">{speechMessage}</span>}
+                      {speechMessage && <span className="text-xs text-zinc-500">{speechMessage}</span>}
                     </div>
                   )}
                   {!isRevealed ? (
@@ -380,7 +381,7 @@ export default function QuizPage() {
                       <div className="flex items-center gap-2 text-xs font-semibold text-cyan-200"><Sparkles size={14} /> Reference answer</div>
                       <p className="mt-3 whitespace-pre-wrap text-xs leading-6 text-zinc-400">{current.answer || "No reference answer has been added yet."}</p>
                       <div className="mt-5 border-t border-white/[.06] pt-4">
-                        <p className="text-[10px] text-zinc-500">How strong was your answer?</p>
+                        <p className="text-xs text-zinc-500">How strong was your answer?</p>
                         <div className="mt-3 grid grid-cols-5 gap-2">
                           {[1, 2, 3, 4, 5].map((rating) => (
                             <button
@@ -393,7 +394,7 @@ export default function QuizPage() {
                             </button>
                           ))}
                         </div>
-                        <div className="mt-2 flex justify-between text-[9px] text-zinc-700"><span>Needs revision</span><span>Interview ready</span></div>
+                        <div className="mt-2 flex justify-between text-xs text-zinc-700"><span>Needs revision</span><span>Interview ready</span></div>
                       </div>
                     </motion.div>
                   )}
@@ -427,7 +428,7 @@ export default function QuizPage() {
             </div>
             <div className="grid grid-cols-3 gap-px bg-white/[.06]">
               {[[`${accuracy}%`, isAutomatic ? "Accuracy" : "Readiness"], [`${score}/${sessionQuestions.length}`, isAutomatic ? "Correct" : "Mastered"], [`${quizXp(score, sessionQuestions.length) >= 0 ? "+" : ""}${quizXp(score, sessionQuestions.length)}`, "Net XP"]].map(([value, label]) => (
-                <div key={label} className="bg-[var(--panel)] px-3 py-6"><p className="text-xl font-semibold">{value}</p><p className="mt-1 text-[10px] text-zinc-600">{label}</p></div>
+                <div key={label} className="bg-[var(--panel)] px-3 py-6"><p className="text-xl font-semibold">{value}</p><p className="mt-1 text-xs text-zinc-600">{label}</p></div>
               ))}
             </div>
             <div className="p-5 text-left sm:p-7">
@@ -439,10 +440,13 @@ export default function QuizPage() {
                     <div key={question.id} className="flex items-center gap-3 rounded-xl border border-white/[.06] bg-white/[.02] p-3">
                       <span className={`grid size-7 shrink-0 place-items-center rounded-lg ${passed ? "bg-emerald-400/10 text-emerald-300" : "bg-rose-400/10 text-rose-300"}`}>{passed ? <Check size={14} /> : <X size={14} />}</span>
                       <p className="line-clamp-1 text-xs text-zinc-400">{questionIndex + 1}. {question.question}</p>
-                      <span className="ml-auto text-[9px] text-zinc-700">{isAutomatic ? (passed ? "Correct" : "Review") : `${ratings[question.id] ?? 0}/5`}</span>
+                      <span className="ml-auto text-xs text-zinc-700">{isAutomatic ? (passed ? "Correct" : "Review") : `${ratings[question.id] ?? 0}/5`}</span>
                     </div>
                   );
                 })}
+              </div>
+              <div className="mt-6">
+                <CourseCallout context={`quiz ${accuracy}%`} compact headline={accuracy >= 70 ? "You're doing well — ready to get interview-ready?" : "Want a mentor to help you close these gaps?"} />
               </div>
               <div className="mt-6 flex flex-col justify-center gap-2 sm:flex-row">
                 <Button variant="secondary" onClick={() => setStage("setup")}>Back to setup</Button>
@@ -480,10 +484,10 @@ export default function QuizPage() {
               const selected = selectedCategories.includes(category.slug);
               return (
                 <button key={category.slug} onClick={() => toggleCategory(category.slug)} className={`flex items-center gap-3 rounded-xl border p-3 text-left transition ${selected ? "border-violet-400/25 bg-violet-400/[.08] text-violet-200" : "border-white/[.065] bg-white/[.022] text-zinc-500 hover:bg-white/[.04]"}`}>
-                  <span className="grid size-8 place-items-center rounded-lg bg-white/[.045] text-[10px] font-semibold">{category.name.slice(0, 2).toUpperCase()}</span>
+                  <span className="grid size-8 place-items-center rounded-lg bg-white/[.045] text-xs font-semibold">{category.name.slice(0, 2).toUpperCase()}</span>
                   <span className="min-w-0 text-[11px] font-medium">
                     <span className="block truncate">{category.name}</span>
-                    <span className={`mt-0.5 block text-[10px] font-normal ${selected ? "text-violet-200" : "text-zinc-400"}`}>
+                    <span className={`mt-0.5 block text-xs font-normal ${selected ? "text-violet-200" : "text-zinc-400"}`}>
                       {categoryQuestionCounts[category.slug] ?? 0} questions
                     </span>
                   </span>
@@ -498,22 +502,22 @@ export default function QuizPage() {
             <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
               {modes.map((item) => (
                 <button key={item.name} onClick={() => setMode(item.name)} className={`rounded-xl border px-3 py-3 text-left text-[11px] font-medium transition ${mode === item.name ? "border-violet-400/25 bg-violet-400/10 text-violet-200" : "border-white/[.07] text-zinc-600 hover:bg-white/[.035]"}`}>
-                  {item.name}<span className={`mt-1 block text-[8px] font-normal ${mode === item.name ? "text-cyan-400" : "text-zinc-700"}`}>{item.note}</span>
+                  {item.name}<span className={`mt-1 block text-[11px] font-normal ${mode === item.name ? "text-cyan-400" : "text-zinc-700"}`}>{item.note}</span>
                 </button>
               ))}
             </div>
-            <div className="mt-3 rounded-xl border border-cyan-400/10 bg-cyan-400/[.035] p-3 text-[10px] leading-5 text-zinc-500">{modeInstructions[mode]}</div>
+            <div className="mt-3 rounded-xl border border-cyan-400/10 bg-cyan-400/[.035] p-3 text-xs leading-5 text-zinc-500">{modeInstructions[mode]}</div>
           </div>
 
           <div className="mt-8 grid gap-7 border-t border-white/[.06] pt-7 sm:grid-cols-2">
             <div>
               <h2 className="text-sm font-semibold">3. Questions in this session</h2>
               {mode === "Adaptive" ? (
-                <><p className="mt-1 text-[9px] text-zinc-600">Choose the adaptive session target.</p><div className="mt-4 grid grid-cols-5 gap-2">{[5, 10, 20, 50, 100].map((value) => <button key={value} onClick={() => setQuestionCount(value)} className={`rounded-xl border py-3 text-xs font-medium ${questionCount === value ? "border-violet-400/25 bg-violet-400/10 text-violet-200" : "border-white/[.07] text-zinc-600"}`}>{value}</button>)}</div></>
+                <><p className="mt-1 text-xs text-zinc-600">Choose the adaptive session target.</p><div className="mt-4 grid grid-cols-5 gap-2">{[5, 10, 20, 50, 100].map((value) => <button key={value} onClick={() => setQuestionCount(value)} className={`rounded-xl border py-3 text-xs font-medium ${questionCount === value ? "border-violet-400/25 bg-violet-400/10 text-violet-200" : "border-white/[.07] text-zinc-600"}`}>{value}</button>)}</div></>
               ) : (
                 <div className="mt-3 rounded-xl border border-violet-400/15 bg-violet-400/[.055] p-4">
                   <p className="text-2xl font-semibold text-violet-200">{availableCount}</p>
-                  <p className="mt-1 text-[9px] leading-4 text-zinc-500">All matching published {mode} questions are included automatically.</p>
+                  <p className="mt-1 text-xs leading-4 text-zinc-500">All matching published {mode} questions are included automatically.</p>
                 </div>
               )}
             </div>
@@ -525,7 +529,7 @@ export default function QuizPage() {
               ["Company", company, setCompany, ["Any company", ...hiringCompanies]],
               ["Experience", experience, setExperience, ["0–2 years", "3–5 years", "5+ years"]],
             ].map(([label, value, setter, options]) => (
-              <label key={String(label)} className="text-[10px] text-zinc-600">{String(label)}
+              <label key={String(label)} className="text-xs text-zinc-600">{String(label)}
                 <select value={String(value)} disabled={label === "Difficulty" && mode === "Adaptive"} onChange={(event) => (setter as (value: string) => void)(event.target.value)} className="mt-2 h-11 w-full rounded-xl border border-white/[.07] bg-[#101012] px-3 text-xs text-zinc-300 outline-none disabled:opacity-50">
                   {(options as string[]).map((option) => <option key={option}>{option}</option>)}
                 </select>
@@ -535,22 +539,22 @@ export default function QuizPage() {
         </Card>
 
         <Card className="h-fit overflow-hidden">
-          <div className="border-b border-white/[.07] bg-gradient-to-br from-violet-500/10 to-cyan-500/[.03] p-5"><div className="flex items-center gap-3"><span className="grid size-10 place-items-center rounded-xl bg-violet-400/10 text-violet-300">{mode === "Hands-on" ? <Code2 size={20} /> : <Gauge size={20} />}</span><div><p className="text-sm font-semibold">Session summary</p><p className="mt-1 text-[10px] text-zinc-600">{availableQuestions.length ? "Ready when you are" : "Content required"}</p></div></div></div>
+          <div className="border-b border-white/[.07] bg-gradient-to-br from-violet-500/10 to-cyan-500/[.03] p-5"><div className="flex items-center gap-3"><span className="grid size-10 place-items-center rounded-xl bg-violet-400/10 text-violet-300">{mode === "Hands-on" ? <Code2 size={20} /> : <Gauge size={20} />}</span><div><p className="text-sm font-semibold">Session summary</p><p className="mt-1 text-xs text-zinc-600">{availableQuestions.length ? "Ready when you are" : "Content required"}</p></div></div></div>
           <div className="space-y-4 p-5">
             {[["Questions", String(mode === "Adaptive" ? Math.min(questionCount, availableCount) : availableCount)], ["Duration", mode === "Rapid Fire" ? "20 seconds each" : `${duration} minutes`], ["Mode", mode], ["Categories", selectedCategories.length ? `${selectedCategories.length} selected` : "All"], ["Difficulty", mode === "Adaptive" ? "Starts Medium" : difficulty], ["Company", company], ["Experience", experience]].map(([label, value]) => <div key={label} className="flex items-center justify-between text-xs"><span className="text-zinc-600">{label}</span><span className="text-zinc-300">{value}</span></div>)}
-            <div className="rounded-xl border border-amber-400/10 bg-amber-400/[.045] p-3"><div className="flex items-start gap-2"><Lightbulb size={14} className="mt-0.5 shrink-0 text-amber-300" /><p className="text-[10px] leading-5 text-zinc-500">{isAutomatic ? "Answers are scored automatically. Adaptive mode changes difficulty after every answer." : "Submit your response, compare it with the reference answer, and rate yourself honestly."}</p></div></div>
+            <div className="rounded-xl border border-amber-400/10 bg-amber-400/[.045] p-3"><div className="flex items-start gap-2"><Lightbulb size={14} className="mt-0.5 shrink-0 text-amber-300" /><p className="text-xs leading-5 text-zinc-500">{isAutomatic ? "Answers are scored automatically. Adaptive mode changes difficulty after every answer." : "Submit your response, compare it with the reference answer, and rate yourself honestly."}</p></div></div>
             <Button onClick={start} disabled={contentLoading || !availableQuestions.length} size="lg" className="w-full">Start {mode} <ChevronRight size={15} /></Button>
           </div>
         </Card>
       </div>
       <Card className="mt-6 overflow-hidden">
-        <div className="border-b border-white/[.06] p-5"><h2 className="text-sm font-semibold">Quiz attempt history</h2><p className="mt-1 text-[10px] text-zinc-600">Your latest completed sessions from Supabase.</p></div>
+        <div className="border-b border-white/[.06] p-5"><h2 className="text-sm font-semibold">Quiz attempt history</h2><p className="mt-1 text-xs text-zinc-600">Your latest completed sessions from Supabase.</p></div>
         {quizHistory.length ? quizHistory.slice(0, 10).map((attempt) => (
           <div key={attempt.id} className="grid gap-2 border-b border-white/[.05] p-4 last:border-0 sm:grid-cols-[1fr_100px_100px_150px] sm:items-center">
-            <div><p className="text-xs">{attempt.mode}</p><p className="mt-1 text-[9px] text-zinc-600">{attempt.categories.join(", ") || "Mixed topics"}</p></div>
+            <div><p className="text-xs">{attempt.mode}</p><p className="mt-1 text-xs text-zinc-600">{attempt.categories.join(", ") || "Mixed topics"}</p></div>
             <Badge tone={attempt.score / Math.max(1, attempt.total) >= .7 ? "green" : "amber"}>{attempt.score}/{attempt.total}</Badge>
-            <span className="text-[10px] text-zinc-500">{Math.round(attempt.score / Math.max(1, attempt.total) * 100)}%</span>
-            <span className="text-[9px] text-zinc-600">{new Date(attempt.createdAt).toLocaleString()}</span>
+            <span className="text-xs text-zinc-500">{Math.round(attempt.score / Math.max(1, attempt.total) * 100)}%</span>
+            <span className="text-xs text-zinc-600">{new Date(attempt.createdAt).toLocaleString()}</span>
           </div>
         )) : <p className="p-8 text-center text-xs text-zinc-600">No attempts yet. Complete your first quiz to create history.</p>}
       </Card>

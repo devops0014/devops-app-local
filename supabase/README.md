@@ -65,3 +65,9 @@ update public.profiles set role = 'super_admin' where email = 'you@example.com';
 
 Run `migrations/2026101203_whatsapp_inbound_verify.sql` after the leads migration.
 It stores the short `DC-XXXXXXXX` codes students send to your WhatsApp number.
+
+## Sales tools
+
+Run `migrations/2026101301_sales_tools.sql` last. It adds the lead source
+(UTM) and onboarding answers to profiles, the "No answer" and "Enrolled"
+statuses, follow-up dates, lead owners, callback requests and do-not-contact.

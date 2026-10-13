@@ -15,7 +15,10 @@ resulting leads from a built-in dashboard.
 - Analytics with radar/area charts, activity heatmap, strengths, weaknesses, and quiz history
 - Leaderboard and achievements
 - WhatsApp OTP phone verification with contact consent for every student
-- Leads dashboard: registrations by day (IST), call status, notes timeline, click-to-call / WhatsApp, CSV export
+- Leads dashboard: new sign-ups by day (IST), follow-ups due, callback requests; call status, owner, follow-up date, notes timeline, hot/warm/cold engagement score, ad source, click-to-call / WhatsApp, CSV export
+- Ad attribution (UTM / fbclid first touch) and Meta Pixel + Conversions API for verified sign-ups
+- "Request a callback" course banner on the dashboard and quiz results
+- Privacy policy, terms, and consent withdrawal (account setting or reply STOP on WhatsApp)
 - Role-based access: student, sales team, content admin, super admin
 - Admin workspace for questions, students, categories, CSV/JSON import, and an optional AI content engine
 - Supabase PostgreSQL schema, row-level security, profile trigger, and seed data
@@ -29,6 +32,13 @@ resulting leads from a built-in dashboard.
 5. Start the app with `npm run dev`.
 
 Core student learning modes require Supabase so local testing matches production behavior.
+
+### Your business details
+
+Edit **`lib/site-config.ts`**: business name, contact email, location, course
+name and pitch, optional course URL and social links. The privacy policy, terms,
+landing page and in-app course banner all read from it. Have the privacy policy
+and terms reviewed before you run ads.
 
 ### Roles and your super admin account
 
@@ -89,11 +99,30 @@ Codes are valid for 15 minutes, one verified number per account. To switch to
 the old "we send you a 6-digit code" flow (billed by Meta as authentication
 messages), set `PHONE_VERIFY_METHOD=otp` and `WHATSAPP_OTP_TEMPLATE`.
 
+### Tracking your ads
+
+Add UTM tags to every link you post or advertise, for example:
+
+```
+https://YOUR-DOMAIN/?utm_source=meta&utm_medium=paid&utm_campaign=k8s-oct
+https://YOUR-DOMAIN/?utm_source=linkedin&utm_medium=organic&utm_campaign=post-terraform-quiz
+```
+
+The first link a visitor arrives from is remembered for 30 days and saved on
+their profile when they sign up, so the leads dashboard can filter by source.
+Meta and LinkedIn click IDs are recognised even without UTM tags.
+
+For Meta, set `NEXT_PUBLIC_META_PIXEL_ID` and `META_CAPI_ACCESS_TOKEN`. The app
+sends `PageView`, `CompleteRegistration` when a student verifies on WhatsApp (from
+both the browser and the server, de-duplicated by event ID) and `Lead` when they
+request a callback. Optimise your campaigns for **CompleteRegistration**.
+
 ### Upgrading an existing database
 
 Run any migrations you haven't applied yet, in filename order. The two newest are
 `2026101201_free_access.sql`, `2026101202_leads_rbac.sql` (roles, leads) and
-`2026101203_whatsapp_inbound_verify.sql` (free WhatsApp verification). `2026101201_free_access.sql` lets every signed-in user
+`2026101203_whatsapp_inbound_verify.sql` (free WhatsApp verification) and
+`2026101301_sales_tools.sql` (lead source, onboarding answers, follow-ups, callbacks). `2026101201_free_access.sql` lets every signed-in user
 read questions, stops new accounts getting an expiring trial, and clears any
 expired plans. Neither deletes data; an optional cleanup block at the bottom of
 the free-access file drops the old payment and mock-interview tables if you want

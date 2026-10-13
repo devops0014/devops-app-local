@@ -27,13 +27,25 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
       }
       // Students must verify their WhatsApp number once before using the
       // platform. Team members (sales/admin/super admin) skip this step.
-      const { data: profile } = await supabase
+      const userId = sessionData.session.user.id;
+      let { data: profile, error } = await supabase
         .from("profiles")
-        .select("role, phone_verified_at")
-        .eq("id", sessionData.session.user.id)
+        .select("role, phone_verified_at, onboarded_at")
+        .eq("id", userId)
         .maybeSingle();
+      if (error) {
+        // Database not migrated yet (no onboarding column): don't block anyone.
+        const fallback = await supabase.from("profiles").select("role, phone_verified_at").eq("id", userId).maybeSingle();
+        profile = fallback.data ? { ...fallback.data, onboarded_at: "skip" } : null;
+        error = fallback.error;
+      }
       if (!isStaff(asRole(profile?.role)) && !profile?.phone_verified_at) {
         router.replace(`/verify-phone?returnTo=${encodeURIComponent(pathname)}`);
+        return;
+      }
+      // One-time quick questions after verification.
+      if (asRole(profile?.role) === "student" && !profile?.onboarded_at) {
+        router.replace(`/welcome?returnTo=${encodeURIComponent(pathname)}`);
         return;
       }
       // The sales team's home is the leads dashboard.

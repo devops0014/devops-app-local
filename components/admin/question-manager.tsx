@@ -219,7 +219,7 @@ export function QuestionManager() {
         {(["all", "mcq", "general"] as const).map((bank) => {
           const count = bank === "all" ? questions.length : questions.filter((item) => item.bank === bank).length;
           const label = bank === "all" ? "All questions" : bank === "mcq" ? "MCQs" : "General questions";
-          return <button key={bank} onClick={() => setBankFilter(bank)} className={`rounded-xl border px-4 py-2 text-[10px] font-medium transition ${bankFilter === bank ? "border-violet-400/25 bg-violet-400/10 text-violet-200" : "border-white/[.07] bg-white/[.02] text-zinc-500 hover:bg-white/[.05]"}`}>{label}<span className="ml-2 rounded-full bg-white/[.06] px-1.5 py-0.5 text-[9px]">{count}</span></button>;
+          return <button key={bank} onClick={() => setBankFilter(bank)} className={`rounded-xl border px-4 py-2 text-xs font-medium transition ${bankFilter === bank ? "border-violet-400/25 bg-violet-400/10 text-violet-200" : "border-white/[.07] bg-white/[.02] text-zinc-500 hover:bg-white/[.05]"}`}>{label}<span className="ml-2 rounded-full bg-white/[.06] px-1.5 py-0.5 text-xs">{count}</span></button>;
         })}
       </div>
 
@@ -232,13 +232,13 @@ export function QuestionManager() {
         ) : filtered.length ? (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[850px] text-left">
-              <thead><tr className="border-b border-white/[.06] text-[9px] uppercase tracking-wider text-zinc-600"><th className="px-5 py-3">Question</th><th className="px-3 py-3">Category</th><th className="px-3 py-3">Difficulty</th><th className="px-3 py-3">Companies</th><th className="px-5 py-3 text-right">Actions</th></tr></thead>
+              <thead><tr className="border-b border-white/[.06] text-xs uppercase tracking-wider text-zinc-600"><th className="px-5 py-3">Question</th><th className="px-3 py-3">Category</th><th className="px-3 py-3">Difficulty</th><th className="px-3 py-3">Companies</th><th className="px-5 py-3 text-right">Actions</th></tr></thead>
               <tbody>{visibleQuestions.map((question) => (
                 <tr key={question.id} className="border-b border-white/[.05] last:border-0 hover:bg-white/[.02]">
-                  <td className="max-w-xl px-5 py-4"><div className="flex items-center gap-2"><Badge tone={question.bank === "mcq" ? "violet" : "cyan"}>{question.bank === "mcq" ? "MCQ" : "General"}</Badge><p className="line-clamp-2 text-xs">{question.question_text}</p></div><p className="mt-1 text-[9px] text-zinc-600">{question.tags.join(", ") || "No tags"} · {question.is_published ? "Published" : "Draft"}</p></td>
+                  <td className="max-w-xl px-5 py-4"><div className="flex items-center gap-2"><Badge tone={question.bank === "mcq" ? "violet" : "cyan"}>{question.bank === "mcq" ? "MCQ" : "General"}</Badge><p className="line-clamp-2 text-xs">{question.question_text}</p></div><p className="mt-1 text-xs text-zinc-600">{question.tags.join(", ") || "No tags"} · {question.is_published ? "Published" : "Draft"}</p></td>
                   <td className="px-3 py-4"><Badge>{question.categories?.name ?? "Unknown"}</Badge></td>
                   <td className="px-3 py-4"><Badge tone={question.difficulty === "Hard" ? "rose" : question.difficulty === "Medium" ? "amber" : "green"}>{question.difficulty}</Badge></td>
-                  <td className="px-3 py-4 text-[10px] text-zinc-500">{question.company_asked.join(", ") || "—"}</td>
+                  <td className="px-3 py-4 text-xs text-zinc-500">{question.company_asked.join(", ") || "—"}</td>
                   <td className="px-5 py-4"><div className="flex justify-end gap-1"><button onClick={() => setEditor({ open: true, question })} className="grid size-9 place-items-center rounded-lg text-zinc-500 hover:bg-violet-400/10 hover:text-violet-400" aria-label="Edit question"><Pencil size={14} /></button><button onClick={() => void remove(question)} className="grid size-9 place-items-center rounded-lg text-zinc-500 hover:bg-rose-400/10 hover:text-rose-400" aria-label="Delete question"><Trash2 size={14} /></button></div></td>
                 </tr>
               ))}</tbody>
@@ -248,7 +248,7 @@ export function QuestionManager() {
           <div className="grid min-h-60 place-items-center p-6 text-center"><div><FileSpreadsheet size={30} className="mx-auto text-violet-400" /><p className="mt-3 text-sm font-medium">No questions found</p><p className="mt-1 text-xs text-zinc-500">Add one manually or import your question bank.</p></div></div>
         )}
       </Card>
-      {!loading && filtered.length > 0 && <div className="mt-4 flex flex-col gap-3 text-[10px] text-zinc-500 sm:flex-row sm:items-center sm:justify-between">
+      {!loading && filtered.length > 0 && <div className="mt-4 flex flex-col gap-3 text-xs text-zinc-500 sm:flex-row sm:items-center sm:justify-between">
         <span>Showing {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, filtered.length)} of {filtered.length.toLocaleString()} questions</span>
         <div className="flex items-center gap-2">
           <Button variant="secondary" onClick={() => setPage((current) => Math.max(1, current - 1))} disabled={page === 1}>Previous</Button>
@@ -273,12 +273,12 @@ export function QuestionManager() {
             <div className="flex items-center justify-between"><Dialog.Title className="text-lg font-semibold">Import question bank</Dialog.Title><Dialog.Close className="grid size-9 place-items-center rounded-xl text-zinc-500 hover:bg-white/[.06]"><X size={17} /></Dialog.Close></div>
             <Dialog.Description className="mt-2 text-xs leading-5 text-zinc-500">Choose a bank first. MCQs and general interview content are stored and validated separately.</Dialog.Description>
             {!importBank && <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              <button onClick={() => setImportBank("mcq")} className="rounded-2xl border border-violet-400/20 bg-violet-400/[.05] p-6 text-left transition hover:-translate-y-0.5 hover:bg-violet-400/[.09]"><FileSpreadsheet className="text-violet-400" /><span className="mt-4 block text-sm font-semibold">MCQ bank</span><span className="mt-2 block text-[10px] leading-5 text-zinc-500">Options, correct answer and explanation. Used by MCQ, Rapid Fire and Adaptive modes.</span></button>
-              <button onClick={() => setImportBank("general")} className="rounded-2xl border border-cyan-400/20 bg-cyan-400/[.05] p-6 text-left transition hover:-translate-y-0.5 hover:bg-cyan-400/[.09]"><FileJson className="text-cyan-400" /><span className="mt-4 block text-sm font-semibold">General bank</span><span className="mt-2 block text-[10px] leading-5 text-zinc-500">General, scenario, troubleshooting and behavioral questions. Used by Practice, Interview, Mock and Flashcards.</span></button>
+              <button onClick={() => setImportBank("mcq")} className="rounded-2xl border border-violet-400/20 bg-violet-400/[.05] p-6 text-left transition hover:-translate-y-0.5 hover:bg-violet-400/[.09]"><FileSpreadsheet className="text-violet-400" /><span className="mt-4 block text-sm font-semibold">MCQ bank</span><span className="mt-2 block text-xs leading-5 text-zinc-500">Options, correct answer and explanation. Used by MCQ, Rapid Fire and Adaptive modes.</span></button>
+              <button onClick={() => setImportBank("general")} className="rounded-2xl border border-cyan-400/20 bg-cyan-400/[.05] p-6 text-left transition hover:-translate-y-0.5 hover:bg-cyan-400/[.09]"><FileJson className="text-cyan-400" /><span className="mt-4 block text-sm font-semibold">General bank</span><span className="mt-2 block text-xs leading-5 text-zinc-500">General, scenario, troubleshooting and behavioral questions. Used by Practice, Interview, Mock and Flashcards.</span></button>
             </div>}
             {importBank && !preview && <div className="mt-6">
-              <div className="flex items-center justify-between rounded-xl border border-white/[.07] bg-white/[.025] p-3"><span className="text-xs"><strong className="capitalize">{importBank}</strong> question bank</span><button onClick={() => setImportBank(null)} className="text-[10px] text-violet-400">Change bank</button></div>
-              <button onClick={() => fileRef.current?.click()} className="mt-3 grid min-h-40 w-full place-items-center rounded-2xl border border-dashed border-violet-400/25 bg-violet-400/[.04] text-center transition hover:bg-violet-400/[.08]"><span><Upload size={30} className="mx-auto text-cyan-400" /><span className="mt-3 block text-sm font-medium">Choose CSV or JSON</span><span className="mt-1 block text-[10px] text-zinc-500">Maximum 10 MB</span></span></button>
+              <div className="flex items-center justify-between rounded-xl border border-white/[.07] bg-white/[.025] p-3"><span className="text-xs"><strong className="capitalize">{importBank}</strong> question bank</span><button onClick={() => setImportBank(null)} className="text-xs text-violet-400">Change bank</button></div>
+              <button onClick={() => fileRef.current?.click()} className="mt-3 grid min-h-40 w-full place-items-center rounded-2xl border border-dashed border-violet-400/25 bg-violet-400/[.04] text-center transition hover:bg-violet-400/[.08]"><span><Upload size={30} className="mx-auto text-cyan-400" /><span className="mt-3 block text-sm font-medium">Choose CSV or JSON</span><span className="mt-1 block text-xs text-zinc-500">Maximum 10 MB</span></span></button>
               <button onClick={() => downloadTemplate(importBank)} className="mt-3 flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-white/[.08] text-xs text-violet-400 hover:bg-white/[.04]"><Download size={14} /> Download {importBank === "mcq" ? "MCQ" : "General"} template</button>
             </div>}
             <input ref={fileRef} type="file" accept=".csv,.json,text/csv,application/json" className="hidden" onChange={(event) => void previewFile(event.target.files?.[0])} />
@@ -289,7 +289,7 @@ export function QuestionManager() {
                 <ImportStat label="Invalid rows" value={preview.localInvalid.length} tone={preview.localInvalid.length ? "rose" : "green"} />
               </div>
               <div className="mt-4 max-h-56 overflow-auto rounded-2xl border border-white/[.07]">
-                <table className="w-full min-w-[640px] text-left text-[10px]"><thead><tr className="border-b border-white/[.06] text-zinc-600"><th className="p-3">Row</th><th className="p-3">Category</th><th className="p-3">Question</th><th className="p-3">Validation</th></tr></thead>
+                <table className="w-full min-w-[640px] text-left text-xs"><thead><tr className="border-b border-white/[.06] text-zinc-600"><th className="p-3">Row</th><th className="p-3">Category</th><th className="p-3">Question</th><th className="p-3">Validation</th></tr></thead>
                   <tbody>{preview.rows.slice(0, 50).map((row, index) => {
                     const issue = preview.localInvalid.find((item) => item.rowNumber === index + 2);
                     return <tr key={index} className="border-b border-white/[.04] last:border-0"><td className="p-3 text-zinc-600">{index + 2}</td><td className="p-3">{String(row.category ?? row.category_slug ?? "—")}</td><td className="max-w-md p-3"><span className="line-clamp-2">{String(row.question_text ?? row.question ?? "—")}</span></td><td className="p-3">{issue ? <span className="text-rose-400">{issue.reason}</span> : <span className="text-emerald-400">Ready</span>}</td></tr>;
@@ -297,11 +297,11 @@ export function QuestionManager() {
               </div>
               <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-end"><Button variant="secondary" onClick={() => setPreview(null)}>Choose another file</Button><Button onClick={() => void commitImport()} disabled={importing}>{importing ? <><LoaderCircle size={14} className="animate-spin" /> Importing…</> : <><Upload size={14} /> Import valid rows</>}</Button></div>
               <label className="mt-4 flex items-center gap-3 rounded-xl border border-amber-400/15 bg-amber-400/[.04] p-3 text-xs text-zinc-400"><input type="checkbox" checked={skipDuplicates} onChange={(event) => setSkipDuplicates(event.target.checked)} className="size-4 accent-violet-500" /> Skip duplicate questions and upload every other valid row</label>
-              <label className="mt-3 flex items-start gap-3 rounded-xl border border-emerald-400/15 bg-emerald-400/[.04] p-3 text-xs text-zinc-400"><input type="checkbox" checked={publishImmediately} onChange={(event) => setPublishImmediately(event.target.checked)} className="mt-0.5 size-4 accent-emerald-500" /><span><strong className="block text-emerald-300">Publish valid questions immediately</strong><span className="mt-1 block text-[10px] leading-4 text-zinc-500">Recommended when your file already contains answers, MCQ options and correct options. OpenAI is not required.</span></span></label>
+              <label className="mt-3 flex items-start gap-3 rounded-xl border border-emerald-400/15 bg-emerald-400/[.04] p-3 text-xs text-zinc-400"><input type="checkbox" checked={publishImmediately} onChange={(event) => setPublishImmediately(event.target.checked)} className="mt-0.5 size-4 accent-emerald-500" /><span><strong className="block text-emerald-300">Publish valid questions immediately</strong><span className="mt-1 block text-xs leading-4 text-zinc-500">Recommended when your file already contains answers, MCQ options and correct options. OpenAI is not required.</span></span></label>
             </div>}
             {report && <div className="mt-6">
               <div className="grid gap-3 sm:grid-cols-3"><ImportStat label="Inserted" value={report.accepted} tone="green" /><ImportStat label="Duplicates skipped" value={report.duplicates.length} tone="amber" /><ImportStat label="Invalid skipped" value={report.invalid.length} tone="rose" /></div>
-              {(report.invalid.length > 0 || report.duplicates.length > 0) && <div className="mt-4 max-h-52 overflow-auto rounded-2xl border border-white/[.07] p-4 text-[10px]">
+              {(report.invalid.length > 0 || report.duplicates.length > 0) && <div className="mt-4 max-h-52 overflow-auto rounded-2xl border border-white/[.07] p-4 text-xs">
                 {report.invalid.map((item) => <p key={`i-${item.rowNumber}`} className="mb-2 flex gap-2 text-rose-300"><AlertTriangle size={13} className="shrink-0" /> Row {item.rowNumber}: {item.errors.join("; ")}</p>)}
                 {report.duplicates.map((item) => <p key={`d-${item.rowNumber}`} className="mb-2 flex gap-2 text-amber-300"><AlertTriangle size={13} className="shrink-0" /> Row {item.rowNumber}: duplicate question skipped</p>)}
               </div>}
@@ -316,7 +316,7 @@ export function QuestionManager() {
 
 function ImportStat({ label, value, tone }: { label: string; value: number; tone: "violet" | "green" | "rose" | "amber" }) {
   const colors = { violet: "border-violet-400/15 bg-violet-400/[.05] text-violet-300", green: "border-emerald-400/15 bg-emerald-400/[.05] text-emerald-300", rose: "border-rose-400/15 bg-rose-400/[.05] text-rose-300", amber: "border-amber-400/15 bg-amber-400/[.05] text-amber-300" };
-  return <div className={`rounded-2xl border p-4 ${colors[tone]}`}><p className="text-xl font-semibold">{value}</p><p className="mt-1 text-[9px] opacity-70">{label}</p></div>;
+  return <div className={`rounded-2xl border p-4 ${colors[tone]}`}><p className="text-xl font-semibold">{value}</p><p className="mt-1 text-xs opacity-70">{label}</p></div>;
 }
 
 function QuestionEditor({
@@ -369,7 +369,7 @@ function QuestionEditor({
       ) : (
         <div className="rounded-2xl border border-amber-400/20 bg-amber-400/[.06] p-4">
           <p className="text-xs font-medium text-amber-200">No categories are available yet.</p>
-          <p className="mt-1 text-[10px] leading-5 text-zinc-500">Create the standard DevOps categories, then select one for this question.</p>
+          <p className="mt-1 text-xs leading-5 text-zinc-500">Create the standard DevOps categories, then select one for this question.</p>
           <Button type="button" variant="secondary" className="mt-3" onClick={() => void onCreateCategories()} disabled={creatingCategories}>
             {creatingCategories ? <><LoaderCircle size={14} className="animate-spin" /> Creating…</> : <><Plus size={14} /> Create categories</>}
           </Button>
@@ -391,7 +391,7 @@ function QuestionEditor({
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return <label className="block"><span className="mb-2 block text-[10px] font-medium text-zinc-500">{label}</span>{children}</label>;
+  return <label className="block"><span className="mb-2 block text-xs font-medium text-zinc-500">{label}</span>{children}</label>;
 }
 
 function splitList(value: string) { return value.split(/[|,]/).map((part) => part.trim()).filter(Boolean); }

@@ -31,7 +31,7 @@ import {
 import { AnimatePresence, motion } from "framer-motion";
 import { Brand } from "./brand";
 import { ProgressBar } from "./ui";
-import { categories, questions } from "@/lib/data";
+import { useContentCatalog } from "@/lib/hooks/use-content-catalog";
 import { cn } from "@/lib/utils";
 import { useAppStore } from "@/lib/store";
 import { levelProgress, nextLevelForXp } from "@/lib/gamification";
@@ -59,10 +59,17 @@ const staffNav = [
   { href: "/admin", label: "Content admin", icon: ShieldCheck, permission: "content.manage" },
 ] as const satisfies readonly { href: string; label: string; icon: unknown; permission: Permission }[];
 
-const mobileItems = [
+const studentMobileItems = [
   { href: "/dashboard", label: "Home", icon: Home },
-  { href: "/roadmap", label: "Roadmap", icon: Map },
-  { href: "/practice", label: "Practice", icon: CircleHelp },
+  { href: "/practice", label: "Questions", icon: CircleHelp },
+  { href: "/quiz", label: "Quiz", icon: Zap },
+  { href: "/flashcards", label: "Cards", icon: Gamepad2 },
+];
+
+const salesMobileItems = [
+  { href: "/leads", label: "Leads", icon: PhoneCall },
+  { href: "/practice", label: "Questions", icon: CircleHelp },
+  { href: "/quiz", label: "Quiz", icon: Zap },
   { href: "/analytics", label: "Stats", icon: Activity },
 ];
 
@@ -74,6 +81,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [welcomeOpen, setWelcomeOpen] = useState(false);
   const [goodbyeOpen, setGoodbyeOpen] = useState(false);
   const { profile, refresh } = useCurrentUser();
+  const { questions, categories } = useContentCatalog();
   const staffItems = staffNav.filter((item) => can(profile?.role, item.permission));
   const { theme, setTheme, commandOpen, setCommandOpen, xp, level, levelName, cloudStatus } = useAppStore();
   const nextLevel = nextLevelForXp(xp);
@@ -112,7 +120,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           question.tags.some((tag) => tag.includes(term)),
       )
       .slice(0, 7);
-  }, [query]);
+  }, [query, questions]);
 
   const navigateToQuestion = (id: string) => {
     setCommandOpen(false);
@@ -145,7 +153,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
 
         <div className="px-3">
-          <p className="px-3 pb-2 pt-3 text-[10px] font-semibold uppercase tracking-[.18em] text-zinc-600">
+          <p className="px-3 pb-2 pt-3 text-xs font-semibold uppercase tracking-[.18em] text-zinc-600">
             Workspace
           </p>
           <nav className="space-y-1">
@@ -174,7 +182,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   />
                   {item.label}
                   {item.label === "Leaderboard" && (
-                    <span className="ml-auto rounded-full bg-amber-400/10 px-1.5 py-0.5 text-[9px] text-amber-300">
+                    <span className="ml-auto rounded-full bg-amber-400/10 px-1.5 py-0.5 text-xs text-amber-300">
                       NEW
                     </span>
                   )}
@@ -183,7 +191,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             })}
           </nav>
           {staffItems.length > 0 && <>
-            <p className="px-3 pb-2 pt-5 text-[10px] font-semibold uppercase tracking-[.18em] text-zinc-600">
+            <p className="px-3 pb-2 pt-5 text-xs font-semibold uppercase tracking-[.18em] text-zinc-600">
               Team workspace
             </p>
             <nav className="space-y-1">
@@ -214,11 +222,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <Sparkles size={14} className="text-violet-400" />
                 Level {level}
               </div>
-              <span className="text-[10px] text-zinc-500">{xp.toLocaleString()} XP</span>
+              <span className="text-xs text-zinc-500">{xp.toLocaleString()} XP</span>
             </div>
             <p className="mt-2 text-[11px] text-zinc-400">{levelName}</p>
             <ProgressBar value={levelProgress(xp)} className="mt-2.5" />
-            <p className="mt-2 text-[9px] text-zinc-600">{Math.max(0, nextLevel.minXp - xp).toLocaleString()} XP to {nextLevel.name}</p>
+            <p className="mt-2 text-xs text-zinc-600">{Math.max(0, nextLevel.minXp - xp).toLocaleString()} XP to {nextLevel.name}</p>
           </div>
           <button
             onClick={signOut}
@@ -248,12 +256,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           >
             <Search size={15} />
             <span className="hidden sm:inline">Search questions...</span>
-            <kbd className="ml-auto hidden rounded-md border border-white/[.08] bg-white/[.04] px-1.5 py-0.5 font-mono text-[9px] text-zinc-600 sm:inline">
+            <kbd className="ml-auto hidden rounded-md border border-white/[.08] bg-white/[.04] px-1.5 py-0.5 font-mono text-xs text-zinc-600 sm:inline">
               ⌘ K
             </kbd>
           </button>
           <div className="ml-auto flex items-center gap-1 sm:gap-2">
-            <div aria-live="polite" aria-label={`Cloud status: ${cloudStatus}`} className={`hidden items-center gap-1.5 rounded-lg border px-2 py-1.5 text-[8px] uppercase tracking-wider md:flex ${
+            <div aria-live="polite" aria-label={`Cloud status: ${cloudStatus}`} className={`hidden items-center gap-1.5 rounded-lg border px-2 py-1.5 text-[11px] uppercase tracking-wider md:flex ${
               cloudStatus === "synced"
                 ? "border-emerald-400/10 bg-emerald-400/[.04] text-emerald-300"
                 : cloudStatus === "connecting"
@@ -293,15 +301,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <nav className="fixed inset-x-3 bottom-3 z-40 rounded-2xl border border-white/[.08] bg-[#101012]/95 p-1.5 shadow-2xl backdrop-blur-2xl lg:hidden">
         <div className="grid grid-cols-4">
-          {mobileItems.map((item) => {
+          {(can(profile?.role, "leads.view") ? salesMobileItems : studentMobileItems).map((item) => {
             const active = pathname === item.href;
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex h-12 flex-col items-center justify-center gap-1 rounded-xl text-[9px] font-medium",
-                  active ? "bg-white/[.07] text-violet-300" : "text-zinc-600",
+                  "flex h-12 flex-col items-center justify-center gap-1 rounded-xl text-xs font-medium",
+                  active ? "bg-white/[.07] text-violet-300" : "text-zinc-400",
                 )}
               >
                 <item.icon size={17} />
@@ -370,13 +378,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 autoFocus
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search 1,857 expert questions..."
+                placeholder={`Search ${questions.length ? `${questions.length} ` : ""}questions...`}
                 className="h-full flex-1 bg-transparent text-sm text-white placeholder:text-zinc-600"
               />
-              <kbd className="rounded-md border border-white/[.08] px-1.5 py-0.5 text-[9px] text-zinc-600">ESC</kbd>
+              <kbd className="rounded-md border border-white/[.08] px-1.5 py-0.5 text-xs text-zinc-600">ESC</kbd>
             </div>
             <div className="max-h-[390px] overflow-y-auto p-2">
-              <p className="px-2 pb-2 pt-1 text-[9px] font-semibold uppercase tracking-[.16em] text-zinc-600">
+              <p className="px-2 pb-2 pt-1 text-xs font-semibold uppercase tracking-[.16em] text-zinc-600">
                 {query ? "Search results" : "Recommended for you"}
               </p>
               {searchResults.map((question) => (
@@ -390,7 +398,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   </span>
                   <span className="min-w-0">
                     <span className="block truncate text-xs text-zinc-200">{question.question}</span>
-                    <span className="mt-1 block text-[10px] text-zinc-600">
+                    <span className="mt-1 block text-xs text-zinc-600">
                       {question.category} · {question.difficulty}
                     </span>
                   </span>
@@ -405,7 +413,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 </div>
               )}
             </div>
-            <div className="flex items-center justify-between border-t border-white/[.07] px-4 py-2.5 text-[9px] text-zinc-600">
+            <div className="flex items-center justify-between border-t border-white/[.07] px-4 py-2.5 text-xs text-zinc-600">
               <span>Search by topic, company, or keyword</span>
               <span>{categories.length} categories</span>
             </div>

@@ -99,7 +99,7 @@ export function OrbitalProgress({
       />
       <div className="absolute inset-[5px] rounded-full border border-white/[.06] bg-[#101014]" />
       <div className="absolute inset-[1px] animate-[spin_8s_linear_infinite] rounded-full border border-transparent border-t-white/20 border-r-white/5" />
-      <span className="relative text-[10px] font-semibold">{value}%</span>
+      <span className="relative text-xs font-semibold">{value}%</span>
     </div>
   );
 }

@@ -71,7 +71,7 @@ function SwipeCard({
         <div className="flex items-center gap-2">
           <Badge>{question.category}</Badge>
           <Badge tone={difficultyTone(question.difficulty)}>{question.difficulty}</Badge>
-          <span className="ml-auto text-[9px] text-zinc-700">Drag to answer</span>
+          <span className="ml-auto text-xs text-zinc-700">Drag to answer</span>
         </div>
         <div className="flex flex-1 flex-col justify-center py-8 text-center">
           {!revealed ? (
@@ -83,7 +83,7 @@ function SwipeCard({
             </>
           ) : (
             <motion.div initial={{ opacity: 0, rotateY: -90, scale: 0.96 }} animate={{ opacity: 1, rotateY: 0, scale: 1 }} transition={{ type: "spring", stiffness: 150, damping: 18 }} className="mx-auto max-h-[330px] max-w-xl overflow-y-auto text-left">
-              <p className="mb-4 text-center text-[10px] font-semibold uppercase tracking-[.15em] text-violet-400">Expert answer</p>
+              <p className="mb-4 text-center text-xs font-semibold uppercase tracking-[.15em] text-violet-400">Expert answer</p>
               <ReactMarkdown components={{
                 p: ({ children }) => <p className="mb-4 text-sm leading-7 text-zinc-300">{children}</p>,
                 ol: ({ children }) => <ol className="ml-5 list-decimal space-y-2 text-sm leading-6 text-zinc-300">{children}</ol>,
@@ -92,7 +92,7 @@ function SwipeCard({
             </motion.div>
           )}
         </div>
-        <div className="flex items-center justify-center gap-3 border-t border-white/[.06] pt-5 text-[10px] text-zinc-600">
+        <div className="flex items-center justify-center gap-3 border-t border-white/[.06] pt-5 text-xs text-zinc-600">
           <span className="flex items-center gap-1.5"><ChevronLeft size={13} className="text-rose-400" /> Swipe left to revise</span>
           <span className="h-3 w-px bg-white/[.08]" />
           <span className="flex items-center gap-1.5">Swipe right if you know <ChevronRight size={13} className="text-emerald-400" /></span>
@@ -147,14 +147,14 @@ export default function FlashcardsPage() {
     <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[.17em] text-violet-400">Active recall</p>
+          <p className="text-xs font-semibold uppercase tracking-[.17em] text-violet-400">Active recall</p>
           <h1 className="mt-1 text-2xl font-semibold tracking-[-.04em] sm:text-3xl">Daily flashcards</h1>
           <p className="mt-2 text-xs text-zinc-500">A focused mixed-topic deck selected from your revision list.</p>
-          <p className="mt-2 text-[10px] text-cyan-400">{dueCount} cards due now · spaced repetition active</p>
+          <p className="mt-2 text-xs text-cyan-400">{dueCount} cards due now · spaced repetition active</p>
         </div>
         <div className="flex items-center gap-3 rounded-xl border border-white/[.07] bg-white/[.03] px-3 py-2">
           <Flame size={15} className="text-amber-300" />
-          <span className="text-[10px] text-zinc-500">Daily deck</span>
+          <span className="text-xs text-zinc-500">Daily deck</span>
           <span className="text-xs font-semibold">{Math.min(index, deck.length)}/{deck.length}</span>
         </div>
       </div>
@@ -162,7 +162,7 @@ export default function FlashcardsPage() {
       <div className="mt-6">
         <div className="flex items-center gap-3">
           <ProgressBar value={(Math.min(index, deck.length) / deck.length) * 100} className="flex-1" />
-          <span className="text-[10px] text-zinc-600">{Math.round((Math.min(index, deck.length) / deck.length) * 100)}%</span>
+          <span className="text-xs text-zinc-600">{Math.round((Math.min(index, deck.length) / deck.length) * 100)}%</span>
         </div>
       </div>
 
@@ -200,15 +200,15 @@ export default function FlashcardsPage() {
             <div className="grid grid-cols-2 gap-px bg-white/[.06]">
               <div className="bg-[var(--panel)] p-6">
                 <p className="text-2xl font-semibold text-emerald-300">{known}</p>
-                <p className="mt-1 text-[10px] text-zinc-600">Know it</p>
+                <p className="mt-1 text-xs text-zinc-600">Know it</p>
               </div>
               <div className="bg-[var(--panel)] p-6">
                 <p className="text-2xl font-semibold text-rose-300">{revision}</p>
-                <p className="mt-1 text-[10px] text-zinc-600">Need revision</p>
+                <p className="mt-1 text-xs text-zinc-600">Need revision</p>
               </div>
             </div>
             <div className="p-6">
-              <div className="rounded-xl border border-violet-400/10 bg-violet-400/[.04] p-3 text-[10px] leading-5 text-zinc-500">
+              <div className="rounded-xl border border-violet-400/10 bg-violet-400/[.04] p-3 text-xs leading-5 text-zinc-500">
                 <Sparkles size={14} className="mx-auto mb-2 text-violet-300" />
                 {revision} missed cards return tomorrow. Known cards now follow a widening 2–30 day review interval.
               </div>

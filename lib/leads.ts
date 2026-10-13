@@ -1,12 +1,42 @@
-export const leadStatuses = ["new", "interested", "maybe_later", "not_interested"] as const;
+export const leadStatuses = ["new", "no_answer", "interested", "maybe_later", "not_interested", "enrolled"] as const;
 export type LeadStatus = (typeof leadStatuses)[number];
 
-export const leadStatusMeta: Record<LeadStatus, { label: string; tone: "neutral" | "green" | "amber" | "rose"; dot: string }> = {
+export const leadStatusMeta: Record<LeadStatus, { label: string; tone: "neutral" | "green" | "amber" | "rose" | "cyan" | "violet"; dot: string }> = {
   new: { label: "Not called yet", tone: "neutral", dot: "bg-zinc-400" },
+  no_answer: { label: "No answer", tone: "cyan", dot: "bg-sky-400" },
   interested: { label: "Interested", tone: "green", dot: "bg-emerald-400" },
   maybe_later: { label: "Maybe later", tone: "amber", dot: "bg-amber-400" },
   not_interested: { label: "Not interested", tone: "rose", dot: "bg-rose-400" },
+  enrolled: { label: "Enrolled", tone: "violet", dot: "bg-violet-400" },
 };
+
+export const experienceLabels: Record<string, string> = {
+  student: "Student / fresher",
+  "0-1": "Under 1 year",
+  "1-3": "1–3 years",
+  "3-5": "3–5 years",
+  "5+": "5+ years",
+};
+
+export const goalLabels: Record<string, string> = {
+  first_job: "First DevOps job",
+  switch: "Switch into DevOps",
+  upskill: "Upskill in current role",
+  promotion: "Better package / promotion",
+};
+
+/** Simple engagement score: how much the student actually uses the app. */
+export function engagementScore(input: { quizAttempts: number; flashcards: number; mastered: number; activeDays: number; callbackRequested: boolean }) {
+  return Math.min(100, Math.round(
+    input.quizAttempts * 8 + input.flashcards * 1 + input.mastered * 2 + input.activeDays * 6 + (input.callbackRequested ? 40 : 0),
+  ));
+}
+
+export function heatLabel(score: number) {
+  if (score >= 60) return { label: "Hot", className: "border-rose-400/30 bg-rose-400/10 text-rose-200" };
+  if (score >= 25) return { label: "Warm", className: "border-amber-400/30 bg-amber-400/10 text-amber-200" };
+  return { label: "Cold", className: "border-white/10 bg-white/[.04] text-zinc-400" };
+}
 
 export function isLeadStatus(value: unknown): value is LeadStatus {
   return leadStatuses.includes(value as LeadStatus);
@@ -26,11 +56,33 @@ export type Lead = {
   lastNoteAt: string | null;
   noteCount: number;
   quizAttempts: number;
+  flashcards: number;
+  mastered: number;
+  activeDays: number;
+  score: number;
+  followUpAt: string | null;
+  assignedTo: string | null;
+  assignedToName: string | null;
+  callbackRequestedAt: string | null;
+  doNotContact: boolean;
+  source: { utmSource: string | null; utmMedium: string | null; utmCampaign: string | null; utmContent: string | null; referrer: string | null; landingPath: string | null };
+  profile: { experience: string | null; jobTitle: string | null; goal: string | null; city: string | null };
 };
+
+/** Human label for where a lead came from. */
+export function sourceLabel(source: Lead["source"]) {
+  if (source.utmSource) return source.utmCampaign ? `${source.utmSource} · ${source.utmCampaign}` : source.utmSource;
+  if (source.referrer) {
+    try { return new URL(source.referrer).hostname.replace(/^www\./, ""); } catch { return "referral"; }
+  }
+  return "direct";
+}
+
+export type LeadActivityKind = "comment" | "status" | "follow_up" | "assigned" | "callback_request" | "opt_out";
 
 export type LeadActivity = {
   id: string;
-  kind: "comment" | "status";
+  kind: LeadActivityKind;
   body: string | null;
   status: LeadStatus | null;
   createdAt: string;

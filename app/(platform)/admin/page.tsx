@@ -37,7 +37,7 @@ function AdminContent() {
         <div>
           <div className="flex items-center gap-2">
             <Badge tone="violet"><ShieldCheck size={11} className="mr-1" /> Admin access</Badge>
-            <span className="text-[9px] text-zinc-700">admin@devopscrack.com</span>
+            <span className="text-xs text-zinc-700">admin@devopscrack.com</span>
           </div>
           <h1 className="mt-3 text-2xl font-semibold tracking-[-.04em] sm:text-3xl">Control center</h1>
           <p className="mt-2 text-xs text-zinc-500">Manage content, students, and platform performance.</p>
@@ -60,7 +60,7 @@ function AdminContent() {
               <Badge tone="green">{stat.delta}</Badge>
             </div>
             <p className="mt-5 text-2xl font-semibold">{stat.value}</p>
-            <p className="mt-1 text-[10px] text-zinc-600">{stat.label}</p>
+            <p className="mt-1 text-xs text-zinc-600">{stat.label}</p>
           </Card>
         ))}
       </section>
@@ -69,12 +69,12 @@ function AdminContent() {
         <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
           <div className="flex rounded-xl border border-white/[.07] bg-white/[.025] p-1">
             {(["ai-engine", "questions", "students", "audit", "categories"] as const).map((item) => (
-              <button key={item} onClick={() => setTab(item)} className={`rounded-lg px-3 py-2 text-[10px] capitalize ${tab === item ? "bg-white/[.07] text-white" : "text-zinc-600"}`}>{item === "ai-engine" ? "AI Engine" : item}</button>
+              <button key={item} onClick={() => setTab(item)} className={`rounded-lg px-3 py-2 text-xs capitalize ${tab === item ? "bg-white/[.07] text-white" : "text-zinc-600"}`}>{item === "ai-engine" ? "AI Engine" : item}</button>
             ))}
           </div>
           <div className="flex h-9 w-full items-center gap-2 rounded-xl border border-white/[.07] bg-white/[.025] px-3 sm:w-64">
             <Search size={13} className="text-zinc-600" />
-            <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={`Search ${tab === "ai-engine" ? "content" : tab}...`} className="min-w-0 flex-1 bg-transparent text-[10px] placeholder:text-zinc-700" />
+            <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={`Search ${tab === "ai-engine" ? "content" : tab}...`} className="min-w-0 flex-1 bg-transparent text-xs placeholder:text-zinc-700" />
           </div>
         </div>
 

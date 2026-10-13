@@ -22,9 +22,11 @@ import {
 import { useContentCatalog } from "@/lib/hooks/use-content-catalog";
 import { Card, ProgressBar, SectionTitle } from "@/components/ui";
 import { PerformanceLineChart } from "@/components/charts";
+import { dailyAccuracy, rangeLabel } from "@/lib/progress-series";
 import { OrbitalProgress, SpatialCard } from "@/components/spatial-card";
 import { useAppStore } from "@/lib/store";
 import { AccountOverview } from "@/components/dashboard/account-overview";
+import { CourseCallout } from "@/components/course-callout";
 import { useCurrentUser } from "@/lib/hooks/use-current-user";
 
 export default function DashboardPage() {
@@ -74,13 +76,13 @@ export default function DashboardPage() {
         <div className="absolute -right-6 -top-10 size-28 rounded-full bg-cyan-400/10 blur-2xl" />
         <div className="relative flex items-center gap-3">
           <span className="grid size-10 place-items-center rounded-xl border border-violet-400/20 bg-violet-400/10 text-violet-300"><Zap size={19} fill="currentColor" /></span>
-          <div><p className="text-[9px] font-semibold uppercase tracking-[.16em] text-zinc-500">Total XP</p><p className="mt-0.5 text-xl font-semibold tracking-tight">{xp.toLocaleString()} <span className="text-xs text-violet-300">XP</span></p></div>
+          <div><p className="text-xs font-semibold uppercase tracking-[.16em] text-zinc-500">Total XP</p><p className="mt-0.5 text-xl font-semibold tracking-tight">{xp.toLocaleString()} <span className="text-xs text-violet-300">XP</span></p></div>
         </div>
-        <div className="relative text-right"><p className="text-xs font-semibold">Level {level}</p><p className="mt-1 text-[9px] text-zinc-500">{levelName}</p></div>
+        <div className="relative text-right"><p className="text-xs font-semibold">Level {level}</p><p className="mt-1 text-xs text-zinc-500">{levelName}</p></div>
       </section>
       <section className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
         <div className="relative">
-          <p className="mb-2 flex items-center gap-2 font-mono text-[8px] uppercase tracking-[.18em] text-emerald-400"><span className="size-1.5 animate-pulse rounded-full bg-emerald-400" /> Command centre online</p>
+          <p className="mb-2 flex items-center gap-2 font-mono text-[11px] uppercase tracking-[.18em] text-emerald-400"><span className="size-1.5 animate-pulse rounded-full bg-emerald-400" /> Command centre online</p>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-semibold tracking-[-.04em] sm:text-3xl">Welcome back, {firstName}</h1>
             <span className="text-2xl">👋</span>
@@ -92,13 +94,13 @@ export default function DashboardPage() {
           <motion.span animate={{ filter: ["drop-shadow(0 0 2px #f59e0b)", "drop-shadow(0 0 12px #f59e0b)", "drop-shadow(0 0 2px #f59e0b)"] }} transition={{ duration: 1.8, repeat: Infinity }} className="relative grid size-9 place-items-center rounded-xl bg-amber-400/10 text-amber-300"><Flame size={19} fill="currentColor" /></motion.span>
           <div>
             <p className="text-xs font-semibold">{streak} day streak</p>
-            <p className="text-[10px] text-zinc-500">Personal best: {bestStreak} days</p>
+            <p className="text-xs text-zinc-500">Personal best: {bestStreak} days</p>
           </div>
           <div className="ml-2 flex gap-1">
             {[1, 1, 1, 1, 1, 1, 0].map((done, index) => (
               <span
                 key={index}
-                className={`grid size-5 place-items-center rounded-md text-[8px] ${done ? "bg-amber-400/15 text-amber-300" : "bg-white/[.05] text-zinc-700"}`}
+                className={`grid size-5 place-items-center rounded-md text-[11px] ${done ? "bg-amber-400/15 text-amber-300" : "bg-white/[.05] text-zinc-700"}`}
               >
                 {done ? <Check size={10} /> : "S"}
               </span>
@@ -107,6 +109,7 @@ export default function DashboardPage() {
         </div>
       </section>
       <AccountOverview />
+      <div className="mt-6"><CourseCallout context="dashboard" /></div>
 
       <section className="mt-7 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map((stat, index) => (
@@ -114,9 +117,9 @@ export default function DashboardPage() {
             <SpatialCard glow={index === 0 ? "violet" : index === 1 ? "cyan" : index === 2 ? "amber" : "emerald"} className={`relative min-h-[144px] bg-gradient-to-br ${stat.gradient} p-5`}>
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-[10px] font-medium uppercase tracking-[.12em] text-zinc-600">{stat.label}</p>
+                  <p className="text-xs font-medium uppercase tracking-[.12em] text-zinc-600">{stat.label}</p>
                   <p className="mt-3 text-2xl font-semibold tracking-tight">{stat.value}</p>
-                  <p className="mt-2 flex items-center gap-1 text-[10px] text-zinc-500"><TrendingUp size={11} className="text-emerald-400" /> {stat.delta}</p>
+                  <p className="mt-2 flex items-center gap-1 text-xs text-zinc-500"><TrendingUp size={11} className="text-emerald-400" /> {stat.delta}</p>
                 </div>
                 <span className={`grid size-10 place-items-center rounded-xl ${stat.iconClass}`}><stat.icon size={18} /></span>
               </div>
@@ -130,23 +133,23 @@ export default function DashboardPage() {
         <SpatialCard glow="violet" className="overflow-hidden">
           <div className="flex items-center justify-between border-b border-white/[.07] p-5">
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[.15em] text-violet-400">Continue learning</p>
+              <p className="text-xs font-semibold uppercase tracking-[.15em] text-violet-400">Continue learning</p>
               <h2 className="mt-1 text-base font-semibold">{continueQuestion ? `${continueQuestion.category} interview preparation` : "Start your first learning session"}</h2>
             </div>
-            <span className="rounded-full border border-white/[.08] bg-white/[.04] px-2.5 py-1 text-[9px] text-zinc-500">Hard · 12 min</span>
+            <span className="rounded-full border border-white/[.08] bg-white/[.04] px-2.5 py-1 text-xs text-zinc-500">Hard · 12 min</span>
           </div>
           <div className="grid gap-6 p-5 md:grid-cols-[1fr_220px] md:items-center">
             <div>
               <p className="text-sm leading-6 text-zinc-300">{continueQuestion?.question ?? "Choose a category in the Question Bank to begin."}</p>
               <div className="mt-5 flex items-center gap-3">
                 <ProgressBar value={continuePercent} className="flex-1" />
-                <span className="text-[10px] text-zinc-500">{continueCompleted} of {continueCategoryQuestions.length}</span>
+                <span className="text-xs text-zinc-500">{continueCompleted} of {continueCategoryQuestions.length}</span>
               </div>
               <div className="mt-5 flex flex-wrap items-center gap-2">
                 <Link href={continueQuestion ? `/practice?category=${continueQuestion.categorySlug}&question=${continueQuestion.id}` : "/practice"} className="inline-flex h-9 items-center gap-2 rounded-xl bg-violet-500 px-4 text-xs font-medium text-white transition hover:brightness-110">
                   <Play size={13} fill="currentColor" /> Continue
                 </Link>
-                <span className="text-[10px] text-zinc-600">{continueQuestion && progress[continueQuestion.id]?.lastAttemptAt ? `Last practiced ${new Date(progress[continueQuestion.id].lastAttemptAt!).toLocaleString()}` : "Ready when you are"}</span>
+                <span className="text-xs text-zinc-600">{continueQuestion && progress[continueQuestion.id]?.lastAttemptAt ? `Last practiced ${new Date(progress[continueQuestion.id].lastAttemptAt!).toLocaleString()}` : "Ready when you are"}</span>
               </div>
             </div>
             <div className="relative hidden h-32 overflow-hidden rounded-2xl border border-white/[.07] bg-[#0b0b0d] p-4 md:block">
@@ -163,11 +166,11 @@ export default function DashboardPage() {
         <SpatialCard glow="amber" className="border-rose-400/10 bg-gradient-to-br from-rose-500/[.07] to-transparent p-5">
           <div className="flex items-start justify-between">
             <span className="grid size-10 place-items-center rounded-xl bg-rose-400/10 text-rose-300"><Target size={19} /></span>
-            <span className="rounded-full bg-rose-400/10 px-2 py-1 text-[9px] font-medium text-rose-300">WEAK AREA</span>
+            <span className="rounded-full bg-rose-400/10 px-2 py-1 text-xs font-medium text-rose-300">WEAK AREA</span>
           </div>
           <h2 className="mt-5 text-base font-semibold">Kubernetes Networking</h2>
           <p className="mt-2 text-xs leading-5 text-zinc-500">Your accuracy dropped to 48%. A focused 5-question drill will strengthen the concepts you missed.</p>
-          <div className="mt-4 flex items-center justify-between text-[10px] text-zinc-600">
+          <div className="mt-4 flex items-center justify-between text-xs text-zinc-600">
             <span>Current mastery</span>
             <span>48%</span>
           </div>
@@ -183,9 +186,9 @@ export default function DashboardPage() {
           <SectionTitle
             eyebrow="Last 7 days"
             title="Accuracy trend"
-            action={<span className="rounded-lg border border-white/[.07] bg-white/[.035] px-2.5 py-1.5 text-[10px] text-zinc-500">Jul 20 – Jul 26</span>}
+            action={<span className="rounded-lg border border-white/[.07] bg-white/[.035] px-2.5 py-1.5 text-xs text-zinc-500">{rangeLabel(7)}</span>}
           />
-          <div className="mt-5 h-[245px]"><PerformanceLineChart /></div>
+          <div className="mt-5 h-[245px]"><PerformanceLineChart data={dailyAccuracy(quizAttempts)} /></div>
         </Card>
 
         <Card className="p-5">
@@ -194,7 +197,7 @@ export default function DashboardPage() {
             <OrbitalProgress value={64} color="#a78bfa" size={84} label="Daily goal" />
             <div>
               <p className="text-2xl font-semibold tracking-tight">32 <span className="text-sm font-normal text-zinc-600">/ 50</span></p>
-              <p className="mt-1 text-[10px] text-zinc-500">questions completed</p>
+              <p className="mt-1 text-xs text-zinc-500">questions completed</p>
             </div>
           </div>
           <div className="mt-6 grid grid-cols-3 gap-2">
@@ -205,13 +208,13 @@ export default function DashboardPage() {
             ].map(([value, label]) => (
               <div key={label} className="rounded-xl bg-white/[.035] p-3 text-center">
                 <p className="text-xs font-semibold">{value}</p>
-                <p className="mt-1 text-[9px] text-zinc-600">{label}</p>
+                <p className="mt-1 text-xs text-zinc-600">{label}</p>
               </div>
             ))}
           </div>
           <div className="mt-4 flex items-center gap-2 rounded-xl border border-violet-400/10 bg-violet-400/[.045] p-3">
             <Sparkles size={15} className="text-violet-300" />
-            <p className="text-[10px] text-zinc-500">Complete 18 more to earn the <span className="text-violet-300">Goal Crusher</span> badge.</p>
+            <p className="text-xs text-zinc-500">Complete 18 more to earn the <span className="text-violet-300">Goal Crusher</span> badge.</p>
           </div>
         </Card>
       </section>
@@ -229,7 +232,7 @@ export default function DashboardPage() {
                 <OrbitalProgress value={category.mastery} color={category.color} />
                 <div className="min-w-0">
                   <p className="truncate text-xs font-medium">{category.name}</p>
-                  <p className="mt-1 text-[9px] text-zinc-600">{Math.round(category.total * category.mastery / 100)} / {category.total}</p>
+                  <p className="mt-1 text-xs text-zinc-600">{Math.round(category.total * category.mastery / 100)} / {category.total}</p>
                 </div>
               </SpatialCard>
             </Link>
@@ -250,15 +253,15 @@ export default function DashboardPage() {
                 <motion.span whileHover={{ rotateY: 180, scale: 1.08 }} transition={{ duration: 0.55 }} className={`grid size-9 place-items-center rounded-xl ${badge.color}`} style={{ transformStyle: "preserve-3d" }}><badge.icon size={17} /></motion.span>
                 <div>
                   <p className="text-xs font-medium">{badge.title}</p>
-                  <p className="mt-1 text-[9px] text-zinc-600">{badge.copy}</p>
+                  <p className="mt-1 text-xs text-zinc-600">{badge.copy}</p>
                 </div>
-                <span className="ml-auto text-[9px] text-zinc-700">+250 XP</span>
+                <span className="ml-auto text-xs text-zinc-700">+250 XP</span>
               </div>
             ))}
           </div>
         </Card>
         <Card className="p-5">
-          <SectionTitle title="Leaderboard pulse" action={<Link href="/leaderboard" className="text-[10px] text-violet-300">View all</Link>} />
+          <SectionTitle title="Leaderboard pulse" action={<Link href="/leaderboard" className="text-xs text-violet-300">View all</Link>} />
           <div className="mt-4 space-y-2">
             {[
               ["#126", "Priya Sharma", "8,020 XP", "PS"],
@@ -267,10 +270,10 @@ export default function DashboardPage() {
               ["#129", "Rahul Verma", "7,760 XP", "RV"],
             ].map(([rank, name, xp, avatar]) => (
               <div key={name} className={`flex items-center gap-3 rounded-xl p-2.5 ${name === "You" ? "border border-violet-400/15 bg-violet-400/[.06]" : ""}`}>
-                <span className="w-8 text-[10px] text-zinc-600">{rank}</span>
-                <span className="grid size-8 place-items-center rounded-lg bg-white/[.05] text-[9px] font-medium text-zinc-400">{avatar}</span>
+                <span className="w-8 text-xs text-zinc-600">{rank}</span>
+                <span className="grid size-8 place-items-center rounded-lg bg-white/[.05] text-xs font-medium text-zinc-400">{avatar}</span>
                 <span className={`text-xs ${name === "You" ? "font-medium text-violet-200" : "text-zinc-400"}`}>{name}</span>
-                <span className="ml-auto text-[10px] text-zinc-600">{xp}</span>
+                <span className="ml-auto text-xs text-zinc-600">{xp}</span>
               </div>
             ))}
           </div>

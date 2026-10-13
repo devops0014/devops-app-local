@@ -62,7 +62,7 @@ function FilterGroup({
 }) {
   return (
     <div className="border-b border-white/[.06] py-5 last:border-0">
-      <p className="mb-3 text-[10px] font-semibold uppercase tracking-[.14em] text-zinc-600">{title}</p>
+      <p className="mb-3 text-xs font-semibold uppercase tracking-[.14em] text-zinc-600">{title}</p>
       <div className="space-y-1">{children}</div>
     </div>
   );
@@ -89,7 +89,7 @@ function CheckboxFilter({
         {checked && <Check size={10} />}
       </span>
       <span className={`text-[11px] ${checked ? "text-zinc-200" : "text-zinc-500"}`}>{label}</span>
-      {count !== undefined && <span className="ml-auto text-[9px] text-zinc-700">{count}</span>}
+      {count !== undefined && <span className="ml-auto text-xs text-zinc-700">{count}</span>}
     </button>
   );
 }
@@ -146,7 +146,7 @@ function QuestionDetail({
           <ArrowLeft size={18} />
         </button>
         <div className="min-w-0">
-          <p className="text-[10px] text-zinc-600">Question {index + 1} of {total}</p>
+          <p className="text-xs text-zinc-600">Question {index + 1} of {total}</p>
           <div className="mt-1 flex items-center gap-2">
             <p className="truncate text-xs font-medium">{question.category}</p>
             <Badge tone={difficultyTone(question.difficulty)}>{question.difficulty}</Badge>
@@ -182,15 +182,15 @@ function QuestionDetail({
               </div>
             </div>
             <div className="mt-8">
-              <p className="text-[10px] font-semibold uppercase tracking-[.14em] text-zinc-600">Asked at</p>
+              <p className="text-xs font-semibold uppercase tracking-[.14em] text-zinc-600">Asked at</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {question.companies.map((company) => (
-                  <span key={company} className="rounded-lg border border-white/[.07] bg-white/[.03] px-2.5 py-1.5 text-[10px] text-zinc-500">{company}</span>
+                  <span key={company} className="rounded-lg border border-white/[.07] bg-white/[.03] px-2.5 py-1.5 text-xs text-zinc-500">{company}</span>
                 ))}
               </div>
             </div>
             <div className="mt-10">
-              <p className="mb-3 text-[10px] font-semibold uppercase tracking-[.14em] text-zinc-600">How confident are you?</p>
+              <p className="mb-3 text-xs font-semibold uppercase tracking-[.14em] text-zinc-600">How confident are you?</p>
               <div className="rounded-2xl border border-white/[.07] bg-white/[.025] p-4">
                 <Slider.Root
                   value={[state.confidence]}
@@ -205,7 +205,7 @@ function QuestionDetail({
                   </Slider.Track>
                   <Slider.Thumb className="block size-5 rounded-full border-2 border-white bg-violet-500 shadow-lg" />
                 </Slider.Root>
-                <div className="mt-2 flex justify-between text-[9px] text-zinc-700">
+                <div className="mt-2 flex justify-between text-xs text-zinc-700">
                   <span>Guessing</span><span>Unsure</span><span>Okay</span><span>Good</span><span>Expert</span>
                 </div>
               </div>
@@ -217,7 +217,7 @@ function QuestionDetail({
           <div className="mx-auto max-w-2xl">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-[.14em] text-violet-400">Expert answer</p>
+                <p className="text-xs font-semibold uppercase tracking-[.14em] text-violet-400">Expert answer</p>
                 <h2 className="mt-1 text-lg font-semibold">Production-ready explanation</h2>
               </div>
               {revealed && <Badge tone="green"><Eye size={11} className="mr-1" /> Revealed</Badge>}
@@ -240,7 +240,7 @@ function QuestionDetail({
                       <p className="mt-4 text-sm font-medium">Think before you reveal</p>
                       <p className="mt-2 text-[11px] leading-5 text-zinc-600">Say your answer out loud. Active recall makes the concept stick.</p>
                       <Button className="mt-5" onClick={() => setRevealed(true)}><Sparkles size={14} /> Reveal answer</Button>
-                      <p className="mt-3 font-mono text-[9px] text-zinc-700">Press Space to reveal</p>
+                      <p className="mt-3 font-mono text-xs text-zinc-700">Press Space to reveal</p>
                     </div>
                   </motion.div>
                 )}
@@ -254,7 +254,7 @@ function QuestionDetail({
                     <button
                       key={status}
                       onClick={() => setStatus(status)}
-                      className={`rounded-xl border px-3 py-2.5 text-[10px] font-medium transition ${
+                      className={`rounded-xl border px-3 py-2.5 text-xs font-medium transition ${
                         state.status === status
                           ? status === "Mastered"
                             ? "border-emerald-400/25 bg-emerald-400/10 text-emerald-300"
@@ -294,7 +294,7 @@ function QuestionDetail({
         </section>
       </div>
 
-      <div className="fixed bottom-4 left-1/2 hidden -translate-x-1/2 items-center gap-3 rounded-full border border-white/[.08] bg-[#151517]/90 px-4 py-2 text-[9px] text-zinc-600 shadow-xl backdrop-blur lg:flex">
+      <div className="fixed bottom-4 left-1/2 hidden -translate-x-1/2 items-center gap-3 rounded-full border border-white/[.08] bg-[#151517]/90 px-4 py-2 text-xs text-zinc-600 shadow-xl backdrop-blur lg:flex">
         <span><kbd className="rounded border border-white/[.08] px-1.5 py-0.5">K</kbd> Previous</span>
         <span className="h-3 w-px bg-white/[.08]" />
         <span><kbd className="rounded border border-white/[.08] px-1.5 py-0.5">J</kbd> Next</span>
@@ -371,7 +371,7 @@ function PracticeContent() {
       <div className="flex items-center justify-between border-b border-white/[.07] pb-4">
         <div className="flex items-center gap-2 text-xs font-semibold"><ListFilter size={16} className="text-violet-400" /> Filters</div>
         {(category || difficulties.length || statuses.length || bookmarkedOnly) ? (
-          <button onClick={() => { setCategory(null); setDifficulties([]); setStatuses([]); setBookmarkedOnly(false); }} className="text-[10px] text-zinc-600 hover:text-violet-300">Clear all</button>
+          <button onClick={() => { setCategory(null); setDifficulties([]); setStatuses([]); setBookmarkedOnly(false); }} className="text-xs text-zinc-600 hover:text-violet-300">Clear all</button>
         ) : null}
       </div>
       <FilterGroup title="Category">
@@ -410,7 +410,7 @@ function PracticeContent() {
       <div className="mx-auto max-w-[1500px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[.17em] text-violet-400">Practice library</p>
+            <p className="text-xs font-semibold uppercase tracking-[.17em] text-violet-400">Practice library</p>
             <h1 className="mt-1 text-2xl font-semibold tracking-[-.04em] sm:text-3xl">Question Bank</h1>
             <p className="mt-2 text-xs text-zinc-500">Master real questions asked in DevOps interviews.</p>
           </div>
@@ -439,7 +439,7 @@ function PracticeContent() {
                 <button
                   key={item.slug}
                   onClick={() => setCategory(category === item.slug ? null : item.slug)}
-                  className={`rounded-xl border px-3 py-3 text-[10px] font-medium uppercase tracking-[.08em] backdrop-blur-md transition ${
+                  className={`rounded-xl border px-3 py-3 text-xs font-medium uppercase tracking-[.08em] backdrop-blur-md transition ${
                     category === item.slug
                       ? "border-violet-400/35 bg-violet-400/15 text-white shadow-[0_0_24px_rgba(139,92,246,.18)]"
                       : "border-white/[.07] bg-black/40 text-zinc-600 hover:text-zinc-300"
@@ -456,8 +456,8 @@ function PracticeContent() {
           <aside className="hidden rounded-2xl border border-white/[.07] bg-[var(--panel)] p-4 xl:block">{filters}</aside>
           <section>
             <div className="mb-3 flex items-center justify-between">
-              <p className="text-[10px] text-zinc-600"><span className="text-zinc-300">{filtered.length}</span> questions found</p>
-              <button className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-[10px] text-zinc-500 hover:bg-white/[.04]"><SlidersHorizontal size={13} /> Most relevant <ChevronDown size={12} /></button>
+              <p className="text-xs text-zinc-600"><span className="text-zinc-300">{filtered.length}</span> questions found</p>
+              <button className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs text-zinc-500 hover:bg-white/[.04]"><SlidersHorizontal size={13} /> Most relevant <ChevronDown size={12} /></button>
             </div>
             {filtered.length ? (
               <div className="grid gap-3 lg:grid-cols-2">
@@ -480,13 +480,13 @@ function PracticeContent() {
                       </div>
                       <h2 className="mt-4 line-clamp-3 min-h-[66px] text-sm font-medium leading-[22px] text-zinc-200">{question.question}</h2>
                       <div className="mt-5 flex items-center gap-2 border-t border-white/[.06] pt-4">
-                        <span className={`flex items-center gap-1.5 text-[10px] ${
+                        <span className={`flex items-center gap-1.5 text-xs ${
                           state.status === "Mastered" ? "text-emerald-400" : state.status === "Need Revision" ? "text-amber-400" : "text-zinc-600"
                         }`}>
                           {state.status === "Mastered" ? <CheckCircle2 size={12} /> : state.status === "Need Revision" ? <RotateCcw size={12} /> : <CircleHelp size={12} />}
                           {state.status}
                         </span>
-                        <span className="ml-auto text-[9px] text-zinc-700">{question.bookmarks.toLocaleString()} saves</span>
+                        <span className="ml-auto text-xs text-zinc-700">{question.bookmarks.toLocaleString()} saves</span>
                         <ChevronRight size={15} className="text-zinc-700 transition-transform group-hover:translate-x-0.5 group-hover:text-violet-400" />
                       </div>
                     </motion.button>

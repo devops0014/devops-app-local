@@ -1,12 +1,13 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, CheckCircle2, Eye, EyeOff, LockKeyhole, Mail, Phone, ShieldCheck, Sparkles, UserRound, X } from "lucide-react";
 import { Brand } from "@/components/brand";
 import { Badge, Button } from "@/components/ui";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase/client";
+import { attributionForSignup } from "@/lib/attribution";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -34,7 +35,7 @@ export default function LoginPage() {
           email,
           password,
           options: {
-            data: { name, full_name: name, mobile, phone: mobile },
+            data: { name, full_name: name, mobile, phone: mobile, ...attributionForSignup() },
             emailRedirectTo: `${window.location.origin}/dashboard`,
           },
         });
@@ -74,6 +75,10 @@ export default function LoginPage() {
     return value && value.startsWith("/") && !value.startsWith("//") ? value : "/dashboard";
   };
 
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("mode") === "signup") setMode("signup");
+  }, []);
+
   const switchMode = (nextMode: "login" | "signup") => {
     setMode(nextMode);
     setError("");
@@ -106,22 +111,22 @@ export default function LoginPage() {
         <div className="absolute bottom-[-180px] right-[-160px] size-[480px] rounded-full bg-cyan-500/10 blur-[110px]" />
         <div className="relative"><Brand /></div>
         <div className="relative my-auto max-w-lg">
-          <Badge tone="violet"><Sparkles size={11} className="mr-1" /> Interview confidence, engineered</Badge>
-          <h1 className="mt-6 text-5xl font-semibold leading-[1.08] tracking-[-.055em]">Your next offer starts with today’s practice.</h1>
-          <p className="mt-5 text-sm leading-7 text-zinc-500">Join 10,000+ learners mastering DevOps interviews through structured questions, adaptive practice, and real performance data.</p>
+          <Badge tone="violet"><Sparkles size={12} className="mr-1" /> 100% free · no payment</Badge>
+          <h1 className="mt-6 text-5xl font-semibold leading-[1.08] tracking-[-.055em]">Your next DevOps offer starts with today’s practice.</h1>
+          <p className="mt-5 text-base leading-7 text-zinc-400">Real interview questions with clear answers, timed quizzes and flashcards — for Docker, Kubernetes, Terraform, AWS, Linux and CI/CD.</p>
           <div className="mt-8 grid grid-cols-3 gap-3">
-            {[["1,857+", "Questions"], ["89%", "Success rate"], ["4.9/5", "Rating"]].map(([value, label]) => (
-              <div key={label} className="rounded-2xl border border-white/[.07] bg-white/[.025] p-4"><p className="text-xl font-semibold">{value}</p><p className="mt-1 text-[9px] text-zinc-600">{label}</p></div>
+            {[["Question bank", "Answers explained"], ["Quizzes", "Timed & scored"], ["Flashcards", "Fast revision"]].map(([value, label]) => (
+              <div key={label} className="rounded-2xl border border-white/[.07] bg-white/[.025] p-4"><p className="text-base font-semibold">{value}</p><p className="mt-1 text-xs text-zinc-500">{label}</p></div>
             ))}
           </div>
         </div>
-        <p className="relative text-[9px] text-zinc-700">© 2026 DevOpsCrack</p>
+        <p className="relative text-xs text-zinc-700">© 2026 DevOpsCrack</p>
       </section>
 
       <section className="flex min-h-screen flex-col p-5 sm:p-8 lg:p-12">
         <div className="flex items-center justify-between lg:justify-end">
           <div className="lg:hidden"><Brand /></div>
-          <Link href="/" className="flex items-center gap-2 text-[10px] text-zinc-600 hover:text-white"><ArrowLeft size={13} /> Home</Link>
+          <Link href="/" className="flex items-center gap-2 text-xs text-zinc-600 hover:text-white"><ArrowLeft size={13} /> Home</Link>
         </div>
         <div className="mx-auto my-auto w-full max-w-md py-10">
           <div className="mb-7 grid grid-cols-2 rounded-xl border border-white/[.07] bg-white/[.025] p-1">
@@ -131,14 +136,14 @@ export default function LoginPage() {
           <h2 className="text-3xl font-semibold tracking-[-.045em]">{title}</h2>
           <p className="mt-2 text-xs text-zinc-600">{subtitle}</p>
           <button onClick={googleLogin} className="mt-7 flex h-11 w-full items-center justify-center gap-3 rounded-xl border border-white/[.09] bg-white/[.035] text-xs font-medium text-zinc-200 hover:bg-white/[.06]">
-            <span className="grid size-5 place-items-center rounded-full bg-white text-[10px] font-bold text-[#4285F4]">G</span>
+            <span className="grid size-5 place-items-center rounded-full bg-white text-xs font-bold text-[#4285F4]">G</span>
             Continue with Google
           </button>
-          <div className="my-5 flex items-center gap-3"><span className="h-px flex-1 bg-white/[.07]" /><span className="text-[9px] uppercase tracking-wider text-zinc-700">or email</span><span className="h-px flex-1 bg-white/[.07]" /></div>
+          <div className="my-5 flex items-center gap-3"><span className="h-px flex-1 bg-white/[.07]" /><span className="text-xs uppercase tracking-wider text-zinc-700">or email</span><span className="h-px flex-1 bg-white/[.07]" /></div>
           <form onSubmit={submitAuth} className="space-y-4">
             {mode === "signup" && (
               <label className="block">
-                <span className="mb-2 block text-[10px] font-medium text-zinc-500">Full name</span>
+                <span className="mb-2 block text-xs font-medium text-zinc-500">Full name</span>
                 <span className="auth-field">
                   <UserRound size={17} />
                   <input name="name" type="text" required autoComplete="name" placeholder="Your full name" />
@@ -147,7 +152,7 @@ export default function LoginPage() {
             )}
             {mode === "signup" && (
               <label className="block">
-                <span className="mb-2 block text-[10px] font-medium text-zinc-500">WhatsApp number</span>
+                <span className="mb-2 block text-xs font-medium text-zinc-500">WhatsApp number</span>
                 <span className="auth-field">
                   <Phone size={17} />
                   <input name="mobile" type="tel" required autoComplete="tel" inputMode="tel" pattern="[+]?[0-9 ()-]{8,18}" placeholder="+91 98765 43210" />
@@ -155,14 +160,14 @@ export default function LoginPage() {
               </label>
             )}
             <label className="block">
-              <span className="mb-2 block text-[10px] font-medium text-zinc-500">Email address</span>
+              <span className="mb-2 block text-xs font-medium text-zinc-500">Email address</span>
               <span className="auth-field">
                 <Mail size={17} />
                 <input name="email" type="email" autoComplete="email" placeholder="name@example.com" defaultValue={isSupabaseConfigured ? "" : "demo@devopscrack.com"} required />
               </span>
             </label>
             <label className="block">
-              <span className="mb-2 flex justify-between text-[10px] font-medium text-zinc-500">
+              <span className="mb-2 flex justify-between text-xs font-medium text-zinc-500">
                 <span>Password</span>
                 {mode === "login" && <Link href="/forgot-password" className="text-violet-400">Forgot password?</Link>}
               </span>
@@ -172,20 +177,21 @@ export default function LoginPage() {
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="text-zinc-700 hover:text-zinc-400">{showPassword ? <EyeOff size={15} /> : <Eye size={15} />}</button>
               </span>
             </label>
-            {mode === "signup" && <p className="text-[10px] leading-5 text-zinc-600">After signing in you'll confirm your number by sending us one WhatsApp message. Free access, no payment.</p>}
-            {error && <p className="rounded-xl border border-rose-400/15 bg-rose-400/[.06] px-3 py-2.5 text-[10px] text-rose-300">{error}</p>}
+            {mode === "signup" && <p className="text-xs leading-5 text-zinc-600">After signing in you'll confirm your number by sending us one WhatsApp message. Free access, no payment.</p>}
+            {error && <p className="rounded-xl border border-rose-400/15 bg-rose-400/[.06] px-3 py-2.5 text-xs text-rose-300">{error}</p>}
             <Button type="submit" size="lg" disabled={loading} className="w-full">
               {loading ? "Please wait…" : mode === "login" ? "Sign in" : "Create account"}
               {!loading && <ArrowRight size={15} />}
             </Button>
           </form>
-          <p className="mt-6 text-center text-[10px] text-zinc-600">
+          <p className="mt-6 text-center text-xs text-zinc-600">
             {mode === "login" ? "New to DevOpsCrack?" : "Already have an account?"}{" "}
             <button onClick={() => switchMode(mode === "login" ? "signup" : "login")} className="font-medium text-violet-400">
               {mode === "login" ? "Create an account" : "Sign in"}
             </button>
           </p>
-          <div className="mt-7 flex items-center justify-center gap-2 text-[9px] text-zinc-700"><ShieldCheck size={12} className="text-emerald-400" /> Protected by secure, encrypted authentication</div>
+          <p className="mt-6 text-center text-xs leading-5 text-zinc-500">By continuing you agree to our <Link href="/terms" className="text-zinc-300 underline-offset-2 hover:underline">Terms</Link> and <Link href="/privacy" className="text-zinc-300 underline-offset-2 hover:underline">Privacy Policy</Link>.</p>
+          <div className="mt-4 flex items-center justify-center gap-2 text-xs text-zinc-500"><ShieldCheck size={13} className="text-emerald-400" /> Protected by secure, encrypted authentication</div>
         </div>
       </section>
       {notice && (

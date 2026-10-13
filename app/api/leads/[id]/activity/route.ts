@@ -1,5 +1,5 @@
 import { AdminApiError, apiError, jsonBody, requirePermission } from "@/lib/admin/server";
-import { isLeadStatus, type LeadActivity } from "@/lib/leads";
+import { isLeadStatus, type LeadActivity, type LeadActivityKind } from "@/lib/leads";
 import { requireStudent } from "@/lib/leads-server";
 import { supabaseAdmin } from "@/lib/supabase/server";
 
@@ -16,7 +16,7 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
       const author = (Array.isArray(row.author) ? row.author[0] : row.author) as { name?: string | null; email?: string } | null;
       return {
         id: row.id,
-        kind: row.kind === "status" ? "status" : "comment",
+        kind: (["status", "follow_up", "assigned", "callback_request", "opt_out"].includes(row.kind) ? row.kind : "comment") as LeadActivityKind,
         body: row.body,
         status: isLeadStatus(row.status) ? row.status : null,
         createdAt: row.created_at,

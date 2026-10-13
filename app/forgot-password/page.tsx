@@ -38,7 +38,7 @@ export default function ForgotPasswordPage() {
       <div className="relative w-full max-w-md">
         <div className="mb-8 flex items-center justify-between">
           <Brand />
-          <Link href="/login" className="flex items-center gap-2 text-[10px] text-zinc-600 hover:text-white"><ArrowLeft size={13} /> Sign in</Link>
+          <Link href="/login" className="flex items-center gap-2 text-xs text-zinc-600 hover:text-white"><ArrowLeft size={13} /> Sign in</Link>
         </div>
         <section className="rounded-3xl border border-white/[.08] bg-[#0d0d10]/90 p-6 shadow-[0_32px_100px_rgba(0,0,0,.45)] backdrop-blur-2xl sm:p-8">
           {sent ? (
@@ -54,19 +54,19 @@ export default function ForgotPasswordPage() {
               <p className="mt-2 text-xs leading-5 text-zinc-600">Enter your account email and we’ll send you a secure reset link.</p>
               <form onSubmit={submit} className="mt-7 space-y-4">
                 <label className="block">
-                  <span className="mb-2 block text-[10px] font-medium text-zinc-500">Email address</span>
+                  <span className="mb-2 block text-xs font-medium text-zinc-500">Email address</span>
                   <span className="flex h-11 items-center gap-3 rounded-xl border border-white/[.08] bg-white/[.025] px-3 focus-within:border-violet-400/30">
                     <Mail size={15} className="text-zinc-700" />
                     <input name="email" type="email" required placeholder="you@company.com" className="min-w-0 flex-1 bg-transparent text-xs text-zinc-200 placeholder:text-zinc-700" />
                   </span>
                 </label>
-                {error && <p className="rounded-xl border border-rose-400/15 bg-rose-400/[.06] px-3 py-2.5 text-[10px] text-rose-300">{error}</p>}
+                {error && <p className="rounded-xl border border-rose-400/15 bg-rose-400/[.06] px-3 py-2.5 text-xs text-rose-300">{error}</p>}
                 <Button type="submit" size="lg" disabled={loading} className="w-full">{loading ? "Sending…" : "Send reset link"}</Button>
               </form>
             </>
           )}
         </section>
-        <p className="mt-5 flex items-center justify-center gap-2 text-[9px] text-zinc-700"><ShieldCheck size={12} className="text-emerald-400" /> Password links expire automatically for your protection</p>
+        <p className="mt-5 flex items-center justify-center gap-2 text-xs text-zinc-700"><ShieldCheck size={12} className="text-emerald-400" /> Password links expire automatically for your protection</p>
       </div>
     </main>
   );
