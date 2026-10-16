@@ -3,7 +3,7 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { AlertTriangle, CheckCircle2, Download, FileJson, FileSpreadsheet, LoaderCircle, Pencil, Plus, Search, Trash2, Upload, X } from "lucide-react";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import { Badge, Button, Card } from "@/components/ui";
+import { Badge, Button, Card, SkeletonRows } from "@/components/ui";
 import {
   createAdminQuestion,
   createDefaultAdminCategories,
@@ -228,11 +228,11 @@ export function QuestionManager() {
 
       <Card className="mt-4 overflow-hidden">
         {loading ? (
-          <div className="grid min-h-56 place-items-center"><LoaderCircle className="animate-spin text-violet-400" /></div>
+          <SkeletonRows rows={6} label="Loading questions" />
         ) : filtered.length ? (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[850px] text-left">
-              <thead><tr className="border-b border-white/[.06] text-xs uppercase tracking-wider text-zinc-600"><th className="px-5 py-3">Question</th><th className="px-3 py-3">Category</th><th className="px-3 py-3">Difficulty</th><th className="px-3 py-3">Companies</th><th className="px-5 py-3 text-right">Actions</th></tr></thead>
+              <thead><tr className="border-b border-white/[.06] text-sm text-zinc-400"><th className="px-5 py-3">Question</th><th className="px-3 py-3">Category</th><th className="px-3 py-3">Difficulty</th><th className="px-3 py-3">Companies</th><th className="px-5 py-3 text-right">Actions</th></tr></thead>
               <tbody>{visibleQuestions.map((question) => (
                 <tr key={question.id} className="border-b border-white/[.05] last:border-0 hover:bg-white/[.02]">
                   <td className="max-w-xl px-5 py-4"><div className="flex items-center gap-2"><Badge tone={question.bank === "mcq" ? "violet" : "cyan"}>{question.bank === "mcq" ? "MCQ" : "General"}</Badge><p className="line-clamp-2 text-xs">{question.question_text}</p></div><p className="mt-1 text-xs text-zinc-600">{question.tags.join(", ") || "No tags"} · {question.is_published ? "Published" : "Draft"}</p></td>

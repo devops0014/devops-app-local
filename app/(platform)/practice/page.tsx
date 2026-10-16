@@ -450,10 +450,10 @@ function PracticeContent() {
                 <button
                   key={item.slug}
                   onClick={() => setCategory(category === item.slug ? null : item.slug)}
-                  className={`rounded-xl border px-3 py-3 text-xs font-medium uppercase backdrop-blur-md transition ${
+                  className={`rounded-xl border px-3 py-3 text-sm font-medium backdrop-blur-md transition ${
                     category === item.slug
                       ? "border-violet-400/35 bg-violet-400/15 text-white shadow-[0_0_24px_rgba(139,92,246,.18)]"
-                      : "border-white/[.07] bg-black/40 text-zinc-600 hover:text-zinc-300"
+                      : "border-white/[.07] bg-black/40 text-zinc-400 hover:text-zinc-200"
                   }`}
                 >
                   {item.name}

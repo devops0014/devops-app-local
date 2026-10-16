@@ -20,17 +20,25 @@ test("mastering the last question of a topic opens a celebration", () => {
   assert.match(celebration, /prefers-reduced-motion/);
 });
 
-test("landing page shows product screens and a mentor card that hides until filled", () => {
+test("landing page shows product screens and no mentor card", () => {
   const landing = read("app/page.tsx");
   for (const screen of ["QuestionScreen", "QuizScreen", "FlashcardScreen"]) assert.match(landing, new RegExp(`function ${screen}`));
-  assert.match(landing, /\{mentor\.name && <MentorCard \/>\}/);
-  const config = read("lib/site-config.ts");
-  assert.match(config, /mentor: \{\s*name: "",/);
+  assert.doesNotMatch(landing, /MentorCard|Who&rsquo;s behind this/);
+  assert.doesNotMatch(read("lib/site-config.ts"), /mentor:/);
+});
+
+test("streak flame grows with the streak", async () => {
+  const { flameLevel } = await import("../../lib/streak.ts");
+  const sizes = [0, 1, 3, 7, 14, 60].map((days) => flameLevel(days));
+  assert.equal(sizes[0].level, 0);
+  assert.equal(sizes.at(-1).level, 4);
+  for (let index = 1; index < sizes.length; index += 1) assert.ok(sizes[index].size >= sizes[index - 1].size);
+  assert.match(read("app/(platform)/dashboard/page.tsx"), /flameLevel\(streak\)/);
 });
 
 test("lists load with skeletons, not spinners", () => {
   assert.match(read("components/ui.tsx"), /export function SkeletonRows/);
-  for (const page of ["app/(platform)/leads/page.tsx", "app/(platform)/team/page.tsx", "components/notification-center.tsx"]) {
+  for (const page of ["app/(platform)/leads/page.tsx", "app/(platform)/team/page.tsx", "components/notification-center.tsx", "components/admin/question-manager.tsx", "components/admin/ai-content-engine.tsx", "components/admin/platform-manager.tsx"]) {
     assert.match(read(page), /<SkeletonRows/);
     assert.doesNotMatch(read(page), /LoaderCircle className="animate-spin/);
   }
@@ -39,8 +47,9 @@ test("lists load with skeletons, not spinners", () => {
   assert.doesNotMatch(flashcards, /\/ deck\.length\) \* 100\)%/);
 });
 
-test("student pages don't use tiny all-caps labels", () => {
-  for (const page of ["app/(platform)/dashboard/page.tsx", "components/dashboard/account-overview.tsx", "app/(platform)/analytics/page.tsx", "components/app-shell.tsx"]) {
-    assert.doesNotMatch(read(page), /className="[^"]*uppercase tracking/, page);
+test("no tiny all-caps labels outside the flashcard swipe stamps", () => {
+  for (const page of ["app/(platform)/dashboard/page.tsx", "components/dashboard/account-overview.tsx", "app/(platform)/analytics/page.tsx", "components/app-shell.tsx", "app/(platform)/practice/page.tsx", "components/admin/question-manager.tsx", "components/admin/ai-content-engine.tsx"]) {
+    assert.doesNotMatch(read(page), /\buppercase\b/, page);
   }
+  assert.doesNotMatch(read("components/access-gate.tsx"), /animate-spin/);
 });

@@ -261,7 +261,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </kbd>
           </button>
           <div className="ml-auto flex items-center gap-1 sm:gap-2">
-            <div aria-live="polite" aria-label={`Cloud status: ${cloudStatus}`} className={`hidden items-center gap-1.5 rounded-lg border px-2 py-1.5 text-[11px] uppercase tracking-wider md:flex ${
+            <div aria-live="polite" aria-label={`Cloud status: ${cloudStatus}`} className={`hidden items-center gap-1.5 rounded-lg border px-2 py-1.5 text-xs md:flex ${
               cloudStatus === "synced"
                 ? "border-emerald-400/10 bg-emerald-400/[.04] text-emerald-300"
                 : cloudStatus === "connecting"

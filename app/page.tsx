@@ -4,7 +4,7 @@ import { useState, type ReactNode } from "react";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import {
-  ArrowUpRight, BadgeCheck, BookOpenCheck, Check, Cloud, GraduationCap, Layers, MessageCircle, Timer, X,
+  BadgeCheck, BookOpenCheck, Check, Cloud, GraduationCap, Layers, MessageCircle, Timer, X,
 } from "lucide-react";
 import { Brand } from "@/components/brand";
 import { siteConfig } from "@/lib/site-config";
@@ -285,7 +285,7 @@ function Tools() {
               transition={{ duration: 0.45, delay: index * 0.08, ease: "easeOut" }}
               className="flex flex-col overflow-hidden rounded-[22px] border border-white/[.08] bg-[#111113]"
             >
-              <div aria-hidden className="relative h-[230px] overflow-hidden border-b border-white/[.06] bg-[radial-gradient(120%_90%_at_50%_0%,rgba(139,92,246,.16),transparent_70%)] px-5 pt-6">
+              <div aria-hidden className="relative h-[262px] overflow-hidden border-b border-white/[.06] bg-[radial-gradient(120%_90%_at_50%_0%,rgba(139,92,246,.16),transparent_70%)] px-5 pt-5">
                 {tool.screen}
               </div>
               <div className="p-5">
@@ -404,10 +404,9 @@ function Steps() {
 }
 
 function Course() {
-  const mentor = siteConfig.mentor;
   return (
     <section className="border-b border-white/[.06] py-16 sm:py-20">
-      <div className={cn("mx-auto grid max-w-6xl gap-10 px-4 sm:px-6", mentor.name && "lg:grid-cols-[1fr_1fr] lg:items-center lg:gap-14")}>
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="flex flex-col gap-6 md:flex-row md:items-start md:gap-8">
           <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-violet-400/10 text-violet-200"><GraduationCap size={26} /></span>
           <div className="max-w-2xl">
@@ -421,43 +420,8 @@ function Course() {
             )}
           </div>
         </div>
-        {mentor.name && <MentorCard />}
       </div>
     </section>
-  );
-}
-
-/** "Who's behind this". Filled from siteConfig.mentor; hidden until a name is set. */
-function MentorCard() {
-  const mentor = siteConfig.mentor;
-  const initials = mentor.name.split(/\s+/).map((part) => part[0]).join("").slice(0, 2).toUpperCase();
-  return (
-    <figure aria-labelledby="mentor-name" className="relative overflow-hidden rounded-[22px] border border-white/[.09] bg-[#111113] p-6 sm:p-7">
-      <div aria-hidden className="pointer-events-none absolute -right-20 -top-20 size-56 rounded-full bg-violet-500/[.14] blur-3xl" />
-      <p className="relative text-sm text-zinc-400">Who&rsquo;s behind this</p>
-      <div className="relative mt-4 flex items-center gap-4">
-        {mentor.photo
-          ? <img src={mentor.photo} alt={mentor.name} width={80} height={80} className="size-20 shrink-0 rounded-2xl object-cover ring-1 ring-white/10" />
-          : <span className="grid size-20 shrink-0 place-items-center rounded-2xl bg-violet-500/20 text-2xl font-semibold text-violet-100">{initials}</span>}
-        <div className="min-w-0">
-          <h3 id="mentor-name" className="text-xl font-semibold text-white">{mentor.name}</h3>
-          {mentor.title && <p className="mt-0.5 text-[15px] text-zinc-300">{mentor.title}</p>}
-          {mentor.linkedin && (
-            <a href={mentor.linkedin} target="_blank" rel="noreferrer" className="mt-1.5 inline-flex items-center gap-1.5 text-sm text-sky-300 hover:text-sky-200">
-              LinkedIn profile <ArrowUpRight size={14} />
-            </a>
-          )}
-        </div>
-      </div>
-      {mentor.bio && <blockquote className="relative mt-5 text-[15px] leading-7 text-zinc-200">{mentor.bio}</blockquote>}
-      {mentor.highlights.length > 0 && (
-        <ul className="relative mt-5 flex flex-wrap gap-2">
-          {mentor.highlights.map((item) => (
-            <li key={item} className="rounded-full border border-white/[.1] bg-white/[.03] px-3 py-1 text-sm text-zinc-200">{item}</li>
-          ))}
-        </ul>
-      )}
-    </figure>
   );
 }
 

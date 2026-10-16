@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
+import { flameLevel } from "@/lib/streak";
 import {
   ArrowRight,
   BookOpenCheck,
@@ -32,6 +33,8 @@ import { useCurrentUser } from "@/lib/hooks/use-current-user";
 
 export default function DashboardPage() {
   const { xp, level, levelName, streak, bestStreak, progress, quizAttempts, flashcardReviews, cloudStatus } = useAppStore();
+  const reduceMotion = useReducedMotion();
+  const flame = flameLevel(streak);
   const { questions, categories: contentCategories, loading: catalogLoading } = useContentCatalog();
   const { profile } = useCurrentUser();
   const firstName = profile?.name?.split(/\s+/)[0] ?? "Student";
@@ -109,8 +112,7 @@ export default function DashboardPage() {
       </section>
       <section className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
         <div className="relative">
-          <p className="mb-2 flex items-center gap-2 text-sm text-emerald-400"><span className="size-1.5 animate-pulse rounded-full bg-emerald-400" /> Command centre online</p>
-          <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2">
             <h1 className="text-2xl font-semibold tracking-[-.04em] sm:text-3xl">Welcome back, {firstName}</h1>
             <span className="text-2xl">👋</span>
           </div>
@@ -118,10 +120,16 @@ export default function DashboardPage() {
         </div>
         <div className="relative flex items-center gap-3 overflow-hidden rounded-2xl border border-amber-400/15 bg-amber-400/[.055] px-4 py-3 shadow-[0_18px_60px_rgba(245,158,11,.07)]">
           <div className="absolute -left-8 -top-8 size-24 rounded-full bg-amber-400/10 blur-2xl" />
-          <motion.span animate={{ filter: ["drop-shadow(0 0 2px #f59e0b)", "drop-shadow(0 0 12px #f59e0b)", "drop-shadow(0 0 2px #f59e0b)"] }} transition={{ duration: 1.8, repeat: Infinity }} className="relative grid size-9 place-items-center rounded-xl bg-amber-400/10 text-amber-300"><Flame size={19} fill="currentColor" /></motion.span>
+          <motion.span
+            animate={flame.level && !reduceMotion ? { filter: ["drop-shadow(0 0 2px #f59e0b)", `drop-shadow(0 0 ${flame.glow}px #f59e0b)`, "drop-shadow(0 0 2px #f59e0b)"], scale: [1, 1 + flame.level * 0.03, 1] } : undefined}
+            transition={{ duration: 1.8, repeat: Infinity }}
+            className={`relative grid size-11 place-items-center rounded-xl ${flame.level ? "bg-amber-400/10 text-amber-300" : "bg-white/[.05] text-zinc-500"} ${flame.level >= 3 ? "text-orange-300" : ""}`}
+          >
+            <Flame size={flame.size} fill={flame.level ? "currentColor" : "none"} />
+          </motion.span>
           <div>
-            <p className="text-xs font-semibold">{streak} day streak</p>
-            <p className="text-xs text-zinc-500">Personal best: {bestStreak} days</p>
+            <p className="text-sm font-semibold">{streak} day streak</p>
+            <p className="text-xs text-zinc-400">{flame.label}{bestStreak > streak ? ` · best ${bestStreak}` : ""}</p>
           </div>
           <div className="ml-2 flex gap-1">
             {lastSevenDays.map((day) => (

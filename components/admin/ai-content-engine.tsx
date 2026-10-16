@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { BrainCircuit, CheckCircle2, CircleAlert, Clock3, FileText, LoaderCircle, Pencil, RefreshCw, Search, Sparkles, Trash2, XCircle } from "lucide-react";
-import { Badge, Button, Card, ProgressBar } from "@/components/ui";
+import { Badge, Button, Card, ProgressBar, SkeletonRows } from "@/components/ui";
 import {
   getContentPipeline,
   processContentJob,
@@ -111,7 +111,7 @@ export function AIContentEngine() {
       </div>
       {message && <p className="m-4 rounded-xl border border-emerald-400/15 bg-emerald-400/[.05] p-3 text-xs text-emerald-300">{message}</p>}
       {error && <p className="m-4 rounded-xl border border-rose-400/15 bg-rose-400/[.05] p-3 text-xs text-rose-300">{error}</p>}
-      {loading ? <div className="grid min-h-72 place-items-center"><LoaderCircle className="animate-spin text-violet-400" /></div> :
+      {loading ? <SkeletonRows rows={4} label="Loading jobs" /> :
       <AnimatePresence mode="wait">
         {tab === "queue" ? <motion.div key="queue" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="p-4 sm:p-6">
           {jobs.length ? <div className="grid gap-3">{jobs.map((job) => {
@@ -154,14 +154,14 @@ function ReviewDetail({ question, working, onStatus, onSave }: { question: Admin
   };
   return <div className="p-4 sm:p-6">
     <div className="flex flex-wrap items-center gap-2"><Badge tone="violet">Imported original</Badge><Badge>{question.difficulty}</Badge><Badge tone={question.review_status === "approved" ? "green" : question.review_status === "rejected" ? "rose" : "amber"}>{question.review_status}</Badge><span className="ml-auto text-xs text-zinc-600">{question.enrichment_status}</span></div>
-    <div className="mt-5 rounded-2xl border border-white/[.07] bg-white/[.02] p-5"><p className="text-xs uppercase tracking-[.15em] text-violet-400">Question</p><p className="mt-3 text-base font-medium leading-7">{question.question_text}</p><p className="mt-5 text-xs uppercase tracking-[.15em] text-cyan-400">Original expected answer</p><p className="mt-3 whitespace-pre-wrap text-xs leading-6 text-zinc-400">{question.answer_text}</p></div>
+    <div className="mt-5 rounded-2xl border border-white/[.07] bg-white/[.02] p-5"><p className="text-sm font-medium text-violet-300">Question</p><p className="mt-3 text-base font-medium leading-7">{question.question_text}</p><p className="mt-5 text-sm font-medium text-cyan-300">Original expected answer</p><p className="mt-3 whitespace-pre-wrap text-xs leading-6 text-zinc-400">{question.answer_text}</p></div>
     {editing ? <form onSubmit={save} className="mt-4 space-y-3 rounded-2xl border border-violet-400/15 bg-violet-400/[.025] p-5">
       <ReviewField label="Expected answer"><textarea name="answer_text" defaultValue={question.answer_text} rows={6} className="admin-input resize-y" /></ReviewField>
       <ReviewField label="AI explanation"><textarea name="explanation" defaultValue={question.explanation || ""} rows={6} className="admin-input resize-y" /></ReviewField>
       <div className="grid gap-3 sm:grid-cols-2"><ReviewField label="Expected keywords"><textarea name="expected_keywords" defaultValue={question.expected_keywords?.join(", ")} rows={3} className="admin-input resize-y" /></ReviewField><ReviewField label="Hints"><textarea name="hints" defaultValue={question.hints?.join("\n")} rows={3} className="admin-input resize-y" /></ReviewField></div>
       <div className="grid gap-3 sm:grid-cols-2"><ReviewField label="Common mistakes"><textarea name="common_mistakes" defaultValue={question.common_mistakes?.join("\n")} rows={3} className="admin-input resize-y" /></ReviewField><ReviewField label="Follow-up questions"><textarea name="follow_up_questions" defaultValue={question.follow_up_questions?.join("\n")} rows={3} className="admin-input resize-y" /></ReviewField></div>
       <div className="flex justify-end gap-2"><Button type="button" variant="secondary" onClick={() => setEditing(false)}>Cancel</Button><Button type="submit" disabled={working}>{working ? "Saving…" : "Save review edits"}</Button></div>
-    </form> : <div className="mt-4 rounded-2xl border border-white/[.07] bg-[#0d0d0f] p-5"><p className="text-xs uppercase tracking-[.15em] text-cyan-400">Stored AI enrichment</p><p className="mt-3 whitespace-pre-wrap text-xs leading-6 text-zinc-400">{question.explanation || "No enrichment stored yet."}</p><div className="mt-4 flex flex-wrap gap-2">{question.tags.map((tag) => <span key={tag} className="rounded-lg bg-cyan-400/[.055] px-2 py-1 text-[11px] text-cyan-300">#{tag}</span>)}</div></div>}
+    </form> : <div className="mt-4 rounded-2xl border border-white/[.07] bg-[#0d0d0f] p-5"><p className="text-sm font-medium text-cyan-300">Stored AI enrichment</p><p className="mt-3 whitespace-pre-wrap text-xs leading-6 text-zinc-400">{question.explanation || "No enrichment stored yet."}</p><div className="mt-4 flex flex-wrap gap-2">{question.tags.map((tag) => <span key={tag} className="rounded-lg bg-cyan-400/[.055] px-2 py-1 text-[11px] text-cyan-300">#{tag}</span>)}</div></div>}
     <div className="mt-4 grid gap-3 sm:grid-cols-3"><Info label="Topic" value={[question.topic, question.subtopic].filter(Boolean).join(" / ") || "—"} /><Info label="Expected keywords" value={question.expected_keywords?.join(", ") || "—"} /><Info label="Hints" value={question.hints?.join(" · ") || "—"} /></div>
     <div className="mt-6 flex flex-col gap-2 border-t border-white/[.06] pt-5 sm:flex-row"><Button variant="secondary" onClick={() => setEditing(true)}><Pencil size={14} /> Edit draft</Button><Button variant="secondary" onClick={() => void onStatus(question, "rejected")} disabled={working} className="sm:ml-auto"><Trash2 size={14} /> Reject</Button><Button onClick={() => void onStatus(question, "approved")} disabled={working}><CheckCircle2 size={14} /> Approve & publish</Button></div>
   </div>;
