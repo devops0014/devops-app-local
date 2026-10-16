@@ -23,7 +23,7 @@ const conceptIcons: Record<string, ComponentType<{ className?: string; "aria-hid
   networking: Network, security: ShieldCheck, sre: Gauge, "dns-cdn": Globe2,
 };
 
-const brandColors: Record<string, string> = {
+export const brandColors: Record<string, string> = {
   ansible: "#ef4444", argocd: "#ef7b4d", aws: "#f59e0b", azure: "#38bdf8", "azure-devops": "#38bdf8",
   behavioral: "#c084fc", "behavioral-questions": "#c084fc", databases: "#22d3ee", database: "#22d3ee",
   devsecops: "#34d399", docker: "#2496ed", eks: "#60a5fa", "ecs-fargate": "#f59e0b", git: "#f05032",
@@ -34,7 +34,7 @@ const brandColors: Record<string, string> = {
   terraform: "#844fba", vault: "#d9a900",
 };
 
-function CategoryMark({ category }: { category: ContentCategory }) {
+export function CategoryMark({ category }: { category: Pick<ContentCategory, "slug" | "name"> }) {
   const asset = brandAssets[category.slug];
   if (asset) return <img src={asset} alt={`${category.name} logo`} width="48" height="48" loading="eager" />;
   const Icon = conceptIcons[category.slug] || Boxes;

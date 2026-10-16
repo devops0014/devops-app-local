@@ -127,3 +127,25 @@ test("caller templates fill placeholders and offer WhatsApp, email and copy", ()
   assert.match(tools, /mailtoLink\(/);
   assert.match(read("app/(platform)/leads/page.tsx"), /<QuickMessages/);
 });
+
+test("new students get a Start here screen instead of a dashboard of zeros", () => {
+  const dashboard = read("app/(platform)/dashboard/page.tsx");
+  assert.match(dashboard, /isNewStudent && cloudStatus === "connecting"/);
+  assert.match(dashboard, /<StartHere /);
+  assert.doesNotMatch(dashboard, /18 questions away/);
+  assert.doesNotMatch(dashboard, /\[1, 1, 1, 1, 1, 1, 0\]/);
+  assert.doesNotMatch(dashboard, /Hard · 12 min/);
+  const start = read("components/dashboard/start-here.tsx");
+  assert.match(start, /interestTopic\(\)/);
+  assert.match(start, /\/practice\?category=/);
+});
+
+test("brand fonts are actually loaded and applied", () => {
+  const layout = read("app/layout.tsx");
+  assert.match(layout, /fonts\.googleapis\.com\/css2\?family=Bricolage\+Grotesque/);
+  assert.match(layout, /Figtree/);
+  const css = read("app/globals.css");
+  assert.match(css, /--font-sans: "Figtree"/);
+  assert.match(css, /@layer base \{\s*h1, h2 \{\s*font-family: "Bricolage Grotesque"/);
+  assert.doesNotMatch(css, /"Inter"/);
+});

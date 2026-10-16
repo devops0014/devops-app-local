@@ -14,8 +14,23 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: "Inter", "SF Pro Display", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Figtree", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+  --font-display: "Bricolage Grotesque", "Figtree", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Headings use the display face; body text stays in Figtree for readability.
+   In the base layer so utility classes (e.g. font-mono) still win. */
+@layer base {
+  h1, h2 {
+    font-family: "Bricolage Grotesque", "Figtree", ui-sans-serif, system-ui, sans-serif;
+    font-optical-sizing: auto;
+  }
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
 }
 
 .light {
@@ -164,13 +179,13 @@ html {
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: "Inter", "SF Pro Display", ui-sans-serif, system-ui, sans-serif;
+  font-family: "Figtree", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   min-height: 100vh;
   overflow-x: hidden;
 }
 
 .landing-page {
-  font-family: "Inter", "SF Pro Display", ui-sans-serif, system-ui, sans-serif;
+  font-family: "Figtree", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   font-size: 16px;
   font-weight: 450;
   letter-spacing: -0.012em;
