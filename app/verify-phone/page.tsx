@@ -126,17 +126,31 @@ export default function VerifyPhonePage() {
  * Default (no setup): the student confirms their mobile number. No code.
  * ------------------------------------------------------------------------- */
 function ConfirmFlow({ initialPhone, onConfirmed }: { initialPhone: string; onConfirmed: () => void }) {
-  const [phone, setPhone] = useState(initialPhone.replace(/^\+91/, ""));
-  const [consent, setConsent] = useState(false);
+  const startsAbroad = /^\+/.test(initialPhone) && !initialPhone.startsWith("+91");
+  const [region, setRegion] = useState<"india" | "abroad">(startsAbroad ? "abroad" : "india");
+  const [phone, setPhone] = useState(startsAbroad ? initialPhone : initialPhone.replace(/^\+91/, ""));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const abroad = region === "abroad";
+
+  const switchRegion = (next: "india" | "abroad") => {
+    setRegion(next);
+    setError("");
+    setPhone(next === "abroad" ? "+" : "");
+  };
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
-    setBusy(true);
     setError("");
+    const digits = phone.replace(/[^\d+]/g, "");
+    if (abroad && (!/^\+\d{8,15}$/.test(digits) || digits.startsWith("+91"))) {
+      setError("Enter your WhatsApp number with your country code, e.g. +971 50 123 4567.");
+      return;
+    }
+    setBusy(true);
     try {
-      await api("/api/phone/confirm", { phone, consent });
+      // Contact consent is covered by the notice under the button.
+      await api("/api/phone/confirm", { phone: abroad ? digits : phone, consent: true });
       onConfirmed();
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Could not save your number.");
@@ -147,23 +161,47 @@ function ConfirmFlow({ initialPhone, onConfirmed }: { initialPhone: string; onCo
   return (
     <>
       <Badge tone="green"><Phone size={12} className="mr-1" /> One-time step</Badge>
-      <h1 className="mt-5 text-2xl font-semibold tracking-[-.04em] sm:text-3xl">Confirm your mobile number</h1>
-      <p className="mt-2 text-sm leading-6 text-zinc-400">Use your own number. Our team may call to help with your preparation, and accounts with wrong numbers are removed.</p>
-      <form onSubmit={submit} className="mt-6 space-y-4">
+      <h1 className="mt-5 text-2xl font-semibold tracking-[-.04em] sm:text-3xl">{abroad ? "Add your WhatsApp number" : "Confirm your mobile number"}</h1>
+      <p className="mt-2 text-sm leading-6 text-zinc-400">
+        {abroad
+          ? "Outside India, our team reaches students on WhatsApp. Use your own number."
+          : "Use your own number. Accounts with wrong numbers are removed."}
+      </p>
+
+      <div className="mt-6 grid grid-cols-2 rounded-xl border border-white/[.08] bg-white/[.02] p-1" role="radiogroup" aria-label="Where are you based?">
+        {([["india", "I'm in India"], ["abroad", "Outside India"]] as const).map(([value, label]) => (
+          <button key={value} type="button" role="radio" aria-checked={region === value} onClick={() => switchRegion(value)} className={`h-9 rounded-lg text-sm transition ${region === value ? "bg-white/[.09] text-white" : "text-zinc-400 hover:text-zinc-200"}`}>
+            {label}
+          </button>
+        ))}
+      </div>
+
+      <form onSubmit={submit} className="mt-4 space-y-4">
         <label className="block">
-          <span className="mb-2 block text-sm font-medium text-zinc-300">Mobile number</span>
+          <span className="mb-2 block text-sm font-medium text-zinc-300">{abroad ? "WhatsApp number" : "Mobile number"}</span>
           <span className="auth-field">
-            <Phone size={17} />
-            <span className="text-sm text-zinc-400">+91</span>
-            <input value={phone} onChange={(event) => setPhone(event.target.value)} type="tel" required autoComplete="tel-national" inputMode="tel" placeholder="98765 43210" aria-label="Mobile number" />
+            {abroad ? <MessageCircle size={17} /> : <Phone size={17} />}
+            {!abroad && <span className="text-sm text-zinc-400">+91</span>}
+            <input
+              value={phone}
+              onChange={(event) => setPhone(event.target.value)}
+              type="tel"
+              required
+              autoComplete={abroad ? "tel" : "tel-national"}
+              inputMode="tel"
+              placeholder={abroad ? "+971 50 123 4567" : "98765 43210"}
+              aria-label={abroad ? "WhatsApp number with country code" : "Mobile number"}
+            />
           </span>
-          <span className="mt-1.5 block text-xs text-zinc-500">Outside India? Type your number with the country code, e.g. +971…</span>
+          {abroad && <span className="mt-1.5 block text-xs text-zinc-500">Start with + and your country code.</span>}
         </label>
-        <ConsentBox checked={consent} onChange={setConsent} />
         {error && <p className="rounded-xl border border-rose-400/15 bg-rose-400/[.06] px-3 py-2.5 text-sm text-rose-300">{error}</p>}
-        <Button type="submit" size="lg" disabled={busy || !consent || !phone.trim()} className="w-full">
+        <Button type="submit" size="lg" disabled={busy || !phone.replace(/\+/g, "").trim()} className="w-full">
           {busy ? "Saving…" : "Continue"} {!busy && <ArrowRight size={15} />}
         </Button>
+        <p className="text-center text-xs leading-5 text-zinc-500">
+          By continuing, you agree our team may contact you about your preparation. <a href="/privacy" className="text-zinc-300 underline-offset-2 hover:underline">Privacy</a>
+        </p>
       </form>
     </>
   );
