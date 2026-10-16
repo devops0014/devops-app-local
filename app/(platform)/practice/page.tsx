@@ -4,6 +4,7 @@ import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import * as Slider from "@radix-ui/react-slider";
 import ReactMarkdown from "react-markdown";
+import { TopicCelebration, type CompletedTopic } from "@/components/topic-celebration";
 import {
   ArrowLeft,
   Bookmark,
@@ -101,6 +102,8 @@ function QuestionDetail({
   onNext,
   onPrevious,
   onClose,
+  onTopicMastered,
+  topicQuestionIds,
 }: {
   question: Question;
   index: number;
@@ -108,6 +111,9 @@ function QuestionDetail({
   onNext: () => void;
   onPrevious: () => void;
   onClose: () => void;
+  /** Called when this answer completes every question in its topic. */
+  onTopicMastered?: () => void;
+  topicQuestionIds?: string[];
 }) {
   const [revealed, setRevealed] = useState(false);
   const [showNote, setShowNote] = useState(false);
@@ -129,7 +135,11 @@ function QuestionDetail({
   }, [onNext, onPrevious]);
 
   const setStatus = (status: ProgressStatus) => {
+    const finishesTopic = status === "Mastered" && state.status !== "Mastered"
+      && Boolean(topicQuestionIds?.length)
+      && topicQuestionIds!.every((id) => id === question.id || progress[id]?.status === "Mastered");
     updateQuestion(question.id, { status });
+    if (finishesTopic) onTopicMastered?.();
     const transitionKey = `${question.id}:${state.status}:${status}`;
     if (status === "Mastered" && state.status !== "Mastered") addXp(20, transitionKey);
     if (status !== "Mastered" && state.status === "Mastered") addXp(-20, transitionKey);
@@ -315,6 +325,7 @@ function PracticeContent() {
   const [bookmarkedOnly, setBookmarkedOnly] = useState(false);
   const [selected, setSelected] = useState<string | null>(initialQuestion);
   const [mobileFilters, setMobileFilters] = useState(false);
+  const [completedTopic, setCompletedTopic] = useState<CompletedTopic | null>(null);
   const { questions: liveQuestions, categories } = useContentCatalog();
   const { progress, updateQuestion } = useAppStore();
 
@@ -517,9 +528,16 @@ function PracticeContent() {
             onNext={next}
             onPrevious={previous}
             onClose={() => showQuestion(null)}
+            topicQuestionIds={liveQuestions.filter((item) => item.categorySlug === selectedQuestion.categorySlug).map((item) => item.id)}
+            onTopicMastered={() => setCompletedTopic({
+              name: selectedQuestion.category,
+              slug: selectedQuestion.categorySlug,
+              total: liveQuestions.filter((item) => item.categorySlug === selectedQuestion.categorySlug).length,
+            })}
           />
         )}
       </AnimatePresence>
+      <TopicCelebration topic={completedTopic} onClose={() => setCompletedTopic(null)} />
 
       <AnimatePresence>
         {mobileFilters && (
