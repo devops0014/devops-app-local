@@ -74,16 +74,23 @@ export async function completePhoneVerification(
   if (owner) return { ok: false, error: "This mobile number is already linked to another account." };
 
   const now = new Date().toISOString();
-  const { error } = await supabaseAdmin!.from("profiles").update({
+  const base = {
     mobile: phoneE164,
     phone_verified_at: now,
     marketing_consent: true,
     marketing_consent_at: consentAt,
-    phone_verification_method: method,
     updated_at: now,
-  }).eq("id", userId);
+  };
+  let { error } = await supabaseAdmin!.from("profiles").update({ ...base, phone_verification_method: method }).eq("id", userId);
+  // Database not migrated to 2026101601 yet (no phone_verification_method column)? Save without it.
+  if (error && (error.code === "42703" || error.code === "PGRST204")) {
+    console.warn("profiles.phone_verification_method is missing — run supabase/migrations/2026101601_phone_confirm_and_blocking.sql");
+    ({ error } = await supabaseAdmin!.from("profiles").update(base).eq("id", userId));
+  }
   if (error) {
-    return { ok: false, error: error.code === "23505" ? "This mobile number is already linked to another account." : "Could not save your number." };
+    if (error.code === "23505") return { ok: false, error: "This mobile number is already linked to another account." };
+    console.error("Saving phone number failed", error);
+    return { ok: false, error: `Could not save your number (${error.code ?? "database error"}: ${error.message}).` };
   }
   await supabaseAdmin!.from("leads").upsert({ user_id: userId }, { onConflict: "user_id", ignoreDuplicates: true });
   const { data: authUser } = await supabaseAdmin!.auth.admin.getUserById(userId);
