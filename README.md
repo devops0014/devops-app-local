@@ -69,7 +69,27 @@ update public.profiles set role = 'super_admin' where email = 'you@example.com';
 From then on, add teammates from **Team & roles** in the app: they sign up
 normally, you enter their email and pick a role.
 
-### WhatsApp verification setup (free, Meta WhatsApp Business Cloud API)
+### Mobile numbers and wrong-number blocking
+
+By default (`PHONE_VERIFY_METHOD=none`) students type their mobile number once
+and agree to be contacted. No WhatsApp or SMS setup is needed. The app checks
+the format, blocks duplicates and blocks numbers your team has removed.
+
+When a caller finds a wrong number, they open the student in **Leads** and use
+**Wrong number? Remove this account**. The account is deleted, the number is
+blocked, and a formal notice opens ready to send by email from the caller's own
+mail app. If the student tries to sign in again, they're told to create a new
+account with their own number. Super admins can review and unblock numbers on
+**Team & roles**.
+
+### Caller message templates
+
+Each lead has **Quick messages**: a first-call script and ready-made WhatsApp
+and email messages (welcome, couldn't reach you, course details, follow-up),
+filled in with the student's name, topic and the caller's name. Edit the
+wording in **`lib/message-templates.ts`**.
+
+### Optional: WhatsApp verification (PHONE_VERIFY_METHOD=inbound)
 
 Students verify by **sending** a message to your WhatsApp Business number: they
 tap "Verify on WhatsApp", WhatsApp opens with `VERIFY DC-XXXXXXXX` pre-filled,
@@ -123,7 +143,8 @@ Run any migrations you haven't applied yet, in filename order. The two newest ar
 `2026101201_free_access.sql`, `2026101202_leads_rbac.sql` (roles, leads) and
 `2026101203_whatsapp_inbound_verify.sql` (free WhatsApp verification) and
 `2026101301_sales_tools.sql` (lead source, onboarding answers, follow-ups, callbacks) and
-`2026101302_interest_topic.sql` (the tool a student picked on the home page). `2026101201_free_access.sql` lets every signed-in user
+`2026101302_interest_topic.sql` (the tool a student picked on the home page) and
+`2026101601_phone_confirm_and_blocking.sql` (no-code phone confirmation, blocked numbers). `2026101201_free_access.sql` lets every signed-in user
 read questions, stops new accounts getting an expiring trial, and clears any
 expired plans. Neither deletes data; an optional cleanup block at the bottom of
 the free-access file drops the old payment and mock-interview tables if you want

@@ -20,8 +20,9 @@ export async function GET(request: Request) {
       method,
       verified: Boolean(profile?.phone_verified_at),
       phone: profile?.phone_verified_at ? profile.mobile : null,
+      prefill: profile?.mobile ?? (typeof user.user_metadata?.mobile === "string" ? user.user_metadata.mobile : null),
       businessNumber: businessNumber() || null,
-      devMode: method === "otp" ? isOtpDevMode() : inboundDevMode(),
+      devMode: method === "otp" ? isOtpDevMode() : method === "inbound" ? inboundDevMode() : false,
       request: latest ? { token: latest.token, status: latest.status, error: latest.error, expiresAt: latest.expires_at } : null,
     }, { headers: { "cache-control": "no-store" } });
   } catch (error) {

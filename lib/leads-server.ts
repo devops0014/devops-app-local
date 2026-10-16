@@ -23,6 +23,7 @@ export async function selectIn<T>(
 
 type ProfileRow = {
   id: string; name: string | null; email: string; mobile: string | null; phone_verified_at: string | null; created_at: string;
+  phone_verification_method?: string | null;
   utm_source: string | null; utm_medium: string | null; utm_campaign: string | null; utm_content: string | null;
   referrer: string | null; landing_path: string | null;
   experience_level: string | null; job_title: string | null; career_goal: string | null; city: string | null;
@@ -35,7 +36,7 @@ type LeadRow = {
 type ActivityRow = { user_id: string; body: string | null; created_at: string };
 
 const profileColumns = [
-  "id,name,email,mobile,phone_verified_at,created_at",
+  "id,name,email,mobile,phone_verified_at,phone_verification_method,created_at",
   "utm_source,utm_medium,utm_campaign,utm_content,referrer,landing_path",
   "experience_level,job_title,career_goal,city,interest_topic",
 ].join(",");
@@ -110,7 +111,8 @@ export async function loadLeads(query: LeadQuery): Promise<Lead[]> {
       name: row.name,
       email: row.email,
       mobile: row.mobile,
-      phoneVerified: Boolean(row.phone_verified_at),
+      // Only numbers checked by WhatsApp or a code count as verified.
+      phoneVerified: Boolean(row.phone_verified_at) && ["whatsapp", "otp"].includes(row.phone_verification_method ?? "whatsapp"),
       registeredAt: row.created_at,
       status: (isLeadStatus(lead?.status) ? lead!.status : "new") as LeadStatus,
       statusUpdatedAt: lead?.status_updated_at ?? null,

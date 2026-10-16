@@ -6,7 +6,7 @@ const read = (path) => readFileSync(new URL(`../../${path}`, import.meta.url), "
 
 test("role matrix keeps leads, content and team permissions separate", () => {
   const rbac = read("lib/rbac.ts");
-  assert.match(rbac, /sales: \["leads\.view", "leads\.update"\]/);
+  assert.match(rbac, /sales: \["leads\.view", "leads\.update", "leads\.block"\]/);
   assert.match(rbac, /admin: \["content\.manage"\]/);
   assert.match(rbac, /super_admin: \[[^\]]*"team\.manage"/);
   assert.match(rbac, /student: \[\]/);
@@ -69,7 +69,7 @@ test("free inbound WhatsApp verification: signed webhook, expiring codes, defaul
   const dev = read("app/api/phone/dev-verify/route.ts");
   assert.match(webhook, /verifyWebhookSignature\(raw, request\.headers\.get\("x-hub-signature-256"\)\)/);
   assert.match(webhook, /hub\.verify_token/);
-  assert.match(lib, /=== "otp" \? "otp" : "inbound"/);
+  assert.match(lib, /value === "otp" \|\| value === "inbound" \? value : "none"/);
   assert.match(lib, /expires_at/);
   assert.match(lib, /already linked to another account/);
   assert.match(start, /consent/);

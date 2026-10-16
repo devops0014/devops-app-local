@@ -10,14 +10,15 @@ export type Permission =
   | "leads.view"      // see registered students and their contact details
   | "leads.update"    // change call status and add notes
   | "leads.export"    // download leads as CSV
+  | "leads.block"     // remove an account whose mobile number is wrong
   | "content.manage"  // questions, categories, imports, AI content engine
   | "team.manage";    // change other people's roles
 
 const matrix: Record<Role, readonly Permission[]> = {
   student: [],
-  sales: ["leads.view", "leads.update"],
+  sales: ["leads.view", "leads.update", "leads.block"],
   admin: ["content.manage"],
-  super_admin: ["leads.view", "leads.update", "leads.export", "content.manage", "team.manage"],
+  super_admin: ["leads.view", "leads.update", "leads.export", "leads.block", "content.manage", "team.manage"],
 };
 
 export const roleLabels: Record<Role, string> = {
@@ -29,7 +30,7 @@ export const roleLabels: Record<Role, string> = {
 
 export const roleDescriptions: Record<Role, string> = {
   student: "Uses the question bank, quizzes and flashcards.",
-  sales: "Sees registered students, calls them, sets status and adds notes.",
+  sales: "Sees registered students, calls them, sets status, adds notes and removes wrong-number accounts.",
   admin: "Manages questions, categories and imports.",
   super_admin: "Full access, including leads export and team roles.",
 };

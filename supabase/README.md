@@ -74,3 +74,9 @@ statuses, follow-up dates, lead owners, callback requests and do-not-contact.
 
 Then run `migrations/2026101302_interest_topic.sql`. It saves the tool a student
 picked on the home page ("What's your interview on?") so callers can see it.
+
+## Phone confirmation and blocking
+
+Run `migrations/2026101601_phone_confirm_and_blocking.sql`. It records how each
+student's number was checked and adds the `blocked_contacts` list used when the
+team removes an account with a wrong mobile number.

@@ -59,3 +59,23 @@ export async function listTeam() {
 export async function setMemberRole(email: string, role: Role) {
   return (await adminFetch<{ member: TeamMember }>("/api/team", { method: "POST", body: JSON.stringify({ email, role }) })).member;
 }
+
+export type BlockReason = "unreachable" | "someone_else" | "fake";
+export type BlockedContact = {
+  id: string; email: string | null; phone: string | null; name: string | null;
+  reason: BlockReason; note: string | null; blocked_at: string; blockedBy: string | null;
+};
+
+export async function blockLead(id: string, reason: BlockReason, note: string) {
+  return adminFetch<{ blocked: true; name: string | null; email: string | null; phone: string | null }>(
+    `/api/leads/${id}/block`, { method: "POST", body: JSON.stringify({ reason, note }) },
+  );
+}
+
+export async function listBlocked() {
+  return (await adminFetch<{ blocked: BlockedContact[] }>("/api/leads/blocked")).blocked;
+}
+
+export async function unblockContact(id: string) {
+  return adminFetch<{ ok: true }>(`/api/leads/blocked?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+}

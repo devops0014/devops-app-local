@@ -19,6 +19,8 @@ import {
   type Caller, type LeadCounts, type LeadFilters, type LeadPatch, type LeadView,
 } from "@/lib/repositories/leads-repository";
 import { cn } from "@/lib/utils";
+import { BlockedNoticeDialog, QuickMessages, WrongNumberPanel, type BlockedResult } from "@/components/leads/caller-tools";
+import { firstNameOf } from "@/lib/message-templates";
 
 type Preset = "today" | "yesterday" | "day" | "7d" | "30d" | "custom";
 
@@ -64,6 +66,9 @@ function LeadsDashboard() {
   const [exporting, setExporting] = useState(false);
 
   const canUpdate = can(profile?.role, "leads.update");
+  const canBlock = can(profile?.role, "leads.block");
+  const callerName = firstNameOf(profile?.name);
+  const [blockedResult, setBlockedResult] = useState<BlockedResult | null>(null);
   const canExport = can(profile?.role, "leads.export");
   const filters: LeadFilters = useMemo(
     () => ({ view, from, to, status, verified, q, owner, source, sort }),
@@ -223,7 +228,7 @@ function LeadsDashboard() {
                 <span className="text-2xl font-semibold tracking-tight">{loading && !counts ? "–" : item.value}</span>
                 {percent !== null && <span className="text-xs text-zinc-500">{percent}%</span>}
               </span>
-              {item.key === "all" && counts && <span className="mt-0.5 block text-xs text-rose-300/90">{counts.hot} hot · {counts.verified} verified</span>}
+              {item.key === "all" && counts && <span className="mt-0.5 block text-xs text-rose-300/90">{counts.hot} hot leads</span>}
             </button>
           );
         })}
@@ -252,7 +257,7 @@ function LeadsDashboard() {
           </Select>
           <Select value={verified} onChange={setVerified} label="Number">
             <option value="all">All numbers</option>
-            <option value="yes">WhatsApp verified</option>
+            <option value="yes">Verified numbers</option>
             <option value="no">Not verified</option>
           </Select>
         </div>
@@ -289,7 +294,18 @@ function LeadsDashboard() {
         onClose={() => setOpenId(null)}
         onPatch={(patch) => openLead ? patchLead(openLead.id, patch) : Promise.resolve()}
         onNoteAdded={(body) => openLead && setLeads((items) => items.map((lead) => lead.id === openLead.id ? { ...lead, lastNote: body, lastNoteAt: new Date().toISOString(), noteCount: lead.noteCount + 1 } : lead))}
+        callerName={callerName}
+        canBlock={canBlock}
+        onBlocked={(result) => {
+          if (!openLead) return;
+          const removed = openLead;
+          setLeads((items) => items.filter((lead) => lead.id !== removed.id));
+          setCounts((value) => value && { ...value, total: value.total - 1, [removed.status]: value[removed.status] - 1 });
+          setOpenId(null);
+          setBlockedResult(result);
+        }}
       />
+      <BlockedNoticeDialog result={blockedResult} callerName={callerName} onClose={() => setBlockedResult(null)} />
     </div>
   );
 }
@@ -359,8 +375,8 @@ function ContactActions({ lead }: { lead: Lead }) {
         <Phone size={14} className="shrink-0 text-emerald-300" /> <span className="truncate">{lead.mobile}</span>
       </a>
       {lead.phoneVerified
-        ? <BadgeCheck size={16} className="shrink-0 text-emerald-400" aria-label="WhatsApp verified" />
-        : <span className="shrink-0 rounded-full border border-amber-400/20 px-1.5 text-xs text-amber-300">unverified</span>}
+        ? <BadgeCheck size={16} className="shrink-0 text-emerald-400" aria-label="Number verified" />
+        : null}
       <a href={`https://wa.me/${digits}`} target="_blank" rel="noreferrer" className="grid size-8 shrink-0 place-items-center rounded-lg bg-emerald-400/10 text-emerald-300 hover:bg-emerald-400/20" aria-label="Open WhatsApp chat"><MessageCircle size={15} /></a>
     </div>
   );
@@ -382,9 +398,10 @@ function StatusSelect({ value, disabled, onChange }: { value: LeadStatus; disabl
   );
 }
 
-function LeadDrawer({ lead, today, callers, canUpdate, onClose, onPatch, onNoteAdded }: {
+function LeadDrawer({ lead, today, callers, canUpdate, onClose, onPatch, onNoteAdded, callerName, canBlock, onBlocked }: {
   lead: Lead | null; today: string; callers: Caller[]; canUpdate: boolean; onClose: () => void;
   onPatch: (patch: LeadPatch) => Promise<void>; onNoteAdded: (body: string) => void;
+  callerName: string | null; canBlock: boolean; onBlocked: (result: BlockedResult) => void;
 }) {
   const [activity, setActivity] = useState<LeadActivity[]>([]);
   const [loading, setLoading] = useState(false);
@@ -445,9 +462,9 @@ function LeadDrawer({ lead, today, callers, canUpdate, onClose, onPatch, onNoteA
     <Dialog.Root open={Boolean(lead)} onOpenChange={(open) => { if (!open) { onClose(); setNote(""); setActivity([]); } }}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-[80] bg-black/60 backdrop-blur-sm" />
-        <Dialog.Content className="fixed inset-y-0 right-0 z-[90] flex w-full max-w-lg flex-col border-l border-white/10 bg-[var(--panel)] shadow-[0_0_120px_rgba(0,0,0,.5)]">
+        <Dialog.Content className="fixed inset-y-0 right-0 z-[90] w-full max-w-lg overflow-y-auto overscroll-contain border-l border-white/10 bg-[var(--panel)] shadow-[0_0_120px_rgba(0,0,0,.5)]">
           {lead && <>
-            <div className="overflow-y-auto border-b border-white/[.07] p-5 sm:p-6">
+            <div className="border-b border-white/[.07] p-5 sm:p-6">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <Dialog.Title className="truncate text-xl font-semibold tracking-[-.03em]">{lead.name || "Unnamed student"}</Dialog.Title>
@@ -503,6 +520,8 @@ function LeadDrawer({ lead, today, callers, canUpdate, onClose, onPatch, onNoteA
                   ))}
                 </div>
               )}
+              <QuickMessages lead={lead} callerName={callerName} />
+              {canBlock && <WrongNumberPanel key={lead.id} lead={lead} onBlocked={onBlocked} />}
             </div>
 
             {canUpdate && !lead.doNotContact && (
@@ -523,7 +542,7 @@ function LeadDrawer({ lead, today, callers, canUpdate, onClose, onPatch, onNoteA
               </div>
             )}
 
-            <div className="min-h-0 flex-1 overflow-y-auto p-5 sm:px-6">
+            <div className="p-5 sm:px-6">
               <p className="mb-3 text-xs font-medium uppercase tracking-[.12em] text-zinc-500">History</p>
               {error && <p className="mb-3 rounded-xl border border-rose-400/15 bg-rose-400/[.05] p-3 text-sm text-rose-300">{error}</p>}
               {loading && !activity.length ? (

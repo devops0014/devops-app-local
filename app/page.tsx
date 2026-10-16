@@ -115,7 +115,7 @@ function Hero() {
             </a>
           </div>
           <p className="mt-4 flex items-center gap-2 text-sm text-zinc-400">
-            <MessageCircle size={15} className="text-emerald-400" /> Sign up with email or Google · verify on WhatsApp in 10 seconds
+            <MessageCircle size={15} className="text-emerald-400" /> Sign up with email or Google in under a minute
           </p>
         </div>
         <motion.div initial={reduced ? false : { opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: "easeOut" }}>
@@ -300,7 +300,7 @@ function PreviewRow({ left, right, tone }: { left: string; right: string; tone: 
 function Steps() {
   const steps = [
     { title: "Create your account", copy: "Email and password, or one tap with Google." },
-    { title: "Verify on WhatsApp", copy: "Tap the button and press Send. Takes about ten seconds." },
+    { title: "Add your mobile number", copy: "So we can help with your preparation. Use your own number." },
     { title: "Start practising", copy: "Pick a topic, take a quiz or revise with flashcards. Progress saves automatically." },
   ];
   return (

@@ -58,7 +58,7 @@ export function AccountMenu({ profile, onUpdated, onSignOut }: { profile: Curren
           </div>
           <form onSubmit={save} className="mt-7 space-y-4">
             <AccountField icon={UserRound} label="Full name" name="name" defaultValue={profile?.name ?? ""} />
-            <AccountField icon={Phone} label={profile?.phoneVerified ? "WhatsApp number · verified" : "WhatsApp number"} name="mobile" defaultValue={profile?.mobile ?? ""} disabled />
+            <AccountField icon={Phone} label="Mobile number" name="mobile" defaultValue={profile?.mobile ?? ""} disabled />
             <AccountField icon={Mail} label="Email address" name="email" defaultValue={profile?.email ?? ""} disabled />
             {saved && <p className="flex items-center gap-2 rounded-xl border border-emerald-400/15 bg-emerald-400/[.06] p-3 text-xs text-emerald-300"><CheckCircle2 size={15} /> Profile updated successfully.</p>}
             <div className="flex flex-col gap-2 border-t border-white/[.07] pt-5 sm:flex-row">

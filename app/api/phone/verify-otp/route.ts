@@ -31,7 +31,7 @@ export async function POST(request: Request) {
 
     const now = new Date().toISOString();
     await supabaseAdmin!.from("phone_otps").update({ consumed_at: now }).eq("id", otp.id);
-    const result = await completePhoneVerification(user.id, otp.phone, now);
+    const result = await completePhoneVerification(user.id, otp.phone, now, "otp");
     if (!result.ok) throw new ApiError(result.error, 409);
 
     return NextResponse.json({ verified: true, phone: otp.phone });

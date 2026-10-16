@@ -15,7 +15,7 @@ export default function PrivacyPage() {
       <Section heading="What we collect">
         <ul className="list-disc space-y-1.5 pl-5">
           <li><strong>Account details:</strong> your name, email address and password (stored securely by our authentication provider), or your Google profile if you sign in with Google.</li>
-          <li><strong>WhatsApp number:</strong> the number you verify by sending us a WhatsApp message.</li>
+          <li><strong>Mobile number:</strong> the number you give us when you sign up.</li>
           <li><strong>Profile answers (optional):</strong> experience level, career goal, current role and city.</li>
           <li><strong>Learning activity:</strong> questions you mark, quiz scores, flashcard reviews, streaks and XP.</li>
           <li><strong>How you found us:</strong> the ad or link that brought you (for example a campaign name) and the page you landed on.</li>
@@ -34,19 +34,19 @@ export default function PrivacyPage() {
       </Section>
 
       <Section heading="Who we share it with">
-        <p>Only with service providers that help us run {name}, under contract and for these purposes: database and authentication hosting (Supabase), WhatsApp messaging (Meta Platforms), and advertising measurement (Meta). If you arrived from a Meta ad, we may tell Meta that a sign-up happened, using hashed (scrambled) contact details, so we can measure our ads. Our own team members see your contact details and profile answers only to call or message you.</p>
+        <p>Only with service providers that help us run {name}, under contract and for these purposes: database and authentication hosting (Supabase), messaging (for example WhatsApp, run by Meta Platforms), and advertising measurement (Meta). If you arrived from a Meta ad, we may tell Meta that a sign-up happened, using hashed (scrambled) contact details, so we can measure our ads. Our own team members see your contact details and profile answers only to call or message you.</p>
       </Section>
 
       <Section heading="Your choices and rights">
         <ul className="list-disc space-y-1.5 pl-5">
-          <li><strong>Withdraw consent:</strong> turn off &ldquo;Course updates &amp; calls&rdquo; in Account settings at any time, or reply STOP on WhatsApp. Our team will stop contacting you; you can keep using the platform.</li>
+          <li><strong>Withdraw consent:</strong> turn off &ldquo;Course updates &amp; calls&rdquo; in Account settings at any time, or reply STOP to any WhatsApp message from us. Our team will stop contacting you; you can keep using the platform.</li>
           <li><strong>Access, correct or delete:</strong> email <a href={`mailto:${contactEmail}`} className="text-violet-300">{contactEmail}</a> and we&rsquo;ll respond within 30 days. Deleting your account removes your profile and learning history.</li>
           <li><strong>Grievances:</strong> write to the same address. If you are not satisfied, you may approach the Data Protection Board of India.</li>
         </ul>
       </Section>
 
       <Section heading="How long we keep it">
-        <p>We keep your account data while your account is active. If you withdraw consent we stop contacting you but keep a record that you opted out, so we don&rsquo;t contact you by mistake. If you ask us to delete your account, we delete your data within 30 days, except where the law requires us to keep it.</p>
+        <p>We keep your account data while your account is active. If you withdraw consent we stop contacting you but keep a record that you opted out, so we don&rsquo;t contact you by mistake. If we remove an account because its mobile number was wrong, we keep that email address and number on a blocked list so the number can&rsquo;t be reused. If you ask us to delete your account, we delete your data within 30 days, except where the law requires us to keep it.</p>
       </Section>
 
       <Section heading="Security">

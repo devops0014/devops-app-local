@@ -84,3 +84,46 @@ test("home page opens with the tool picker, keeps the sample quiz, and has no FA
   assert.match(read("app/welcome/page.tsx"), /\/practice\?category=/);
   assert.match(read("supabase/migrations/2026101302_interest_topic.sql"), /interest_topic/);
 });
+
+test("default phone step is a simple confirmation with no WhatsApp setup", () => {
+  const lib = read("lib/phone-verification.ts");
+  assert.match(lib, /return value === "otp" \|\| value === "inbound" \? value : "none"/);
+  assert.match(lib, /isBlockedPhone\(phoneE164\)/);
+  assert.match(lib, /phone_verification_method: method/);
+  const confirm = read("app/api/phone/confirm/route.ts");
+  assert.match(confirm, /consent/);
+  assert.match(confirm, /"none"\)/);
+  assert.match(read("app/verify-phone/page.tsx"), /function ConfirmFlow/);
+  assert.match(read(".env.example"), /PHONE_VERIFY_METHOD=none/);
+  assert.match(read("lib/leads-server.ts"), /\["whatsapp", "otp"\]\.includes/);
+});
+
+test("wrong-number blocking deletes the account, keeps a blocked record and tells the student", () => {
+  const block = read("app/api/leads/[id]/block/route.ts");
+  assert.match(block, /requirePermission\(request, "leads\.block"\)/);
+  assert.match(block, /blocked_contacts/);
+  assert.match(block, /auth\.admin\.deleteUser\(id\)/);
+  assert.match(block, /student\.role !== "student"/);
+  assert.match(read("lib/rbac.ts"), /sales: \["leads\.view", "leads\.update", "leads\.block"\]/);
+  const blocked = read("app/api/leads/blocked/route.ts");
+  assert.match(blocked, /requirePermission\(request, "team\.manage"\)[\s\S]*requirePermission\(request, "team\.manage"\)/);
+  const notice = read("app/api/auth/blocked-notice/route.ts");
+  assert.match(notice, /Already signed up again/);
+  assert.match(read("app/login/page.tsx"), /\/api\/auth\/blocked-notice/);
+  const sql = read("supabase/migrations/2026101601_phone_confirm_and_blocking.sql");
+  assert.match(sql, /create table if not exists public\.blocked_contacts/);
+  assert.match(sql, /enable row level security/);
+});
+
+test("caller templates fill placeholders and offer WhatsApp, email and copy", () => {
+  const templates = read("lib/message-templates.ts");
+  for (const id of ["call-script", "first-contact", "no-answer", "course-details", "follow-up", "course-email"]) {
+    assert.match(templates, new RegExp(`id: "${id}"`));
+  }
+  assert.match(templates, /blockedNoticeTemplate/);
+  assert.match(templates, /create a new account at \{siteUrl\} using your own, correct mobile number/);
+  const tools = read("components/leads/caller-tools.tsx");
+  assert.match(tools, /whatsappLink\(lead\.mobile, body\)/);
+  assert.match(tools, /mailtoLink\(/);
+  assert.match(read("app/(platform)/leads/page.tsx"), /<QuickMessages/);
+});

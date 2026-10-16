@@ -18,7 +18,8 @@ export default function TermsPage() {
 
       <Section heading="Your account">
         <ul className="list-disc space-y-1.5 pl-5">
-          <li>Use your real name, email and your own WhatsApp number. One account per person.</li>
+          <li>Use your real name, email and your own mobile number. One account per person.</li>
+          <li>If our team finds that the mobile number on an account is wrong or belongs to someone else, we may remove the account. You&rsquo;re welcome to sign up again with your own number.</li>
           <li>Keep your password private. You&rsquo;re responsible for activity on your account.</li>
           <li>We may suspend accounts that are fake, shared, or used to copy or scrape our content.</li>
         </ul>

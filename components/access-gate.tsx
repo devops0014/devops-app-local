@@ -25,7 +25,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
         router.replace(`/login?returnTo=${encodeURIComponent(pathname)}`);
         return;
       }
-      // Students must verify their WhatsApp number once before using the
+      // Students must confirm their mobile number once before using the
       // platform. Team members (sales/admin/super admin) skip this step.
       const userId = sessionData.session.user.id;
       let { data: profile, error } = await supabase

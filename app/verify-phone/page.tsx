@@ -13,7 +13,8 @@ import { attributionForSignup } from "@/lib/attribution";
 import { trackMetaEvent } from "@/components/providers/analytics-provider";
 
 type Status = {
-  method: "inbound" | "otp";
+  method: "none" | "inbound" | "otp";
+  prefill?: string | null;
   verified: boolean;
   businessNumber: string | null;
   devMode: boolean;
@@ -79,7 +80,7 @@ export default function VerifyPhonePage() {
       try {
         setStatus(await api<Status>("/api/phone/status"));
       } catch {
-        setStatus({ method: "inbound", verified: false, businessNumber: null, devMode: false, request: null });
+        setStatus({ method: "none", verified: false, businessNumber: null, devMode: false, request: null });
       }
     })();
   }, [returnTo, router]);
@@ -102,11 +103,13 @@ export default function VerifyPhonePage() {
           {done ? (
             <div className="py-8 text-center">
               <span className="mx-auto grid size-16 place-items-center rounded-[22px] border border-emerald-400/20 bg-emerald-400/[.08] text-emerald-300"><CheckCircle2 size={30} /></span>
-              <h1 className="mt-6 text-2xl font-semibold tracking-[-.04em]">Number verified</h1>
+              <h1 className="mt-6 text-2xl font-semibold tracking-[-.04em]">You&rsquo;re all set</h1>
               <p className="mt-2 text-xs text-zinc-500">Opening your workspace…</p>
             </div>
           ) : !status ? (
             <div className="grid min-h-60 place-items-center"><LoaderCircle className="animate-spin text-violet-400" /></div>
+          ) : status.method === "none" ? (
+            <ConfirmFlow initialPhone={status.prefill ?? ""} onConfirmed={finish} />
           ) : status.method === "otp" ? (
             <OtpFlow onVerified={finish} />
           ) : (
@@ -116,6 +119,53 @@ export default function VerifyPhonePage() {
         <p className="mt-5 flex items-center justify-center gap-2 text-xs text-zinc-700"><ShieldCheck size={12} className="text-emerald-400" /> Your number is only used by the DevOpsCrack team.</p>
       </div>
     </main>
+  );
+}
+
+/* ---------------------------------------------------------------------------
+ * Default (no setup): the student confirms their mobile number. No code.
+ * ------------------------------------------------------------------------- */
+function ConfirmFlow({ initialPhone, onConfirmed }: { initialPhone: string; onConfirmed: () => void }) {
+  const [phone, setPhone] = useState(initialPhone.replace(/^\+91/, ""));
+  const [consent, setConsent] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
+    setBusy(true);
+    setError("");
+    try {
+      await api("/api/phone/confirm", { phone, consent });
+      onConfirmed();
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Could not save your number.");
+      setBusy(false);
+    }
+  };
+
+  return (
+    <>
+      <Badge tone="green"><Phone size={12} className="mr-1" /> One-time step</Badge>
+      <h1 className="mt-5 text-2xl font-semibold tracking-[-.04em] sm:text-3xl">Confirm your mobile number</h1>
+      <p className="mt-2 text-sm leading-6 text-zinc-400">Use your own number. Our team may call to help with your preparation, and accounts with wrong numbers are removed.</p>
+      <form onSubmit={submit} className="mt-6 space-y-4">
+        <label className="block">
+          <span className="mb-2 block text-sm font-medium text-zinc-300">Mobile number</span>
+          <span className="auth-field">
+            <Phone size={17} />
+            <span className="text-sm text-zinc-400">+91</span>
+            <input value={phone} onChange={(event) => setPhone(event.target.value)} type="tel" required autoComplete="tel-national" inputMode="tel" placeholder="98765 43210" aria-label="Mobile number" />
+          </span>
+          <span className="mt-1.5 block text-xs text-zinc-500">Outside India? Type your number with the country code, e.g. +971…</span>
+        </label>
+        <ConsentBox checked={consent} onChange={setConsent} />
+        {error && <p className="rounded-xl border border-rose-400/15 bg-rose-400/[.06] px-3 py-2.5 text-sm text-rose-300">{error}</p>}
+        <Button type="submit" size="lg" disabled={busy || !consent || !phone.trim()} className="w-full">
+          {busy ? "Saving…" : "Continue"} {!busy && <ArrowRight size={15} />}
+        </Button>
+      </form>
+    </>
   );
 }
 

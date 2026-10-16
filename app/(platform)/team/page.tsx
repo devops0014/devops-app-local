@@ -1,13 +1,13 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import { LoaderCircle, ShieldCheck, UserPlus, UsersRound } from "lucide-react";
+import { LoaderCircle, PhoneOff, ShieldCheck, UserPlus, UsersRound } from "lucide-react";
 import { RoleGate } from "@/components/access-gate";
 import { Badge, Button, Card } from "@/components/ui";
 import { useCurrentUser } from "@/lib/hooks/use-current-user";
 import { formatIst } from "@/lib/leads";
 import { roleDescriptions, roleLabels, roles, type Role } from "@/lib/rbac";
-import { listTeam, setMemberRole, type TeamMember } from "@/lib/repositories/leads-repository";
+import { listBlocked, listTeam, setMemberRole, unblockContact, type BlockedContact, type TeamMember } from "@/lib/repositories/leads-repository";
 
 const staffRoles = roles.filter((role) => role !== "student");
 
@@ -99,6 +99,63 @@ function TeamManager() {
           );
         })}
       </Card>
+
+      <BlockedNumbers />
     </div>
+  );
+}
+
+const reasonText: Record<string, string> = {
+  unreachable: "Unreachable",
+  someone_else: "Someone else's number",
+  fake: "Fake number",
+};
+
+/** Accounts the team removed for a wrong number. Unblock lets them sign up again. */
+function BlockedNumbers() {
+  const [rows, setRows] = useState<BlockedContact[] | null>(null);
+  const [error, setError] = useState("");
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  useEffect(() => {
+    listBlocked().then(setRows).catch((cause) => { setRows([]); setError(cause instanceof Error ? cause.message : "Could not load the blocked list."); });
+  }, []);
+
+  const unblock = async (row: BlockedContact) => {
+    if (!window.confirm(`Unblock ${row.phone ?? row.email}? They'll be able to sign up again with this number.`)) return;
+    setBusyId(row.id);
+    try {
+      await unblockContact(row.id);
+      setRows((items) => (items ?? []).filter((item) => item.id !== row.id));
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Could not unblock.");
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  return (
+    <section className="mt-10">
+      <h2 className="flex items-center gap-2 text-lg font-semibold"><PhoneOff size={18} className="text-rose-300" /> Blocked numbers</h2>
+      <p className="mt-1 text-sm text-zinc-400">Accounts your team removed because the mobile number was wrong. These numbers can&rsquo;t be used to sign up again unless you unblock them.</p>
+      {error && <p className="mt-3 rounded-xl border border-rose-400/15 bg-rose-400/[.05] p-3 text-sm text-rose-300">{error}</p>}
+      <Card className="mt-4 overflow-hidden">
+        {rows === null ? (
+          <div className="grid min-h-32 place-items-center"><LoaderCircle className="animate-spin text-violet-400" /></div>
+        ) : !rows.length ? (
+          <p className="p-6 text-center text-sm text-zinc-500">No blocked numbers.</p>
+        ) : rows.map((row) => (
+          <div key={row.id} className="grid gap-2 border-b border-white/[.05] p-4 last:border-0 sm:grid-cols-[1fr_auto] sm:items-center">
+            <div className="min-w-0">
+              <p className="truncate text-sm text-zinc-100">{row.phone ?? "No number"} · {row.name || row.email}</p>
+              <p className="mt-0.5 truncate text-xs text-zinc-500">
+                {reasonText[row.reason] ?? row.reason} · {formatIst(row.blocked_at, { dateStyle: "medium" })}{row.blockedBy ? ` · by ${row.blockedBy}` : ""}{row.note ? ` · ${row.note}` : ""}
+              </p>
+            </div>
+            <Button variant="secondary" size="sm" disabled={busyId === row.id} onClick={() => void unblock(row)}>Unblock</Button>
+          </div>
+        ))}
+      </Card>
+    </section>
   );
 }

@@ -4,16 +4,25 @@ import { isWhatsAppDevMode } from "@/lib/whatsapp";
 import { sendMetaEvent, verifiedSignupEventId } from "@/lib/meta-capi";
 
 /**
- * "inbound" (default, free): student sends `VERIFY DC-XXXXXXXX` to your number.
- * "otp" (fallback, billed by Meta): we send the student a 6-digit template code.
+ * "none" (default): the student types their mobile number and confirms it. No
+ *   code, no WhatsApp/SMS setup. Callers catch wrong numbers and block them.
+ * "inbound" (free, needs Meta setup): student sends `VERIFY DC-XXXXXXXX` to your number.
+ * "otp" (billed by Meta): we send the student a 6-digit template code.
  */
-export type VerifyMethod = "inbound" | "otp";
+export type VerifyMethod = "none" | "inbound" | "otp";
 
 export const VERIFY_TOKEN_TTL_MINUTES = 15;
 const TOKEN_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 
 export function verifyMethod(): VerifyMethod {
-  return process.env.PHONE_VERIFY_METHOD?.trim().toLowerCase() === "otp" ? "otp" : "inbound";
+  const value = process.env.PHONE_VERIFY_METHOD?.trim().toLowerCase();
+  return value === "otp" || value === "inbound" ? value : "none";
+}
+
+/** Was this number reported as wrong by the team? */
+export async function isBlockedPhone(phoneE164: string) {
+  const { data } = await supabaseAdmin!.from("blocked_contacts").select("id").eq("phone", phoneE164).limit(1);
+  return Boolean(data?.length);
 }
 
 /** Business number students message, digits only (e.g. 919876543210). */
@@ -51,10 +60,18 @@ export type CompleteResult = { ok: true; phone: string } | { ok: false; error: s
  * Marks a student's phone as verified and opens their lead record.
  * Shared by the WhatsApp webhook, the dev simulator and the OTP fallback.
  */
-export async function completePhoneVerification(userId: string, phoneE164: string, consentAt: string): Promise<CompleteResult> {
+export async function completePhoneVerification(
+  userId: string,
+  phoneE164: string,
+  consentAt: string,
+  method: "none" | "whatsapp" | "otp" = "whatsapp",
+): Promise<CompleteResult> {
+  if (await isBlockedPhone(phoneE164)) {
+    return { ok: false, error: "This number was reported as incorrect by our team. Please use your own mobile number." };
+  }
   const { data: owner } = await supabaseAdmin!.from("profiles")
     .select("id").eq("mobile", phoneE164).not("phone_verified_at", "is", null).neq("id", userId).maybeSingle();
-  if (owner) return { ok: false, error: "This WhatsApp number is already linked to another account." };
+  if (owner) return { ok: false, error: "This mobile number is already linked to another account." };
 
   const now = new Date().toISOString();
   const { error } = await supabaseAdmin!.from("profiles").update({
@@ -62,10 +79,11 @@ export async function completePhoneVerification(userId: string, phoneE164: strin
     phone_verified_at: now,
     marketing_consent: true,
     marketing_consent_at: consentAt,
+    phone_verification_method: method,
     updated_at: now,
   }).eq("id", userId);
   if (error) {
-    return { ok: false, error: error.code === "23505" ? "This WhatsApp number is already linked to another account." : "Could not save your verified number." };
+    return { ok: false, error: error.code === "23505" ? "This mobile number is already linked to another account." : "Could not save your number." };
   }
   await supabaseAdmin!.from("leads").upsert({ user_id: userId }, { onConflict: "user_id", ignoreDuplicates: true });
   const { data: authUser } = await supabaseAdmin!.auth.admin.getUserById(userId);
