@@ -40,6 +40,11 @@ name and pitch, optional course URL and social links. The privacy policy, terms,
 landing page and in-app course banner all read from it. Have the privacy policy
 and terms reviewed before you run ads.
 
+The **"Who's behind this"** card on the landing page stays hidden until you
+fill in `mentor` in the same file: your name, title, a one- or two-line bio,
+a few real highlights and your LinkedIn URL. For the photo, put a square image
+in `public/` (for example `public/mentor.jpg`) and set `photo: "/mentor.jpg"`.
+
 ### Roles and your super admin account
 
 | Role | Can do |

@@ -62,12 +62,12 @@ export default function AchievementsPage() {
       <Card className="mt-7 overflow-hidden border-violet-400/15 bg-gradient-to-r from-violet-500/[.09] to-cyan-500/[.04] p-6">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
           <span className="grid size-16 shrink-0 place-items-center rounded-[22px] border border-violet-400/20 bg-violet-400/10 text-violet-300"><ShieldCheck size={30} /></span>
-          <div className="flex-1"><p className="font-mono text-xs uppercase tracking-[.16em] text-violet-300">Level {level}</p><h2 className="mt-1 text-xl font-semibold">{levelName}</h2><div className="mt-4 flex items-center gap-3"><ProgressBar value={levelProgress(xp)} className="flex-1" /><span className="text-xs text-zinc-500">{xp.toLocaleString()} XP</span></div><p className="mt-2 text-xs text-zinc-600">{Math.max(0, next.minXp - xp).toLocaleString()} XP until {next.name}</p></div>
+          <div className="flex-1"><p className="text-sm text-violet-300">Level {level}</p><h2 className="mt-1 text-xl font-semibold">{levelName}</h2><div className="mt-4 flex items-center gap-3"><ProgressBar value={levelProgress(xp)} className="flex-1" /><span className="text-xs text-zinc-500">{xp.toLocaleString()} XP</span></div><p className="mt-2 text-xs text-zinc-600">{Math.max(0, next.minXp - xp).toLocaleString()} XP until {next.name}</p></div>
         </div>
       </Card>
 
       <section className="mt-8">
-        <div className="flex items-center justify-between"><div><p className="text-xs font-semibold uppercase tracking-[.16em] text-violet-400">Active missions</p><h2 className="mt-1 text-xl font-semibold">Challenges</h2></div><Badge tone="cyan">{challenges.length} active</Badge></div>
+        <div className="flex items-center justify-between"><div><p className="text-sm font-medium text-violet-400">Active missions</p><h2 className="mt-1 text-xl font-semibold">Challenges</h2></div><Badge tone="cyan">{challenges.length} active</Badge></div>
         <div className="mt-4 grid gap-4 lg:grid-cols-3">
           {challenges.map((challenge) => {
             const value = Math.min(100, Math.round((challenge.progress / challenge.target) * 100));
@@ -77,12 +77,12 @@ export default function AchievementsPage() {
       </section>
 
       <section className="mt-9">
-        <div><p className="text-xs font-semibold uppercase tracking-[.16em] text-amber-400">Collection</p><h2 className="mt-1 text-xl font-semibold">Badges</h2></div>
+        <div><p className="text-sm font-medium text-amber-400">Collection</p><h2 className="mt-1 text-xl font-semibold">Badges</h2></div>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {badges.map((item, index) => {
             const Icon = [Medal, Target, Flame, Zap, ShieldCheck, Trophy][index % 6];
             const rarity = item.rarity === "legendary" ? "text-amber-300 bg-amber-400/10 border-amber-400/15" : item.rarity === "epic" ? "text-violet-300 bg-violet-400/10 border-violet-400/15" : "text-cyan-300 bg-cyan-400/10 border-cyan-400/15";
-            return <Card key={item.slug} className={`relative flex items-center gap-4 p-4 ${!item.earned ? "opacity-50 grayscale" : ""}`}><span className={`grid size-12 shrink-0 place-items-center rounded-2xl border ${rarity}`}>{item.earned ? <Icon size={21} /> : <LockKeyhole size={19} />}</span><div className="min-w-0 flex-1"><div className="flex items-center gap-2"><p className="truncate text-xs font-semibold">{item.name}</p>{item.earned && <Sparkles size={11} className="text-amber-300" />}</div><p className="mt-1 text-xs leading-4 text-zinc-600">{item.description}</p><p className="mt-2 text-[11px] uppercase tracking-wider text-zinc-700">{item.rarity} · +{item.xp_reward} XP</p></div></Card>;
+            return <Card key={item.slug} className={`relative flex items-center gap-4 p-4 ${!item.earned ? "opacity-50 grayscale" : ""}`}><span className={`grid size-12 shrink-0 place-items-center rounded-2xl border ${rarity}`}>{item.earned ? <Icon size={21} /> : <LockKeyhole size={19} />}</span><div className="min-w-0 flex-1"><div className="flex items-center gap-2"><p className="truncate text-xs font-semibold">{item.name}</p>{item.earned && <Sparkles size={11} className="text-amber-300" />}</div><p className="mt-1 text-xs leading-4 text-zinc-600">{item.description}</p><p className="mt-2 text-sm text-zinc-500">{item.rarity} · +{item.xp_reward} XP</p></div></Card>;
           })}
         </div>
       </section>

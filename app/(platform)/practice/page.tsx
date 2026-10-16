@@ -63,7 +63,7 @@ function FilterGroup({
 }) {
   return (
     <div className="border-b border-white/[.06] py-5 last:border-0">
-      <p className="mb-3 text-xs font-semibold uppercase tracking-[.14em] text-zinc-600">{title}</p>
+      <p className="mb-3 text-sm font-medium text-zinc-400">{title}</p>
       <div className="space-y-1">{children}</div>
     </div>
   );
@@ -192,7 +192,7 @@ function QuestionDetail({
               </div>
             </div>
             <div className="mt-8">
-              <p className="text-xs font-semibold uppercase tracking-[.14em] text-zinc-600">Asked at</p>
+              <p className="text-sm font-medium text-zinc-400">Asked at</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {question.companies.map((company) => (
                   <span key={company} className="rounded-lg border border-white/[.07] bg-white/[.03] px-2.5 py-1.5 text-xs text-zinc-500">{company}</span>
@@ -200,7 +200,7 @@ function QuestionDetail({
               </div>
             </div>
             <div className="mt-10">
-              <p className="mb-3 text-xs font-semibold uppercase tracking-[.14em] text-zinc-600">How confident are you?</p>
+              <p className="mb-3 text-sm font-medium text-zinc-400">How confident are you?</p>
               <div className="rounded-2xl border border-white/[.07] bg-white/[.025] p-4">
                 <Slider.Root
                   value={[state.confidence]}
@@ -227,7 +227,7 @@ function QuestionDetail({
           <div className="mx-auto max-w-2xl">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[.14em] text-violet-400">Expert answer</p>
+                <p className="text-sm font-medium text-violet-400">Expert answer</p>
                 <h2 className="mt-1 text-lg font-semibold">Production-ready explanation</h2>
               </div>
               {revealed && <Badge tone="green"><Eye size={11} className="mr-1" /> Revealed</Badge>}
@@ -421,7 +421,7 @@ function PracticeContent() {
       <div className="mx-auto max-w-[1500px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[.17em] text-violet-400">Practice library</p>
+            <p className="text-sm font-medium text-violet-400">Practice library</p>
             <h1 className="mt-1 text-2xl font-semibold tracking-[-.04em] sm:text-3xl">Question Bank</h1>
             <p className="mt-2 text-xs text-zinc-500">Master real questions asked in DevOps interviews.</p>
           </div>
@@ -450,7 +450,7 @@ function PracticeContent() {
                 <button
                   key={item.slug}
                   onClick={() => setCategory(category === item.slug ? null : item.slug)}
-                  className={`rounded-xl border px-3 py-3 text-xs font-medium uppercase tracking-[.08em] backdrop-blur-md transition ${
+                  className={`rounded-xl border px-3 py-3 text-xs font-medium uppercase backdrop-blur-md transition ${
                     category === item.slug
                       ? "border-violet-400/35 bg-violet-400/15 text-white shadow-[0_0_24px_rgba(139,92,246,.18)]"
                       : "border-white/[.07] bg-black/40 text-zinc-600 hover:text-zinc-300"
@@ -509,7 +509,7 @@ function PracticeContent() {
                 <div>
                   <span className="mx-auto grid size-16 place-items-center rounded-[22px] bg-violet-400/10 text-violet-300"><Search size={26} /></span>
                   <h2 className="mt-5 text-base font-semibold">No matching questions</h2>
-                  <p className="mt-2 text-xs text-zinc-600">Try removing a filter or searching with a broader keyword.</p>
+                  <p className="mt-2 text-sm text-zinc-400">Nothing fits all of those filters. Remove one, or try a shorter search word.</p>
                   <Button variant="secondary" className="mt-5" onClick={() => { setSearch(""); setCategory(null); setDifficulties([]); setStatuses([]); setBookmarkedOnly(false); }}>Reset filters</Button>
                 </div>
               </Card>

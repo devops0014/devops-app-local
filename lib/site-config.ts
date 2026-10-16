@@ -23,6 +23,22 @@ export const siteConfig = {
     questions: null as number | null,
     students: null as number | null,
   },
+  /**
+   * "Who's behind this" on the landing page. The section stays hidden until
+   * `name` is filled in. Put your photo in /public (e.g. /public/mentor.jpg)
+   * and set `photo: "/mentor.jpg"`. Leave anything you don't want shown empty.
+   */
+  mentor: {
+    name: "",
+    /** e.g. "DevOps Engineer & Trainer" */
+    title: "",
+    photo: "",
+    /** One or two sentences in your own words. */
+    bio: "",
+    /** Short facts, e.g. "8 years in DevOps", "Ex-Infosys", "Trained 2,000+ students". Real numbers only. */
+    highlights: [] as string[],
+    linkedin: "",
+  },
   social: {
     linkedin: "",
     youtube: "",

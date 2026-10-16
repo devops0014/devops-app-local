@@ -6,7 +6,7 @@ import {
   ArrowRight, CheckCircle2, Copy, LoaderCircle, LogOut, MessageCircle, Phone, RefreshCw, ShieldCheck,
 } from "lucide-react";
 import { Brand } from "@/components/brand";
-import { Badge, Button } from "@/components/ui";
+import { Badge, Button, Skeleton } from "@/components/ui";
 import { supabase } from "@/lib/supabase/client";
 import { asRole, isStaff } from "@/lib/rbac";
 import { attributionForSignup } from "@/lib/attribution";
@@ -107,7 +107,7 @@ export default function VerifyPhonePage() {
               <p className="mt-2 text-xs text-zinc-500">Opening your workspace…</p>
             </div>
           ) : !status ? (
-            <div className="grid min-h-60 place-items-center"><LoaderCircle className="animate-spin text-violet-400" /></div>
+            <div role="status" aria-label="Loading" className="space-y-4"><Skeleton className="h-6 w-40 rounded-full" /><Skeleton className="h-8 w-3/4" /><Skeleton className="h-4 w-2/3" /><Skeleton className="mt-6 h-12 w-full rounded-xl" /><Skeleton className="h-12 w-full rounded-xl" /></div>
           ) : status.method === "none" ? (
             <ConfirmFlow initialPhone={status.prefill ?? ""} onConfirmed={finish} />
           ) : status.method === "otp" ? (

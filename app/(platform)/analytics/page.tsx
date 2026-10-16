@@ -69,7 +69,7 @@ export default function AnalyticsPage() {
     <div className="mx-auto max-w-[1500px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[.17em] text-violet-400">Performance intelligence</p>
+          <p className="text-sm font-medium text-violet-400">Performance intelligence</p>
           <h1 className="mt-1 text-2xl font-semibold tracking-[-.04em] sm:text-3xl">Analytics</h1>
           <p className="mt-2 text-xs text-zinc-500">See what is improving, what needs revision, and where to focus next.</p>
         </div>
@@ -131,7 +131,7 @@ export default function AnalyticsPage() {
           ) : (
             <div className="mt-5 rounded-2xl border border-dashed border-white/[.08] bg-white/[.015] p-6 text-center">
               <BrainCircuit size={24} className="mx-auto text-violet-300" />
-              <p className="mt-3 text-xs text-zinc-400">Your first quiz result will appear here.</p>
+              <p className="mt-3 text-sm text-zinc-300">Your first quiz result will appear here.</p>
               <Link href="/quiz" className="mt-3 inline-flex items-center gap-1 text-xs text-violet-300">Start a quiz <ArrowRight size={12} /></Link>
             </div>
           )}
@@ -159,7 +159,7 @@ export default function AnalyticsPage() {
         <Card className="p-5">
           <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[.15em] text-violet-400">154-day streak map</p>
+              <p className="text-sm font-medium text-violet-400">154-day streak map</p>
               <h2 className="mt-1 text-lg font-semibold">Practice activity</h2>
             </div>
             <div className="flex items-center gap-2 text-xs text-zinc-600">
@@ -240,7 +240,7 @@ export default function AnalyticsPage() {
         <Card className="overflow-hidden">
           <div className="flex items-center justify-between border-b border-white/[.07] p-5">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[.15em] text-violet-400">Recent history</p>
+              <p className="text-sm font-medium text-violet-400">Recent history</p>
               <h2 className="mt-1 text-lg font-semibold">Quiz attempts</h2>
             </div>
             <Badge>{attempts.length} attempts</Badge>
@@ -248,7 +248,7 @@ export default function AnalyticsPage() {
           <div className="overflow-x-auto">
             <table className="w-full min-w-[620px] text-left">
               <thead>
-                <tr className="border-b border-white/[.06] text-xs uppercase tracking-wider text-zinc-700">
+                <tr className="border-b border-white/[.06] text-sm text-zinc-500">
                   <th className="px-5 py-3 font-medium">Mode</th>
                   <th className="px-3 py-3 font-medium">Date</th>
                   <th className="px-3 py-3 font-medium">Score</th>

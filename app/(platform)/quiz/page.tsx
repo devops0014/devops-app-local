@@ -390,7 +390,7 @@ export default function QuizPage() {
                 </div>
               ) : (
                 <div className="mt-7">
-                  <label className="text-xs font-medium uppercase tracking-[.16em] text-zinc-600">
+                  <label className="text-sm font-medium text-zinc-400">
                     {mode === "Hands-on" ? "Commands / code" : "Your response"}
                   </label>
                   <textarea
@@ -592,7 +592,7 @@ export default function QuizPage() {
             <span className="text-xs text-zinc-500">{Math.round(attempt.score / Math.max(1, attempt.total) * 100)}%</span>
             <span className="text-xs text-zinc-600">{new Date(attempt.createdAt).toLocaleString()}</span>
           </div>
-        )) : <p className="p-8 text-center text-xs text-zinc-600">No attempts yet. Complete your first quiz to create history.</p>}
+        )) : <p className="p-8 text-center text-sm leading-6 text-zinc-400">Your quiz results will show up here.<br />Ten questions takes about five minutes, so start one above.</p>}
       </Card>
     </div>
   );

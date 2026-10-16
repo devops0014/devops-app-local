@@ -103,13 +103,13 @@ export default function DashboardPage() {
         <div className="absolute -right-6 -top-10 size-28 rounded-full bg-cyan-400/10 blur-2xl" />
         <div className="relative flex items-center gap-3">
           <span className="grid size-10 place-items-center rounded-xl border border-violet-400/20 bg-violet-400/10 text-violet-300"><Zap size={19} fill="currentColor" /></span>
-          <div><p className="text-xs font-semibold uppercase tracking-[.16em] text-zinc-500">Total XP</p><p className="mt-0.5 text-xl font-semibold tracking-tight">{xp.toLocaleString()} <span className="text-xs text-violet-300">XP</span></p></div>
+          <div><p className="text-sm font-medium text-zinc-500">Total XP</p><p className="mt-0.5 text-xl font-semibold tracking-tight">{xp.toLocaleString()} <span className="text-xs text-violet-300">XP</span></p></div>
         </div>
         <div className="relative text-right"><p className="text-xs font-semibold">Level {level}</p><p className="mt-1 text-xs text-zinc-500">{levelName}</p></div>
       </section>
       <section className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
         <div className="relative">
-          <p className="mb-2 flex items-center gap-2 font-mono text-[11px] uppercase tracking-[.18em] text-emerald-400"><span className="size-1.5 animate-pulse rounded-full bg-emerald-400" /> Command centre online</p>
+          <p className="mb-2 flex items-center gap-2 text-sm text-emerald-400"><span className="size-1.5 animate-pulse rounded-full bg-emerald-400" /> Command centre online</p>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-semibold tracking-[-.04em] sm:text-3xl">Welcome back, {firstName}</h1>
             <span className="text-2xl">👋</span>
@@ -145,7 +145,7 @@ export default function DashboardPage() {
             <SpatialCard glow={index === 0 ? "violet" : index === 1 ? "cyan" : index === 2 ? "amber" : "emerald"} className={`relative min-h-[144px] bg-gradient-to-br ${stat.gradient} p-5`}>
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-xs font-medium uppercase tracking-[.12em] text-zinc-600">{stat.label}</p>
+                  <p className="text-sm font-medium text-zinc-400">{stat.label}</p>
                   <p className="mt-3 text-2xl font-semibold tracking-tight">{stat.value}</p>
                   <p className="mt-2 flex items-center gap-1 text-xs text-zinc-500"><TrendingUp size={11} className="text-emerald-400" /> {stat.delta}</p>
                 </div>
@@ -161,7 +161,7 @@ export default function DashboardPage() {
         <SpatialCard glow="violet" className="overflow-hidden">
           <div className="flex items-center justify-between border-b border-white/[.07] p-5">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[.15em] text-violet-400">Continue learning</p>
+              <p className="text-sm font-medium text-violet-400">Continue learning</p>
               <h2 className="mt-1 text-base font-semibold">{continueQuestion ? `${continueQuestion.category} interview preparation` : "Start your first learning session"}</h2>
             </div>
             <span className="rounded-full border border-white/[.08] bg-white/[.04] px-2.5 py-1 text-xs text-zinc-500">{continuePercent}% mastered</span>

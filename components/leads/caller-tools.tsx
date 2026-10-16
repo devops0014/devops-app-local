@@ -44,7 +44,7 @@ export function QuickMessages({ lead, callerName }: { lead: Lead; callerName: st
 
   return (
     <div className="mt-5">
-      <p className="mb-2 text-xs font-medium uppercase tracking-[.12em] text-zinc-500">Quick messages</p>
+      <p className="mb-2 text-sm font-medium text-zinc-500">Quick messages</p>
       <ul className="divide-y divide-white/[.06] rounded-xl border border-white/[.07]">
         {messageTemplates.map((template) => {
           const body = fillTemplate(template.body, context);
