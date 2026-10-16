@@ -1,166 +1,378 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties, type ElementType } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { motion, useInView, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import {
-  Activity, ArrowRight, BadgeCheck, BarChart3, Boxes, BrainCircuit, Check, ChevronRight,
-  CircleGauge, CirclePlay, Cloud, Container, FileCheck2, Gauge, GitPullRequest, Layers3,
-  MonitorSmartphone, Network, Quote, Rocket, ServerCog, ShieldCheck, TerminalSquare,
+  BadgeCheck, BookOpenCheck, Check, Cloud, GraduationCap, Layers, MessageCircle, Timer, X,
 } from "lucide-react";
 import { Brand } from "@/components/brand";
-import { Badge } from "@/components/ui";
-import { AnimatedPipeline } from "@/components/landing/animated-pipeline";
-import { GlowCard } from "@/components/landing/glow-card";
-import { WorkflowJourney } from "@/components/landing/workflow-journey";
-import { motionTokens } from "@/components/landing/constants";
+import { siteConfig } from "@/lib/site-config";
+import { rememberInterestTopic } from "@/lib/attribution";
+import { cn } from "@/lib/utils";
 
-const technologies = [
-  ["Docker", "350", "86", "48", "45", "Intermediate", Container, "#38bdf8"],
-  ["Kubernetes", "420", "118", "72", "58", "Advanced", Network, "#60a5fa"],
-  ["Terraform", "280", "74", "54", "34", "Advanced", Boxes, "#8b5cf6"],
-  ["AWS", "320", "92", "61", "42", "Intermediate", Cloud, "#f59e0b"],
-  ["Linux", "260", "48", "43", "28", "Foundation", TerminalSquare, "#facc15"],
-  ["Git", "180", "35", "22", "18", "Foundation", GitPullRequest, "#f97316"],
-  ["Jenkins", "240", "66", "47", "32", "Intermediate", ServerCog, "#ef4444"],
-  ["Helm", "120", "28", "21", "16", "Intermediate", Layers3, "#22d3ee"],
-  ["ArgoCD", "110", "31", "25", "14", "Advanced", GitPullRequest, "#fb7185"],
-  ["Prometheus", "160", "42", "34", "16", "Intermediate", Activity, "#f43f5e"],
-  ["Grafana", "140", "34", "26", "14", "Intermediate", CircleGauge, "#fb923c"],
-] as const;
+const SIGNUP = "/login?mode=signup";
 
-const companies = [
-  ["Accenture", "176", "4", "Hard", "#a855f7"], ["TCS", "204", "3", "Medium", "#ef4444"],
-  ["Infosys", "188", "3", "Medium", "#38bdf8"], ["Cognizant", "168", "4", "Hard", "#22d3ee"],
-  ["Capgemini", "154", "3", "Medium", "#00a3e0"], ["IBM Consulting", "146", "4", "Hard", "#60a5fa"],
-  ["Wipro", "142", "3", "Medium", "#a78bfa"], ["HCLTech", "138", "3", "Medium", "#fb7185"],
-  ["Deloitte", "132", "4", "Hard", "#84cc16"], ["Tech Mahindra", "126", "3", "Medium", "#f97316"],
-] as const;
+type Sample = { topic: string; question: string; code?: string; options: string[]; answer: number; why: string };
 
-const plans = [
-  { name: "Monthly", price: "₹199", subline: "Try it out", badge: "", save: "", features: ["2 AI Interviews", "1 Resume Review", "Unlimited Questions"] },
-  { name: "6 Months", price: "₹799", subline: "Only ₹133/month", badge: "🔥 Most Popular", save: "Save 33%", features: ["15 AI Interviews", "5 Resume Reviews", "Unlimited Questions"] },
-  { name: "Yearly", price: "₹999", subline: "Only ₹83/month", badge: "🏆 Best Value", save: "Save 58%", features: ["Fair Usage AI", "Fair Usage Resume Review", "Unlimited Questions"] },
+const samples: Sample[] = [
+  {
+    topic: "Kubernetes",
+    question: "A pod is in CrashLoopBackOff. Which command shows the logs of the container that just crashed?",
+    options: ["kubectl logs my-pod --previous", "kubectl describe pod my-pod --logs", "kubectl get events --previous", "kubectl logs my-pod --tail=0"],
+    answer: 0,
+    why: "After a restart, plain kubectl logs shows the new container. Adding --previous (or -p) returns the logs of the instance that crashed, which is where the error is.",
+  },
+  {
+    topic: "Docker",
+    question: "Why copy package files and install dependencies before copying the rest of the source?",
+    code: "COPY package*.json ./\nRUN npm ci\nCOPY . .",
+    options: ["It makes the final image smaller", "The install layer stays cached when only source code changes", "npm ci requires it", "It runs the container as non-root"],
+    answer: 1,
+    why: "Each instruction is a cached layer. If only your code changes, Docker reuses the dependency layer instead of reinstalling everything, so rebuilds take seconds.",
+  },
+  {
+    topic: "Terraform",
+    question: "Two engineers run terraform apply on the same infrastructure at the same time. What prevents a corrupted state?",
+    options: ["Running terraform fmt first", "A remote backend with state locking", "Using separate .tfvars files", "terraform validate in CI"],
+    answer: 1,
+    why: "A remote backend that supports locking (for example S3 with locking, or Terraform Cloud) lets only one apply hold the state at a time. The second run waits or fails safely.",
+  },
+];
+
+/** Hero tool picker. `slug` matches the question bank category; `icon` is a file in /public/category-icons. */
+const interviewTools: { name: string; slug: string; icon?: string; color: string }[] = [
+  { name: "Linux", slug: "linux", icon: "linux", color: "#FCC624" },
+  { name: "Git", slug: "git", icon: "git", color: "#F05032" },
+  { name: "Docker", slug: "docker", icon: "docker", color: "#2496ED" },
+  { name: "Kubernetes", slug: "kubernetes", icon: "kubernetes", color: "#326CE5" },
+  { name: "Helm", slug: "helm", icon: "helm", color: "#277A9F" },
+  { name: "Terraform", slug: "terraform", icon: "terraform", color: "#844FBA" },
+  { name: "Ansible", slug: "ansible", icon: "ansible", color: "#EE0000" },
+  { name: "AWS", slug: "aws", color: "#FF9900" },
+  { name: "Jenkins", slug: "jenkins", icon: "jenkins", color: "#D24939" },
+  { name: "GitHub Actions", slug: "github-actions", icon: "githubactions", color: "#2088FF" },
+  { name: "ArgoCD", slug: "argocd", icon: "argo", color: "#EF7B4D" },
+  { name: "Prometheus", slug: "prometheus", icon: "prometheus", color: "#E6522C" },
 ];
 
 export default function LandingPage() {
-  const reducedMotion = useReducedMotion();
   return (
-    <main id="main-content" tabIndex={-1} className="landing-page min-h-screen overflow-hidden bg-[#07070a] text-white">
+    <main id="main-content" tabIndex={-1} className="min-h-screen bg-[#09090b] text-zinc-100">
       <Header />
-      <section id="pipeline" className="living-background relative min-h-screen border-b border-white/[.055] pt-[72px]">
-        <div className="cinematic-grid absolute inset-0 opacity-55" />
-        <div className="absolute left-[-20%] top-[-34%] size-[760px] rounded-full bg-violet-600/[.13] blur-[150px]" />
-        <div className="absolute right-[-16%] top-[20%] size-[640px] rounded-full bg-cyan-500/[.09] blur-[160px]" />
-        <div className="relative mx-auto grid min-h-[calc(100vh-72px)] max-w-[1440px] items-center gap-10 px-5 py-16 sm:px-8 lg:grid-cols-[.82fr_1.18fr]">
-          <motion.div initial={reducedMotion ? false : { opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={motionTokens.reveal}>
-            <div className="flex flex-wrap gap-2">
-              <Badge tone="violet" className="gap-2 px-3 py-1.5"><Activity size={12} /> LIVE PIPELINE</Badge>
-              <Badge className="px-3 py-1.5">Production interview preparation</Badge>
-            </div>
-            <h1 className="mt-7 max-w-3xl text-[48px] font-semibold leading-[.97] tracking-[-.064em] sm:text-6xl lg:text-[76px]">Watch DevOps <span className="gradient-text">in Action.</span></h1>
-            <p className="mt-6 max-w-xl text-sm leading-7 text-zinc-400 sm:text-base sm:leading-8">Experience a real production pipeline from commit to monitoring—then master the decisions interviewers actually test.</p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link href="/dashboard" className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-white px-5 text-sm font-semibold text-black shadow-[0_18px_55px_rgba(255,255,255,.1)] transition hover:bg-cyan-50">Enter Command Centre <ArrowRight size={16} /></Link>
-              <Link href="/practice" className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-white/[.1] bg-white/[.035] px-5 text-sm font-medium text-zinc-200 backdrop-blur-xl transition hover:bg-white/[.065]"><CirclePlay size={16} /> Explore Questions</Link>
-            </div>
-            <div className="mt-8 grid max-w-xl grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/[.07] bg-white/[.07] sm:grid-cols-4">
-              {[["10,000+", "Questions"], ["250+", "Mock Interviews"], ["500+", "Students"], ["95%", "Success Rate"]].map(([value, label]) => <div key={label} className="bg-[#0b0b0f]/90 p-3"><p className="text-sm font-semibold">{value}</p><p className="mt-1 text-[7px] uppercase tracking-[.12em] text-zinc-700">{label}</p></div>)}
-            </div>
-          </motion.div>
-          <AnimatedPipeline />
-        </div>
-      </section>
-
-      <LiveStats />
-
-      <section id="journey" className="living-background relative border-y border-white/[.055] bg-[#09090c] py-24 sm:py-32">
-        <div className="absolute left-1/2 top-0 h-[500px] w-[900px] -translate-x-1/2 rounded-full bg-violet-600/[.07] blur-[150px]" />
-        <div className="relative mx-auto max-w-[1320px] px-5 sm:px-8">
-          <SectionHeading eyebrow="HOW IT WORKS" title="From learning to hired—one operating system." copy="A separate preparation journey powered by a calm purple energy signal. Completed stages stay visible; your next action stays obvious." />
-          <WorkflowJourney />
-        </div>
-      </section>
-
-      <section id="universe" className="living-background relative py-24 sm:py-32">
-        <div className="cinematic-grid absolute inset-0 opacity-30" />
-        <div className="relative mx-auto max-w-[1320px] px-5 sm:px-8">
-          <SectionHeading eyebrow="QUESTION BANK" title="Your technology universe." copy="Structured questions, production scenarios, troubleshooting drills and hands-on labs across the DevOps stack." />
-          <div className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {technologies.map(([name, questions, scenarios, troubleshooting, labs, difficulty, Icon, color], index) => (
-              <motion.div key={name} initial={reducedMotion ? false : { opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-80px" }} transition={{ delay: (index % 4) * .05 }}>
-                <GlowCard glow={color} className="group min-h-[226px] p-5">
-                  <div className="flex items-start justify-between"><span className="grid size-11 place-items-center rounded-2xl border bg-black/30" style={{ color, borderColor: `${color}35` }}><Icon size={20} /></span><span className="rounded-full border border-white/[.07] px-2 py-1 text-[8px] text-zinc-600">{difficulty}</span></div>
-                  <h3 className="mt-5 text-base font-semibold">{name}</h3>
-                  <div className="technology-metrics mt-4 grid grid-cols-2 gap-2 border-t border-white/[.06] pt-4"><MiniMetric value={questions} label="Questions" /><MiniMetric value={scenarios} label="Scenarios" /><MiniMetric value={troubleshooting} label="Troubleshooting" /><MiniMetric value={labs} label="Labs" /></div>
-                  <Link href="/practice" className="mt-4 flex items-center justify-between text-[10px] text-zinc-600 transition group-hover:text-white">Open question bank <ChevronRight size={13} /></Link>
-                </GlowCard>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <CompanyMarquee />
-
-      <section id="resources" className="relative border-b border-white/[.055] bg-[#09090c] py-24 sm:py-32">
-        <div className="mx-auto max-w-[1280px] px-5 sm:px-8">
-          <SectionHeading eyebrow="THE ACTUAL PRODUCT" title="Your interview command centre." copy="Readiness, AI allowance, resume usage, quiz momentum, active devices and your current plan—in one calm workspace." />
-          <DashboardPreview />
-        </div>
-      </section>
-
-      <section className="py-24 sm:py-32"><div className="mx-auto max-w-[1280px] px-5 sm:px-8"><SectionHeading eyebrow="STUDENT OUTCOMES" title="Prepared engineers tell better stories." copy="Confidence backed by practice, evidence and clear production thinking." /><Testimonials /></div></section>
-
-      <section id="pricing" className="relative border-y border-white/[.055] bg-[#09090c] py-24 sm:py-32">
-        <div className="absolute left-1/2 top-0 h-[480px] w-[900px] -translate-x-1/2 rounded-full bg-blue-600/[.07] blur-[150px]" />
-        <div className="relative mx-auto max-w-[1180px] px-5 sm:px-8">
-          <SectionHeading eyebrow="SIMPLE PRICING" title="Choose your interview runway." copy="Unlimited questions with AI support sized to your preparation window." />
-          <div className="mt-12 grid gap-4 lg:grid-cols-3">{plans.map((plan, index) => <PricingCard key={plan.name} plan={plan} featured={index === 1} />)}</div>
-        </div>
-      </section>
-
-      <section className="relative overflow-hidden py-24 sm:py-32"><div className="cinematic-grid absolute inset-0 opacity-25" /><div className="relative mx-auto max-w-[980px] px-5 text-center sm:px-8"><span className="mx-auto grid size-14 place-items-center rounded-[20px] border border-cyan-400/20 bg-cyan-400/[.08] text-cyan-300 shadow-[0_0_55px_rgba(34,211,238,.13)]"><BadgeCheck size={25} /></span><h2 className="mx-auto mt-7 max-w-3xl text-4xl font-semibold tracking-[-.055em] sm:text-6xl">Learn. Practise. Deploy your career.</h2><p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-zinc-500">Explain how production systems move, fail, recover and scale.</p><Link href="/pricing" className="mt-8 inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-white px-6 text-sm font-semibold text-black">Start preparing <ArrowRight size={15} /></Link></div></section>
+      <Hero />
+      <TrySection />
+      <Tools />
+      <Steps />
+      <Course />
+      <FinalCta />
       <Footer />
     </main>
   );
 }
 
 function Header() {
-  return <nav className="fixed inset-x-0 top-0 z-50 border-b border-white/[.06] bg-[#07070a]/78 backdrop-blur-2xl"><div className="mx-auto flex h-[72px] max-w-[1440px] items-center px-5 sm:px-8"><Brand /><div className="mx-auto hidden items-center gap-6 text-[10px] text-zinc-500 lg:flex"><a href="#pipeline">Pipeline</a><a href="#journey">How it Works</a><a href="#universe">Question Bank</a><Link href="/roadmap">Roadmaps</Link><a href="#pricing">Pricing</a><a href="#resources">Resources</a></div><div className="ml-auto flex items-center gap-2 lg:ml-0"><Link href="/login" className="hidden h-9 items-center rounded-xl border border-white/[.09] px-4 text-[11px] font-medium text-zinc-300 transition hover:border-cyan-400/30 hover:bg-white/[.04] sm:inline-flex">Login</Link><Link href="/pricing" className="inline-flex h-9 items-center gap-2 rounded-xl border border-cyan-300/20 bg-gradient-to-r from-violet-500 to-blue-500 px-4 text-[11px] font-semibold shadow-[0_12px_36px_rgba(59,130,246,.22)] transition hover:brightness-110"><Rocket size={13} /> Start Free</Link></div></div></nav>;
+  return (
+    <header className="sticky top-0 z-50 border-b border-white/[.06] bg-[#09090b]/85 backdrop-blur-xl">
+      <div className="mx-auto flex h-16 max-w-6xl items-center gap-6 px-4 sm:px-6">
+        <Brand />
+        <nav className="hidden items-center gap-6 text-sm text-zinc-400 md:flex" aria-label="Page sections">
+          <a href="#try" className="hover:text-white">Try a question</a>
+          <a href="#tools" className="hover:text-white">What you get</a>
+          <a href="#how" className="hover:text-white">How it works</a>
+        </nav>
+        <div className="ml-auto flex items-center gap-2">
+          <Link href="/login" className="hidden h-10 items-center rounded-xl px-4 text-sm text-zinc-300 hover:text-white sm:inline-flex">Sign in</Link>
+          <Link href={SIGNUP} className="inline-flex h-10 items-center rounded-xl bg-violet-500 px-4 text-sm font-semibold text-white transition hover:bg-violet-400">Start free</Link>
+        </div>
+      </div>
+    </header>
+  );
 }
 
-function LiveStats() {
-  return <section className="border-b border-white/[.055] bg-[#08080b] py-8"><div className="mx-auto grid max-w-[1280px] grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/[.07] bg-white/[.07] md:grid-cols-5">{[[10000, "+", "Interview questions"], [250, "+", "Mock interviews"], [40, "+", "Companies"], [500, "+", "Students"], [95, "%", "Success rate"]].map(([value, suffix, label]) => <div key={label} className="bg-[#0b0b0f] p-5 text-center"><p className="text-xl font-semibold sm:text-2xl"><Counter value={Number(value)} suffix={String(suffix)} /></p><p className="mt-1 text-[8px] uppercase tracking-[.15em] text-zinc-700">{label}</p></div>)}</div></section>;
+function Hero() {
+  const reduced = useReducedMotion();
+  return (
+    <section className="relative overflow-hidden border-b border-white/[.06]">
+      <div aria-hidden className="pointer-events-none absolute -left-40 -top-40 size-[560px] rounded-full bg-violet-600/[.12] blur-[140px]" />
+      <div className="relative mx-auto grid max-w-6xl gap-10 px-4 pb-16 pt-12 sm:px-6 lg:grid-cols-[1fr_1.05fr] lg:items-center lg:gap-14 lg:pb-24 lg:pt-20">
+        <div>
+          <p className="inline-flex items-center gap-2 rounded-full border border-emerald-400/25 bg-emerald-400/[.07] px-3 py-1 text-sm text-emerald-200">
+            <BadgeCheck size={15} /> Free for everyone
+          </p>
+          <h1 className="mt-5 max-w-xl text-[40px] font-semibold leading-[1.04] tracking-[-.045em] text-white sm:text-6xl">
+            Crack your DevOps interview.
+          </h1>
+          <p className="mt-5 max-w-lg text-lg leading-8 text-zinc-300">
+            Real interview questions with clear answers, timed quizzes and flashcards for Docker, Kubernetes, Terraform, AWS, Linux and CI/CD.
+          </p>
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <Link href={SIGNUP} className="inline-flex h-12 items-center justify-center rounded-xl bg-violet-500 px-6 text-base font-semibold text-white shadow-[0_14px_40px_rgba(139,92,246,.3)] transition hover:bg-violet-400">
+              Start preparing free
+            </Link>
+            <a href="#try" className="inline-flex h-12 items-center justify-center rounded-xl border border-white/[.12] px-6 text-base text-zinc-200 transition hover:border-white/25">
+              Try 3 questions first
+            </a>
+          </div>
+          <p className="mt-4 flex items-center gap-2 text-sm text-zinc-400">
+            <MessageCircle size={15} className="text-emerald-400" /> Sign up with email or Google in under a minute
+          </p>
+        </div>
+        <motion.div initial={reduced ? false : { opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: "easeOut" }}>
+          <ToolPicker />
+        </motion.div>
+      </div>
+    </section>
+  );
 }
 
-function CompanyMarquee() {
-  return <section className="company-marquee-section border-y border-white/[.055] py-12"><div className="mx-auto max-w-[1440px]"><div className="mb-7 flex items-center justify-center gap-3 px-5"><span className="h-px w-10 bg-violet-500/40" /><p className="text-center text-[8px] font-semibold uppercase tracking-[.25em] text-zinc-500">Interview intelligence from teams you want to join</p><span className="h-px w-10 bg-cyan-500/40" /></div><div className="company-marquee overflow-hidden"><div className="company-marquee-track">{[...companies, ...companies].map(([name, questions, rounds, difficulty, color], index) => <div key={`${name}-${index}`} className="company-proof-card" style={{ "--company-color": color } as CSSProperties} aria-hidden={index >= companies.length}><div className="flex items-center gap-3"><span className="company-logo-mark">{name.slice(0, 2).toUpperCase()}</span><strong>{name}</strong></div><div className="mt-3 grid grid-cols-3 gap-3 border-t border-white/[.06] pt-3"><MiniMetric value={questions} label="Questions" /><MiniMetric value={rounds} label="Rounds" /><MiniMetric value={difficulty} label="Difficulty" /></div></div>)}</div></div></div></section>;
+/** The hero: "What's your interview on?" — one tap opens sign-up for that topic. */
+function ToolPicker() {
+  const pick = (slug: string) => rememberInterestTopic(slug);
+  return (
+    <div className="rounded-[22px] border border-white/[.09] bg-[#111113] p-5 shadow-[0_30px_100px_rgba(0,0,0,.45)] sm:p-6">
+      <h2 className="text-xl font-semibold tracking-[-.02em] text-white">What&rsquo;s your interview on?</h2>
+      <p className="mt-1 text-sm text-zinc-400">Pick a tool and start with its questions.</p>
+      <ul className="mt-5 grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-2.5">
+        {interviewTools.map((tool) => (
+          <li key={tool.slug}>
+            <Link
+              href={SIGNUP}
+              onClick={() => pick(tool.slug)}
+              className="group flex aspect-square flex-col items-center justify-center gap-2 rounded-2xl border border-white/[.08] bg-white/[.02] p-2 text-center transition hover:-translate-y-0.5 focus-visible:-translate-y-0.5"
+              style={{ ["--tool" as string]: tool.color }}
+            >
+              <span className="grid size-11 place-items-center rounded-xl bg-white shadow-[0_6px_20px_rgba(0,0,0,.25)] transition group-hover:shadow-[0_0_0_3px_var(--tool)] sm:size-12">
+                {tool.icon
+                  ? <img src={`/category-icons/${tool.icon}.svg`} alt="" width={26} height={26} className="size-6 sm:size-7" />
+                  : <Cloud size={24} style={{ color: tool.color }} aria-hidden />}
+              </span>
+              <span className="text-[13px] font-medium leading-tight text-zinc-200 group-hover:text-white">{tool.name}</span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-4 text-sm text-zinc-500">Plus Nginx, Grafana, Python and more inside.</p>
+    </div>
+  );
 }
 
-function DashboardPreview() {
-  return <div className="relative mt-12 overflow-hidden rounded-[28px] border border-white/[.08] bg-[#0b0c11] p-4 shadow-[0_40px_120px_rgba(0,0,0,.42)] sm:p-6"><div className="premium-grid absolute inset-0 opacity-35" /><div className="relative flex items-center justify-between border-b border-white/[.06] pb-4"><div><p className="font-mono text-[8px] text-emerald-300">COMMAND_CENTRE / ONLINE</p><h3 className="mt-2 text-xl font-semibold">Good evening, Mustafa.</h3></div><span className="rounded-xl border border-violet-400/20 bg-violet-400/[.07] px-3 py-2 text-[9px] text-violet-200">6 Months · Active</span></div><div className="relative mt-4 grid gap-3 lg:grid-cols-[1.15fr_.85fr]"><div className="grid gap-3 sm:grid-cols-2"><PreviewCard icon={Gauge} label="Interview readiness" value="82%" detail="Strong in Docker & Git" progress={82} /><PreviewCard icon={BrainCircuit} label="AI mock interviews" value="34 / 50" detail="16 remaining" progress={68} /><PreviewCard icon={FileCheck2} label="Resume reviews" value="2 / 5" detail="3 remaining" progress={40} /><PreviewCard icon={BarChart3} label="Quiz progress" value="78%" detail="+9% this month" progress={78} /></div><div className="rounded-2xl border border-white/[.07] bg-white/[.025] p-5"><p className="text-[8px] uppercase tracking-[.15em] text-zinc-600">Recent mock</p><div className="mt-4 flex items-center gap-3"><span className="grid size-11 place-items-center rounded-xl bg-cyan-400/[.08] text-cyan-300"><Cloud size={20} /></span><div><p className="text-xs font-medium">AWS + Kubernetes</p><p className="mt-1 text-[9px] text-zinc-600">Production troubleshooting · 28 min</p></div></div><div className="mt-5 grid grid-cols-3 gap-2"><MiniMetric value="8.4" label="Score" /><MiniMetric value="92%" label="Clarity" /><MiniMetric value="+120" label="XP" /></div><Link href="/analytics" className="mt-5 flex h-9 items-center justify-center gap-2 rounded-xl border border-white/[.08] bg-white/[.035] text-[9px] text-zinc-300">View feedback <ArrowRight size={11} /></Link></div></div><div className="relative mt-3 grid gap-3 rounded-2xl border border-white/[.07] bg-white/[.02] p-4 sm:grid-cols-[auto_1fr_1fr_auto] sm:items-center"><div className="flex items-center gap-2 text-[9px] font-medium"><MonitorSmartphone size={15} className="text-cyan-300" /> Active devices</div><div className="rounded-xl border border-white/[.06] bg-black/25 px-3 py-2 text-[9px]"><span className="text-zinc-300">MacBook · Chrome</span><span className="ml-2 text-emerald-300">Current</span></div><div className="rounded-xl border border-white/[.06] bg-black/25 px-3 py-2 text-[9px]"><span className="text-zinc-300">iPhone · Safari</span><span className="ml-2 text-zinc-600">Yesterday</span></div><Link href="/billing" className="text-[9px] text-violet-300">Manage devices</Link></div></div>;
+function TrySection() {
+  return (
+    <section id="try" className="scroll-mt-20 border-b border-white/[.06] py-16 sm:py-20">
+      <div className="mx-auto grid max-w-6xl gap-10 px-4 sm:px-6 lg:grid-cols-[.8fr_1.2fr] lg:items-start lg:gap-14">
+        <div>
+          <h2 className="text-3xl font-semibold tracking-[-.03em] text-white sm:text-4xl">Try three real interview questions</h2>
+          <p className="mt-4 max-w-md text-[15px] leading-7 text-zinc-300">No sign-up needed. Each answer comes with a short explanation, the same way every question in the bank does.</p>
+        </div>
+        <TryQuestion />
+      </div>
+    </section>
+  );
 }
 
-function PreviewCard({ icon: Icon, label, value, detail, progress }: { icon: ElementType; label: string; value: string; detail: string; progress: number }) {
-  return <div className="rounded-2xl border border-white/[.07] bg-white/[.025] p-4"><div className="flex items-start justify-between"><span className="text-[9px] text-zinc-600">{label}</span><Icon size={14} className="text-cyan-300" /></div><p className="mt-3 text-xl font-semibold">{value}</p><div className="mt-3 h-1 overflow-hidden rounded-full bg-white/[.06]"><motion.span initial={{ width: 0 }} whileInView={{ width: `${progress}%` }} viewport={{ once: true }} transition={{ duration: 1 }} className="block h-full rounded-full bg-gradient-to-r from-violet-500 to-cyan-400" /></div><p className="mt-2 text-[8px] text-zinc-600">{detail}</p></div>;
+/** Answer a real interview question right on the page. */
+function TryQuestion() {
+  const [index, setIndex] = useState(0);
+  const [picked, setPicked] = useState<number | null>(null);
+  const [correctCount, setCorrectCount] = useState(0);
+  const done = index >= samples.length;
+  const sample = samples[Math.min(index, samples.length - 1)];
+
+  const choose = (option: number) => {
+    if (picked !== null) return;
+    setPicked(option);
+    if (option === sample.answer) setCorrectCount((value) => value + 1);
+  };
+  const next = () => { setPicked(null); setIndex((value) => value + 1); };
+
+  return (
+    <div className="rounded-[22px] border border-white/[.09] bg-[#111113] p-5 shadow-[0_30px_100px_rgba(0,0,0,.45)] sm:p-7">
+      {done ? (
+        <div className="py-6 text-center">
+          <p className="text-5xl font-semibold tracking-tight text-white">{correctCount}/{samples.length}</p>
+          <p className="mt-3 text-lg text-zinc-200">{correctCount === samples.length ? "Interview-ready on these. Now try the full bank." : "That's the kind of gap interviews find. Close it before they do."}</p>
+          <p className="mt-2 text-sm text-zinc-400">Many more questions like these, each with an explanation, are waiting.</p>
+          <Link href={SIGNUP} className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-xl bg-violet-500 text-base font-semibold text-white hover:bg-violet-400">Unlock all questions free</Link>
+          <button onClick={() => { setIndex(0); setPicked(null); setCorrectCount(0); }} className="mt-3 text-sm text-zinc-400 hover:text-white">Try again</button>
+        </div>
+      ) : (
+        <>
+          <div className="flex items-center justify-between text-sm">
+            <span className="rounded-full bg-violet-400/10 px-2.5 py-1 font-medium text-violet-200">{sample.topic}</span>
+            <span className="text-zinc-500">Question {index + 1} of {samples.length}</span>
+          </div>
+          <h2 className="mt-4 text-lg font-medium leading-7 text-white sm:text-xl">{sample.question}</h2>
+          {sample.code && (
+            <pre className="mt-3 overflow-x-auto rounded-xl border border-white/[.07] bg-black/40 p-3 font-mono text-[13px] leading-6 text-cyan-200">{sample.code}</pre>
+          )}
+          <ul className="mt-4 space-y-2">
+            {sample.options.map((option, optionIndex) => {
+              const isAnswer = optionIndex === sample.answer;
+              const isPicked = optionIndex === picked;
+              const revealed = picked !== null;
+              return (
+                <li key={option}>
+                  <button
+                    onClick={() => choose(optionIndex)}
+                    disabled={revealed}
+                    className={cn(
+                      "flex min-h-12 w-full items-center gap-3 rounded-xl border px-4 py-2.5 text-left text-[15px] transition",
+                      !revealed && "border-white/[.1] text-zinc-200 hover:border-violet-400/50 hover:bg-violet-400/[.05]",
+                      revealed && isAnswer && "border-emerald-400/50 bg-emerald-400/[.08] text-emerald-100",
+                      revealed && isPicked && !isAnswer && "border-rose-400/50 bg-rose-400/[.08] text-rose-100",
+                      revealed && !isAnswer && !isPicked && "border-white/[.06] text-zinc-500",
+                    )}
+                  >
+                    <span className={cn("min-w-0 flex-1", /^(kubectl|docker|terraform)/.test(option) && "font-mono text-[14px]")}>{option}</span>
+                    {revealed && isAnswer && <Check size={18} className="shrink-0 text-emerald-300" />}
+                    {revealed && isPicked && !isAnswer && <X size={18} className="shrink-0 text-rose-300" />}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+          {picked !== null ? (
+            <div className="mt-4">
+              <p className="rounded-xl border border-white/[.07] bg-white/[.03] p-4 text-[15px] leading-7 text-zinc-300">
+                <strong className={picked === sample.answer ? "text-emerald-300" : "text-rose-300"}>{picked === sample.answer ? "Correct. " : "Not quite. "}</strong>
+                {sample.why}
+              </p>
+              <button onClick={next} className="mt-4 inline-flex h-11 w-full items-center justify-center rounded-xl bg-white text-[15px] font-semibold text-black hover:bg-zinc-200">
+                {index + 1 < samples.length ? "Next question" : "See my score"}
+              </button>
+            </div>
+          ) : (
+            <p className="mt-4 text-sm text-zinc-500">Pick an answer. No sign-up needed.</p>
+          )}
+        </>
+      )}
+    </div>
+  );
 }
 
-function Testimonials() {
-  const items = [["AK", "Anjali Kumar", "DevOps Engineer · Accenture", "18 LPA offer", "The mock interview caught gaps in my Kubernetes traffic-flow explanation. I finally learned to answer like an engineer, not a tutorial."], ["RS", "Rahul Sharma", "Cloud Engineer · Capgemini", "2 offers", "The scenario bank made troubleshooting familiar. My production answers became structured and confident."], ["PN", "Priya Nair", "Platform Engineer · TCS", "Role upgraded", "The readiness dashboard showed exactly where to focus instead of revising everything."]];
-  return <div className="testimonial-marquee mt-12 overflow-hidden"><div className="testimonial-track">{[...items, ...items].map(([initials, name, role, outcome, quote], index) => <motion.article key={`${name}-${index}`} whileHover={{ y: -5 }} className="w-[360px] shrink-0 rounded-2xl border border-white/[.07] bg-white/[.025] p-6 backdrop-blur-xl sm:w-[410px]"><Quote size={20} className="text-violet-400" /><p className="mt-5 text-sm leading-7 text-zinc-400">“{quote}”</p><div className="mt-7 flex items-center gap-3 border-t border-white/[.06] pt-5"><span className="grid size-10 place-items-center rounded-full bg-gradient-to-br from-violet-500 to-cyan-500 text-[10px] font-semibold">{initials}</span><div className="min-w-0"><p className="text-xs font-medium">{name}</p><p className="mt-1 truncate text-[9px] text-zinc-600">{role}</p></div><span className="ml-auto rounded-full border border-emerald-400/15 bg-emerald-400/[.05] px-2 py-1 text-[8px] text-emerald-300">{outcome}</span></div></motion.article>)}</div></div>;
+function Tools() {
+  const tools = [
+    {
+      icon: BookOpenCheck, name: "Question bank",
+      copy: "Questions grouped by tool and difficulty, each with a clear answer. Mark what you've mastered, bookmark what to revise and add your own notes.",
+      preview: <PreviewRow left="What's the difference between a Deployment and a StatefulSet?" right="Mastered" tone="emerald" />,
+    },
+    {
+      icon: Timer, name: "Quizzes",
+      copy: "Timed and classic quizzes across one topic or many. Get your score and a review of every answer, earn XP and keep your streak going.",
+      preview: <PreviewRow left="Kubernetes · 20 questions · 14 min" right="17/20" tone="violet" />,
+    },
+    {
+      icon: Layers, name: "Flashcards",
+      copy: "Flip through cards before an interview. Anything you don't know comes back sooner, so revision time goes where you need it.",
+      preview: <PreviewRow left="What does terraform plan -out do?" right="Again tomorrow" tone="amber" />,
+    },
+  ];
+  return (
+    <section id="tools" className="scroll-mt-20 border-b border-white/[.06] py-16 sm:py-20">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <h2 className="max-w-xl text-3xl font-semibold tracking-[-.03em] text-white sm:text-4xl">Three ways to prepare, all free</h2>
+        <div className="mt-10 divide-y divide-white/[.07] border-y border-white/[.07]">
+          {tools.map((tool) => (
+            <div key={tool.name} className="grid gap-4 py-7 md:grid-cols-[220px_1fr_1fr] md:items-center md:gap-8">
+              <h3 className="flex items-center gap-3 text-xl font-semibold text-white"><tool.icon size={22} className="text-violet-300" /> {tool.name}</h3>
+              <p className="text-[15px] leading-7 text-zinc-300">{tool.copy}</p>
+              {tool.preview}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
 }
 
-function PricingCard({ plan, featured }: { plan: typeof plans[number]; featured: boolean }) {
-  return <GlowCard glow={featured ? "#8b5cf6" : "#60a5fa"} active={featured} className="p-7"><div className="flex min-h-6 justify-end">{plan.badge && <span className={`rounded-full px-3 py-1 text-[8px] font-semibold ${featured ? "bg-violet-500" : "border border-amber-400/20 text-amber-300"}`}>{plan.badge}</span>}</div><p className="text-xs text-zinc-500">{plan.name}</p><p className="mt-5 text-5xl font-semibold tracking-[-.05em]">{plan.price}</p><div className="mt-3 flex items-center gap-2 text-[10px]"><span className="text-zinc-500">{plan.subline}</span>{plan.save && <span className="rounded-full bg-emerald-400/[.08] px-2 py-1 text-emerald-300">{plan.save}</span>}</div><Link href="/pricing" className={`mt-7 flex h-11 items-center justify-center gap-2 rounded-xl text-xs font-semibold ${featured ? "bg-violet-500" : "border border-white/[.09] bg-white/[.04]"}`}>Choose {plan.name} <ArrowRight size={13} /></Link><div className="my-6 h-px bg-white/[.06]" /><ul className="space-y-3">{plan.features.map((feature) => <li key={feature} className="flex items-center gap-2.5 text-[10px] text-zinc-400"><span className="grid size-4 place-items-center rounded-full bg-emerald-400/[.08] text-emerald-300"><Check size={10} /></span>{feature}</li>)}</ul></GlowCard>;
+function PreviewRow({ left, right, tone }: { left: string; right: string; tone: "emerald" | "violet" | "amber" }) {
+  const tones = { emerald: "text-emerald-300 bg-emerald-400/10", violet: "text-violet-200 bg-violet-400/10", amber: "text-amber-200 bg-amber-400/10" };
+  return (
+    <div aria-hidden className="flex items-center gap-3 rounded-xl border border-white/[.07] bg-[#111113] px-4 py-3">
+      <span className="min-w-0 flex-1 truncate text-sm text-zinc-300">{left}</span>
+      <span className={cn("shrink-0 rounded-full px-2.5 py-1 text-xs font-medium", tones[tone])}>{right}</span>
+    </div>
+  );
 }
 
-function Counter({ value, suffix }: { value: number; suffix: string }) {
-  const ref = useRef<HTMLSpanElement>(null); const visible = useInView(ref, { once: true }); const reduced = useReducedMotion(); const [count, setCount] = useState(reduced ? value : 0);
-  useEffect(() => { if (!visible || reduced) return; const start = performance.now(); let frame = 0; const tick = (now: number) => { const p = Math.min(1, (now - start) / 1100); setCount(Math.round(value * (1 - Math.pow(1 - p, 3)))); if (p < 1) frame = requestAnimationFrame(tick); }; frame = requestAnimationFrame(tick); return () => cancelAnimationFrame(frame); }, [reduced, value, visible]);
-  return <span ref={ref}>{count.toLocaleString("en-IN")}{suffix}</span>;
+function Steps() {
+  const steps = [
+    { title: "Create your account", copy: "Email and password, or one tap with Google." },
+    { title: "Add your mobile number", copy: "So we can help with your preparation. Use your own number." },
+    { title: "Start practising", copy: "Pick a topic, take a quiz or revise with flashcards. Progress saves automatically." },
+  ];
+  return (
+    <section id="how" className="scroll-mt-20 border-b border-white/[.06] py-16 sm:py-20">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <h2 className="text-3xl font-semibold tracking-[-.03em] text-white sm:text-4xl">Up and running in a minute</h2>
+        <ol className="mt-10 grid gap-8 md:grid-cols-3">
+          {steps.map((step, index) => (
+            <li key={step.title} className="flex gap-4">
+              <span className="grid size-10 shrink-0 place-items-center rounded-full border border-violet-400/40 text-base font-semibold text-violet-200">{index + 1}</span>
+              <div>
+                <h3 className="text-lg font-semibold text-white">{step.title}</h3>
+                <p className="mt-1 text-[15px] leading-7 text-zinc-400">{step.copy}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+        <Link href={SIGNUP} className="mt-10 inline-flex h-12 items-center justify-center rounded-xl bg-violet-500 px-6 text-base font-semibold text-white hover:bg-violet-400">Create free account</Link>
+      </div>
+    </section>
+  );
 }
 
-function SectionHeading({ eyebrow, title, copy }: { eyebrow: string; title: string; copy: string }) { return <div className="mx-auto max-w-2xl text-center"><p className="font-mono text-[9px] font-semibold tracking-[.2em] text-cyan-400">{eyebrow}</p><h2 className="mt-5 text-3xl font-semibold tracking-[-.05em] sm:text-5xl">{title}</h2><p className="mt-4 text-sm leading-7 text-zinc-500">{copy}</p></div>; }
-function MiniMetric({ value, label }: { value: string; label: string }) { return <div><p className="text-[10px] font-semibold text-zinc-300">{value}</p><p className="mt-1 text-[7px] uppercase tracking-[.1em] text-zinc-700">{label}</p></div>; }
-function Footer() { return <footer className="border-t border-white/[.055] bg-[#08080b]"><div className="mx-auto grid max-w-[1280px] gap-10 px-5 py-14 sm:px-8 md:grid-cols-[1.5fr_repeat(3,1fr)]"><div><Brand /><p className="mt-4 max-w-xs text-[10px] leading-5 text-zinc-600">Master DevOps interviews through production thinking and deliberate practice.</p><p className="mt-5 flex items-center gap-2 text-[9px] text-emerald-300"><ShieldCheck size={13} /> Systems online</p></div>{[["Resources", ["Blog", "Interview Experiences", "Roadmaps"]], ["Platform", ["Practice", "Mock Interviews", "Analytics", "Pricing"]], ["Company", ["Contact", "Privacy", "Terms"]]].map(([heading, links]) => <div key={String(heading)}><p className="text-[10px] font-semibold">{heading}</p><div className="mt-4 space-y-3">{(links as string[]).map((link) => <a key={link} href="#" className="block text-[9px] text-zinc-600 hover:text-white">{link}</a>)}</div></div>)}</div><div className="border-t border-white/[.055] px-5 py-6 text-center text-[8px] text-zinc-700">© 2026 DevOpsCrack · Built for engineers who want the offer.</div></footer>; }
+function Course() {
+  return (
+    <section className="border-b border-white/[.06] py-16 sm:py-20">
+      <div className="mx-auto grid max-w-6xl gap-6 px-4 sm:px-6 md:grid-cols-[auto_1fr] md:items-start md:gap-8">
+        <span className="grid size-14 place-items-center rounded-2xl bg-violet-400/10 text-violet-200"><GraduationCap size={26} /></span>
+        <div className="max-w-2xl">
+          <h2 className="text-2xl font-semibold tracking-[-.02em] text-white sm:text-3xl">Want a mentor in your corner?</h2>
+          <p className="mt-3 text-[15px] leading-7 text-zinc-300">
+            When you're ready for more than self-study, the {siteConfig.course.name} adds {siteConfig.course.pitch.charAt(0).toLowerCase() + siteConfig.course.pitch.slice(1)}
+          </p>
+          <p className="mt-3 text-sm text-zinc-400">Start with the free platform. You can request a callback from inside the app whenever you like.</p>
+          {siteConfig.course.url && (
+            <a href={siteConfig.course.url} target="_blank" rel="noreferrer" className="mt-5 inline-flex h-11 items-center rounded-xl border border-white/[.12] px-5 text-sm text-zinc-100 hover:border-white/25">About the course</a>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function FinalCta() {
+  return (
+    <section className="py-16 sm:py-24">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <h2 className="max-w-2xl text-3xl font-semibold tracking-[-.03em] text-white sm:text-5xl">Your next interview is closer than you think.</h2>
+        <p className="mt-4 max-w-lg text-lg text-zinc-300">Practise today. It's free.</p>
+        <Link href={SIGNUP} className="mt-8 inline-flex h-12 items-center justify-center rounded-xl bg-violet-500 px-6 text-base font-semibold text-white hover:bg-violet-400">Start preparing free</Link>
+      </div>
+    </section>
+  );
+}
+
+function Footer() {
+  const socials = Object.entries(siteConfig.social).filter(([, url]) => url);
+  return (
+    <footer className="border-t border-white/[.06]">
+      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-10 sm:px-6 md:flex-row md:items-center md:justify-between">
+        <div>
+          <Brand />
+          <p className="mt-3 text-sm text-zinc-500">{siteConfig.tagline}.</p>
+        </div>
+        <nav className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-zinc-400" aria-label="Footer">
+          <Link href="/privacy" className="hover:text-white">Privacy</Link>
+          <Link href="/terms" className="hover:text-white">Terms</Link>
+          <a href={`mailto:${siteConfig.contactEmail}`} className="hover:text-white">Contact</a>
+          {socials.map(([label, url]) => <a key={label} href={url} target="_blank" rel="noreferrer" className="capitalize hover:text-white">{label}</a>)}
+        </nav>
+      </div>
+      <p className="border-t border-white/[.06] px-4 py-5 text-center text-sm text-zinc-600">© {new Date().getFullYear()} {siteConfig.legalName}</p>
+    </footer>
+  );
+}

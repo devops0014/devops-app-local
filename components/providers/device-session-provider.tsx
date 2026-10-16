@@ -62,18 +62,18 @@ export function DeviceSessionProvider({ children }: { children: React.ReactNode 
         <div className="w-full max-w-lg rounded-3xl border border-white/10 bg-[#111113] p-6 shadow-2xl">
           <span className="grid size-12 place-items-center rounded-2xl bg-amber-400/10 text-amber-300"><ShieldAlert size={22} /></span>
           <h2 className="mt-5 text-xl font-semibold">Maximum devices reached</h2>
-          <p className="mt-2 text-xs leading-6 text-zinc-500">Your subscription supports two active devices. Sign out one device to continue securely.</p>
+          <p className="mt-2 text-xs leading-6 text-zinc-500">Each account supports two active devices. Sign out one device to continue securely.</p>
           <div className="mt-5 space-y-2">
             {blockedSessions.map((session) => {
               const mobile = /iPhone|iPad|Android/i.test(`${session.device_name} ${session.os}`);
               return <div key={session.id} className="flex items-center gap-3 rounded-2xl border border-white/[.07] bg-white/[.025] p-4">
                 <span className="grid size-10 place-items-center rounded-xl bg-white/[.04] text-zinc-400">{mobile ? <Smartphone size={18} /> : <Laptop size={18} />}</span>
-                <div className="min-w-0 flex-1"><p className="truncate text-xs font-medium">{session.device_name}</p><p className="mt-1 text-[10px] text-zinc-600">{session.browser} · {session.os} · {new Date(session.last_active).toLocaleString()}</p>{session.device_fingerprint === currentFingerprint && <span className="mt-1 inline-block text-[9px] text-emerald-300">Current device</span>}</div>
-                <button disabled={busy} onClick={() => revoke(session.id)} className="flex h-9 items-center gap-2 rounded-xl border border-rose-400/15 px-3 text-[10px] text-rose-300 hover:bg-rose-400/[.06]"><LogOut size={13} /> Sign out</button>
+                <div className="min-w-0 flex-1"><p className="truncate text-xs font-medium">{session.device_name}</p><p className="mt-1 text-xs text-zinc-600">{session.browser} · {session.os} · {new Date(session.last_active).toLocaleString()}</p>{session.device_fingerprint === currentFingerprint && <span className="mt-1 inline-block text-xs text-emerald-300">Current device</span>}</div>
+                <button disabled={busy} onClick={() => revoke(session.id)} className="flex h-9 items-center gap-2 rounded-xl border border-rose-400/15 px-3 text-xs text-rose-300 hover:bg-rose-400/[.06]"><LogOut size={13} /> Sign out</button>
               </div>;
             })}
           </div>
-          <button disabled={busy} onClick={revokeAllAndContinue} className="mt-4 flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-white/10 text-[10px] text-zinc-300 hover:bg-white/[.05]"><LogOut size={13} /> Sign out all devices and continue</button>
+          <button disabled={busy} onClick={revokeAllAndContinue} className="mt-4 flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-white/10 text-xs text-zinc-300 hover:bg-white/[.05]"><LogOut size={13} /> Sign out all devices and continue</button>
         </div>
       </div>
     )}

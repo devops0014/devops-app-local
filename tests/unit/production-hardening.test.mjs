@@ -15,7 +15,7 @@ test("PWA manifest and offline shell are configured", async () => {
 
 test("private API and auth routes are never cached by the service worker", async () => {
   const worker = await read("public/sw.js");
-  for (const path of ["/api/", "/login", "/billing"]) assert.match(worker, new RegExp(path.replaceAll("/", "\\/")));
+  for (const path of ["/api/", "/login"]) assert.match(worker, new RegExp(path.replaceAll("/", "\\/")));
 });
 
 test("runtime adds baseline security headers", async () => {
@@ -26,7 +26,7 @@ test("runtime adds baseline security headers", async () => {
 });
 
 test("mutating high-value endpoints have abuse and payload controls", async () => {
-  for (const route of ["app/api/gamification/event/route.ts", "app/api/payments/create-checkout/route.ts"]) {
+  for (const route of ["app/api/gamification/event/route.ts"]) {
     const source = await read(route);
     assert.match(source, /checkRateLimit/);
     assert.match(source, /rejectOversizedJson/);
@@ -40,7 +40,13 @@ test("dark platform UI raises muted-text contrast and minimum label sizes", asyn
   for (const utility of ["text-zinc-700", "text-zinc-600", "text-zinc-500"]) {
     assert.match(css, new RegExp(`app-shell.*${utility}`));
   }
-  for (const size of ["text-\\[8px\\]", "text-\\[9px\\]", "text-\\[10px\\]"]) {
-    assert.match(css, new RegExp(`app-shell.*${size}`));
+});
+
+test("no UI text is smaller than 11px", async () => {
+  const { readdir } = await import("node:fs/promises");
+  const walk = async (dir) => (await Promise.all((await readdir(new URL(`../../${dir}`, import.meta.url), { withFileTypes: true }))
+    .map((entry) => entry.isDirectory() ? walk(`${dir}/${entry.name}`) : entry.name.endsWith(".tsx") ? [`${dir}/${entry.name}`] : []))).flat();
+  for (const file of [...await walk("app"), ...await walk("components")]) {
+    assert.doesNotMatch(await read(file), /text-\[(?:[1-9]|10)px\]/, `${file} uses text smaller than 11px`);
   }
 });

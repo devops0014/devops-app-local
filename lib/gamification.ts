@@ -4,7 +4,6 @@ export type GamificationEventType =
   | "flashcard_known"
   | "flashcard_revision"
   | "quiz_completed"
-  | "mock_completed"
   | "daily_goal";
 
 export type GamificationSnapshot = {
@@ -50,10 +49,6 @@ export const xpRules = {
   flashcardRevision: 0,
   quizCorrect: 40,
   quizIncorrect: -10,
-  mockExcellent: 100,
-  mockGood: 60,
-  mockDeveloping: 30,
-  mockNeedsWork: -25,
 } as const;
 
 export function quizXp(correct: number, total: number) {
@@ -62,9 +57,3 @@ export function quizXp(correct: number, total: number) {
     + Math.max(0, total - safeCorrect) * xpRules.quizIncorrect;
 }
 
-export function mockXp(score: number) {
-  if (score >= 80) return xpRules.mockExcellent;
-  if (score >= 60) return xpRules.mockGood;
-  if (score >= 40) return xpRules.mockDeveloping;
-  return xpRules.mockNeedsWork;
-}

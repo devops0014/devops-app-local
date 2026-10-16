@@ -1,5 +1,7 @@
 # DevOpsCrack production checklist
 
+> **Note (Oct 2026):** The platform is now free. Razorpay payments, subscriptions, pricing/billing pages and the AI mock interview have been removed, so skip any steps below about them. See `supabase/migrations/2026101201_free_access.sql`.
+
 ## Release gate
 
 - Run `npm ci` and `npm run test:ci`.

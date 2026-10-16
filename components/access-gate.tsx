@@ -4,8 +4,13 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { LoaderCircle } from "lucide-react";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase/client";
+import { asRole, can, isStaff, type Permission } from "@/lib/rbac";
 
-export function SubscriptionGate({ children }: { children: React.ReactNode }) {
+/**
+ * The platform is free for everyone. This gate only makes sure the visitor is
+ * signed in so their progress, XP and flashcard reviews can be saved.
+ */
+export function AuthGate({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [ready, setReady] = useState(!isSupabaseConfigured);
@@ -20,30 +25,32 @@ export function SubscriptionGate({ children }: { children: React.ReactNode }) {
         router.replace(`/login?returnTo=${encodeURIComponent(pathname)}`);
         return;
       }
-
-      const { data: profile } = await supabase
+      // Students must confirm their mobile number once before using the
+      // platform. Team members (sales/admin/super admin) skip this step.
+      const userId = sessionData.session.user.id;
+      let { data: profile, error } = await supabase
         .from("profiles")
-        .select("role, subscription_status, subscription_expires_at")
-        .eq("id", sessionData.session.user.id)
-        .single();
-
-      // Administrators manage the platform and must not be blocked by the
-      // student subscription gate. AdminGate still performs the dedicated
-      // authorization check on /admin.
-      if (profile?.role === "admin") {
-        if (mounted) setReady(true);
+        .select("role, phone_verified_at, onboarded_at")
+        .eq("id", userId)
+        .maybeSingle();
+      if (error) {
+        // Database not migrated yet (no onboarding column): don't block anyone.
+        const fallback = await supabase.from("profiles").select("role, phone_verified_at").eq("id", userId).maybeSingle();
+        profile = fallback.data ? { ...fallback.data, onboarded_at: "skip" } : null;
+        error = fallback.error;
+      }
+      if (!isStaff(asRole(profile?.role)) && !profile?.phone_verified_at) {
+        router.replace(`/verify-phone?returnTo=${encodeURIComponent(pathname)}`);
         return;
       }
-
-      const expiresAt = profile?.subscription_expires_at
-        ? new Date(profile.subscription_expires_at).getTime()
-        : Number.POSITIVE_INFINITY;
-      const subscribed =
-        ["trialing", "active"].includes(profile?.subscription_status ?? "") &&
-        expiresAt > Date.now();
-
-      if (!subscribed) {
-        router.replace("/pricing");
+      // One-time quick questions after verification.
+      if (asRole(profile?.role) === "student" && !profile?.onboarded_at) {
+        router.replace(`/welcome?returnTo=${encodeURIComponent(pathname)}`);
+        return;
+      }
+      // The sales team's home is the leads dashboard.
+      if (asRole(profile?.role) === "sales" && pathname === "/dashboard") {
+        router.replace("/leads");
         return;
       }
       if (mounted) setReady(true);
@@ -60,7 +67,7 @@ export function SubscriptionGate({ children }: { children: React.ReactNode }) {
       <div className="grid min-h-[calc(100vh-72px)] place-items-center">
         <div className="text-center">
           <LoaderCircle size={24} className="mx-auto animate-spin text-violet-400" />
-          <p className="mt-3 text-xs text-zinc-600">Verifying your subscription…</p>
+          <p className="mt-3 text-xs text-zinc-600">Loading your workspace…</p>
         </div>
       </div>
     );
@@ -69,7 +76,8 @@ export function SubscriptionGate({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-export function AdminGate({ children }: { children: React.ReactNode }) {
+/** Shows children only when the signed-in user's role grants `permission`. */
+export function RoleGate({ permission, children }: { permission: Permission; children: React.ReactNode }) {
   const router = useRouter();
   const [ready, setReady] = useState(!isSupabaseConfigured);
 
@@ -88,7 +96,7 @@ export function AdminGate({ children }: { children: React.ReactNode }) {
         .select("role")
         .eq("id", sessionData.session.user.id)
         .single();
-      if (profile?.role !== "admin") {
+      if (!can(asRole(profile?.role), permission)) {
         router.replace("/dashboard");
         return;
       }
@@ -99,7 +107,11 @@ export function AdminGate({ children }: { children: React.ReactNode }) {
     return () => {
       mounted = false;
     };
-  }, [router]);
+  }, [permission, router]);
 
   return ready ? <>{children}</> : null;
+}
+
+export function AdminGate({ children }: { children: React.ReactNode }) {
+  return <RoleGate permission="content.manage">{children}</RoleGate>;
 }

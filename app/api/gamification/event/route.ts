@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { levelForXp, mockXp, quizXp, xpRules, type GamificationEventType } from "@/lib/gamification";
-import { PaymentApiError, requirePaymentUser, supabaseAdmin } from "@/lib/supabase/server";
+import { levelForXp, quizXp, xpRules, type GamificationEventType } from "@/lib/gamification";
+import { ApiError, requireUser, supabaseAdmin } from "@/lib/supabase/server";
 import { checkRateLimit, rateLimitResponse, rejectOversizedJson, requestIdentity } from "@/lib/security/rate-limit";
 
 const supported = new Set<GamificationEventType>([
   "question_mastered", "question_unmastered", "flashcard_known", "flashcard_revision",
-  "quiz_completed", "mock_completed", "daily_goal",
+  "quiz_completed", "daily_goal",
 ]);
 
 function xpForEvent(type: GamificationEventType, metadata: Record<string, unknown>) {
@@ -14,7 +14,6 @@ function xpForEvent(type: GamificationEventType, metadata: Record<string, unknow
   if (type === "flashcard_known") return xpRules.flashcardKnown;
   if (type === "flashcard_revision") return xpRules.flashcardRevision;
   if (type === "quiz_completed") return quizXp(Number(metadata.correct ?? 0), Number(metadata.total ?? 0));
-  if (type === "mock_completed") return mockXp(Number(metadata.score ?? 0));
   return 50;
 }
 
@@ -25,14 +24,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Request body is too large." }, { status: 413 });
   }
   try {
-    const user = await requirePaymentUser(request);
+    const user = await requireUser(request);
     const body = (await request.json().catch(() => null)) as {
       eventType?: GamificationEventType;
       eventKey?: string;
       metadata?: Record<string, unknown>;
     } | null;
     if (!body?.eventType || !supported.has(body.eventType) || !body.eventKey || body.eventKey.length > 180) {
-      throw new PaymentApiError("Invalid reward event.");
+      throw new ApiError("Invalid reward event.");
     }
     const metadata = body.metadata ?? {};
     const { data, error } = await supabaseAdmin!.rpc("award_gamification_event", {
@@ -42,7 +41,7 @@ export async function POST(request: Request) {
       p_amount: xpForEvent(body.eventType, metadata),
       p_metadata: metadata,
     });
-    if (error) throw new PaymentApiError("Could not record XP.", 500);
+    if (error) throw new ApiError("Could not record XP.", 500);
 
     const unlockedBadges = await unlockEligibleBadges(user.id, body.eventType, metadata, Number(data.xp), Number(data.streak));
     const level = levelForXp(Number(data.xp));
@@ -55,7 +54,7 @@ export async function POST(request: Request) {
       unlockedBadges,
     });
   } catch (error) {
-    const status = error instanceof PaymentApiError ? error.status : 500;
+    const status = error instanceof ApiError ? error.status : 500;
     return NextResponse.json({ error: error instanceof Error ? error.message : "Reward processing failed." }, { status });
   }
 }
@@ -70,7 +69,6 @@ async function unlockEligibleBadges(
   const slugs = new Set<string>();
   if (eventType === "question_mastered") slugs.add("first-master");
   if (eventType === "quiz_completed" && Number(metadata.score ?? 0) >= 90) slugs.add("quiz-sharpshooter");
-  if (eventType === "mock_completed" && Number(metadata.score ?? 0) >= 85) slugs.add("mock-ace");
   if (streak >= 7) slugs.add("streak-seven");
   if (streak >= 30) slugs.add("streak-thirty");
   if (xp >= 7500) slugs.add("xp-7500");

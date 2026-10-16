@@ -1,5 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
 import { supabaseAdmin } from "@/lib/supabase/server";
+import { asRole, can, type Permission } from "@/lib/rbac";
 
 export class AdminApiError extends Error {
   constructor(message: string, public status = 400, public details?: unknown) {
@@ -7,15 +8,21 @@ export class AdminApiError extends Error {
   }
 }
 
-export async function requireAdmin(request: Request) {
+/** Verifies the bearer token and that the caller's role grants `permission`. */
+export async function requirePermission(request: Request, permission: Permission) {
   if (!supabaseAdmin) throw new AdminApiError("Supabase administration is not configured.", 503);
   const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
-  if (!token) throw new AdminApiError("Please sign in as an administrator.", 401);
+  if (!token) throw new AdminApiError("Please sign in first.", 401);
   const { data, error } = await supabaseAdmin.auth.getUser(token);
   if (error || !data.user) throw new AdminApiError("Your session has expired.", 401);
   const { data: profile } = await supabaseAdmin.from("profiles").select("role").eq("id", data.user.id).single();
-  if (profile?.role !== "admin") throw new AdminApiError("Administrator access is required.", 403);
-  return data.user;
+  const role = asRole(profile?.role);
+  if (!can(role, permission)) throw new AdminApiError("You do not have access to this area.", 403);
+  return Object.assign(data.user, { role });
+}
+
+export async function requireAdmin(request: Request) {
+  return requirePermission(request, "content.manage");
 }
 
 export function sourceHash(question: string, categoryId: string) {

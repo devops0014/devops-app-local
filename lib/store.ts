@@ -2,8 +2,8 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { FlashcardReview, MockInterviewReport, ProgressStatus, QuizAttempt, UserQuestionState } from "./types";
-import { saveFlashcardReview, saveMockReport, saveQuestionProgress, saveQuizAttempt, type CloudLearningState } from "./repositories/learning-repository";
+import type { FlashcardReview, ProgressStatus, QuizAttempt, UserQuestionState } from "./types";
+import { saveFlashcardReview, saveQuestionProgress, saveQuizAttempt, type CloudLearningState } from "./repositories/learning-repository";
 import { awardGamificationEvent } from "./repositories/gamification-repository";
 import { levelForXp } from "./gamification";
 
@@ -19,7 +19,6 @@ type AppState = {
   latestUnlocks: string[];
   quizAttempts: QuizAttempt[];
   flashcardReviews: Record<string, FlashcardReview>;
-  mockReports: MockInterviewReport[];
   cloudStatus: "demo" | "connecting" | "synced" | "offline";
   setTheme: (theme: "dark" | "light") => void;
   setCommandOpen: (open: boolean) => void;
@@ -27,7 +26,6 @@ type AppState = {
   addXp: (amount: number, eventKey?: string) => void;
   recordQuizAttempt: (attempt: QuizAttempt) => void;
   recordFlashcardReview: (questionId: string, known: boolean) => void;
-  recordMockReport: (report: MockInterviewReport) => void;
   hydrateCloudState: (state: CloudLearningState) => void;
   setCloudStatus: (status: AppState["cloudStatus"]) => void;
   clearUnlocks: () => void;
@@ -52,7 +50,6 @@ export const useAppStore = create<AppState>()(persist((set) => ({
   latestUnlocks: [],
   quizAttempts: [],
   flashcardReviews: {},
-  mockReports: [],
   cloudStatus: "connecting",
   setTheme: (theme) => {
     if (typeof document !== "undefined") {
@@ -132,26 +129,11 @@ export const useAppStore = create<AppState>()(persist((set) => ({
       },
     };
   }),
-  recordMockReport: (report) => set((state) => {
-    void saveMockReport(report);
-    void awardGamificationEvent("mock_completed", report.id, {
-      score: report.score,
-      technology: report.technology,
-    }).then((snapshot) => snapshot && set({
-      xp: snapshot.xp, level: snapshot.level, levelName: snapshot.levelName,
-      streak: snapshot.streak, bestStreak: snapshot.bestStreak,
-      latestUnlocks: snapshot.unlockedBadges,
-    }));
-    return {
-      mockReports: [report, ...state.mockReports].slice(0, 20),
-    };
-  }),
   hydrateCloudState: (cloud) => set((state) => {
     const level = levelForXp(cloud.xp);
     return {
     progress: cloud.progress,
     quizAttempts: cloud.quizAttempts,
-    mockReports: cloud.mockReports,
     xp: cloud.xp,
     level: level.level,
     levelName: level.name,
@@ -172,7 +154,6 @@ export const useAppStore = create<AppState>()(persist((set) => ({
     bestStreak: state.bestStreak,
     quizAttempts: state.quizAttempts,
     flashcardReviews: state.flashcardReviews,
-    mockReports: state.mockReports,
   }),
 }));
 

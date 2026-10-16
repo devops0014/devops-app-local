@@ -12,7 +12,6 @@ const badgeNames: Record<string, string> = {
   "streak-seven": "Seven Day Uptime",
   "streak-thirty": "Always On",
   "xp-7500": "Platform Engineer",
-  "mock-ace": "Interview Ace",
 };
 
 export function GamificationToast() {
@@ -45,9 +44,9 @@ export function GamificationToast() {
               <Award size={23} />
             </motion.span>
             <div className="min-w-0 flex-1">
-              <p className="flex items-center gap-1.5 text-[9px] font-semibold uppercase tracking-[.16em] text-amber-300"><Sparkles size={11} /> Badge unlocked</p>
+              <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[.16em] text-amber-300"><Sparkles size={11} /> Badge unlocked</p>
               <p className="mt-1 truncate text-sm font-semibold">{badgeNames[badge] ?? badge}</p>
-              <p className="mt-1 text-[10px] text-zinc-500">Your achievement is now part of your profile.</p>
+              <p className="mt-1 text-xs text-zinc-500">Your achievement is now part of your profile.</p>
             </div>
             <button onClick={clearUnlocks} aria-label="Dismiss achievement" className="grid size-8 place-items-center rounded-lg text-zinc-600 hover:bg-white/[.05]"><X size={15} /></button>
           </div>

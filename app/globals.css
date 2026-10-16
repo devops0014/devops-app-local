@@ -148,11 +148,6 @@ html:not(.light) .app-shell [class*="text-zinc-700"] { color: #a1a1aa !important
 html:not(.light) .app-shell [class*="text-zinc-600"] { color: #b4b4bc !important; }
 html:not(.light) .app-shell [class*="text-zinc-500"] { color: #c4c4cc !important; }
 
-html:not(.light) .app-shell [class*="text-[7px]"] { font-size: 0.625rem !important; }
-html:not(.light) .app-shell [class*="text-[8px]"],
-html:not(.light) .app-shell [class*="text-[9px]"] { font-size: 0.6875rem !important; }
-html:not(.light) .app-shell [class*="text-[10px]"] { font-size: 0.75rem !important; }
-
 html:not(.light) .app-shell input::placeholder,
 html:not(.light) .app-shell textarea::placeholder { color: #a1a1aa !important; }
 html:not(.light) .app-shell :disabled { opacity: 0.62; }
@@ -181,10 +176,6 @@ body {
   letter-spacing: -0.012em;
 }
 
-.landing-page :is(.text-\[7px\], .text-\[8px\]) { font-size: 0.625rem; line-height: 1rem; }
-.landing-page .text-\[9px\] { font-size: 0.6875rem; line-height: 1.05rem; }
-.landing-page .text-\[10px\] { font-size: 0.75rem; line-height: 1.15rem; }
-.landing-page .text-\[11px\] { font-size: 0.8125rem; line-height: 1.2rem; }
 
 .category-logo-experience { position: relative; }
 

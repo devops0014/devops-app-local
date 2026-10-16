@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import { levelForXp } from "@/lib/gamification";
-import { PaymentApiError, requirePaymentUser, supabaseAdmin } from "@/lib/supabase/server";
+import { ApiError, requireUser, supabaseAdmin } from "@/lib/supabase/server";
 
 export async function GET(request: Request) {
   try {
-    const user = await requirePaymentUser(request);
+    const user = await requireUser(request);
     const period = new URL(request.url).searchParams.get("period") ?? "weekly";
-    if (!["weekly", "monthly", "all"].includes(period)) throw new PaymentApiError("Invalid leaderboard period.");
+    if (!["weekly", "monthly", "all"].includes(period)) throw new ApiError("Invalid leaderboard period.");
     const since = new Date();
     if (period === "weekly") since.setDate(since.getDate() - 7);
     if (period === "monthly") since.setDate(since.getDate() - 30);
@@ -33,7 +33,7 @@ export async function GET(request: Request) {
       .map((leader, index) => ({ ...leader, rank: index + 1 }));
     return NextResponse.json({ leaders });
   } catch (error) {
-    const status = error instanceof PaymentApiError ? error.status : 500;
+    const status = error instanceof ApiError ? error.status : 500;
     return NextResponse.json({ error: error instanceof Error ? error.message : "Leaderboard unavailable." }, { status });
   }
 }

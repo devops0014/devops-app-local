@@ -1,10 +1,9 @@
 import { supabase } from "@/lib/supabase/client";
-import type { MockInterviewReport, QuizAttempt, UserQuestionState } from "@/lib/types";
+import type { QuizAttempt, UserQuestionState } from "@/lib/types";
 
 export type CloudLearningState = {
   progress: Record<string, UserQuestionState>;
   quizAttempts: QuizAttempt[];
-  mockReports: MockInterviewReport[];
   xp: number;
   level: number;
   streak: number;
@@ -22,11 +21,10 @@ export async function loadLearningState(): Promise<CloudLearningState | null> {
   const userId = await currentUserId();
   if (!userId) return null;
 
-  const [profileResult, progressResult, attemptsResult, mocksResult] = await Promise.all([
+  const [profileResult, progressResult, attemptsResult] = await Promise.all([
     supabase.from("profiles").select("xp,level,streak,best_streak").eq("id", userId).single(),
     supabase.from("general_question_progress").select("question_id,status,confidence_score,is_bookmarked,personal_note,last_attempt_at,question:general_questions(source_key)").eq("user_id", userId),
     supabase.from("quiz_attempts").select("id,mode,score,total_questions,time_taken,weak_categories,questions_snapshot,created_at").eq("user_id", userId).order("created_at", { ascending: false }).limit(30),
-    supabase.from("mock_interviews").select("id,technology,company,experience_level,score,time_taken,answers_given,created_at").eq("user_id", userId).order("created_at", { ascending: false }).limit(20),
   ]);
 
   const progress = Object.fromEntries((progressResult.data ?? []).map((row) => [
@@ -51,21 +49,9 @@ export async function loadLearningState(): Promise<CloudLearningState | null> {
     createdAt: row.created_at,
   }));
 
-  const mockReports: MockInterviewReport[] = (mocksResult.data ?? []).map((row) => ({
-    id: row.id,
-    technology: row.technology ?? "Mixed DevOps",
-    company: row.company ?? "General",
-    level: row.experience_level ?? "3–5 years",
-    score: row.score ?? 0,
-    timeSeconds: row.time_taken,
-    answered: Array.isArray(row.answers_given) ? row.answers_given.length : 0,
-    createdAt: row.created_at,
-  }));
-
   return {
     progress,
     quizAttempts,
-    mockReports,
     xp: profileResult.data?.xp ?? 0,
     level: profileResult.data?.level ?? 1,
     streak: profileResult.data?.streak ?? 0,
@@ -107,24 +93,6 @@ export async function saveQuizAttempt(attempt: QuizAttempt) {
   });
 }
 
-export async function saveMockReport(report: MockInterviewReport) {
-  if (!supabase) return;
-  const userId = await currentUserId();
-  if (!userId) return;
-  if (isUuid(report.id)) return; // The server-side AI evaluation already persisted this report.
-  await supabase.from("mock_interviews").insert({
-    user_id: userId,
-    technology: report.technology,
-    company: report.company,
-    experience_level: report.level,
-    questions_snapshot: [],
-    answers_given: Array.from({ length: report.answered }, (_, index) => ({ index })),
-    score: report.score,
-    time_taken: report.timeSeconds,
-    status: "completed",
-  });
-}
-
 export async function saveFlashcardReview(questionKey: string, known: boolean, intervalDays: number) {
   if (!supabase) return;
   const userId = await currentUserId();
@@ -153,7 +121,6 @@ export function subscribeToLearningState(userId: string, onChange: () => void) {
   const channel = supabase
     .channel(`learning-state:${userId}`)
     .on("postgres_changes", { event: "INSERT", schema: "public", table: "quiz_attempts", filter: `user_id=eq.${userId}` }, onChange)
-    .on("postgres_changes", { event: "INSERT", schema: "public", table: "mock_interviews", filter: `user_id=eq.${userId}` }, onChange)
     .subscribe();
   return () => {
     void supabase?.removeChannel(channel);

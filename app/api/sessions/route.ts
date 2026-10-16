@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { PaymentApiError, requirePaymentUser, supabaseAdmin } from "@/lib/supabase/server";
+import { ApiError, requireUser, supabaseAdmin } from "@/lib/supabase/server";
 import { checkRateLimit, rateLimitResponse, requestIdentity } from "@/lib/security/rate-limit";
 
 function safe(value: unknown, max = 80) {
@@ -8,14 +8,14 @@ function safe(value: unknown, max = 80) {
 
 export async function GET(request: Request) {
   try {
-    const user = await requirePaymentUser(request);
+    const user = await requireUser(request);
     const { data, error } = await supabaseAdmin!.from("user_sessions")
       .select("id,device_name,browser,os,country,city,device_fingerprint,last_active,created_at,is_active")
       .eq("user_id", user.id).eq("is_active", true).order("last_active", { ascending: false });
     if (error) throw error;
     return NextResponse.json({ sessions: data ?? [] });
   } catch (error) {
-    const status = error instanceof PaymentApiError ? error.status : 500;
+    const status = error instanceof ApiError ? error.status : 500;
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unable to load devices." }, { status });
   }
 }
@@ -24,7 +24,7 @@ export async function POST(request: Request) {
   const limit = checkRateLimit(`device:${requestIdentity(request)}`, 20);
   if (!limit.allowed) return rateLimitResponse(limit);
   try {
-    const user = await requirePaymentUser(request);
+    const user = await requireUser(request);
     const body = await request.json() as Record<string, unknown>;
     const fingerprint = safe(body.fingerprint, 128);
     if (!/^[a-f0-9]{64}$/.test(fingerprint)) return NextResponse.json({ error: "Invalid device fingerprint." }, { status: 400 });
@@ -80,14 +80,14 @@ export async function POST(request: Request) {
     }
     return NextResponse.json({ ok: true, sessionId: data.id });
   } catch (error) {
-    const status = error instanceof PaymentApiError ? error.status : 500;
+    const status = error instanceof ApiError ? error.status : 500;
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unable to register device." }, { status });
   }
 }
 
 export async function PATCH(request: Request) {
   try {
-    const user = await requirePaymentUser(request);
+    const user = await requireUser(request);
     const body = await request.json() as { sessionId?: string };
     if (!body.sessionId) return NextResponse.json({ error: "Session ID is required." }, { status: 400 });
     const now = new Date().toISOString();
@@ -96,21 +96,21 @@ export async function PATCH(request: Request) {
     if (error) throw error;
     return NextResponse.json({ ok: true });
   } catch (error) {
-    const status = error instanceof PaymentApiError ? error.status : 500;
+    const status = error instanceof ApiError ? error.status : 500;
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unable to update presence." }, { status });
   }
 }
 
 export async function DELETE(request: Request) {
   try {
-    const user = await requirePaymentUser(request);
+    const user = await requireUser(request);
     const { error } = await supabaseAdmin!.from("user_sessions").update({
       is_active: false, revoked_at: new Date().toISOString(),
     }).eq("user_id", user.id).eq("is_active", true);
     if (error) throw error;
     return NextResponse.json({ ok: true });
   } catch (error) {
-    const status = error instanceof PaymentApiError ? error.status : 500;
+    const status = error instanceof ApiError ? error.status : 500;
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unable to sign out devices." }, { status });
   }
 }

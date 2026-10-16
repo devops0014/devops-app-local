@@ -9,7 +9,7 @@ export default function OfflinePage() {
         <div className="flex justify-center"><Brand /></div>
         <CloudOff className="mx-auto mt-10 text-violet-300" size={42} />
         <h1 className="mt-5 text-2xl font-semibold">You’re offline</h1>
-        <p className="mt-3 text-sm leading-6 text-zinc-400">Previously opened learning pages may still be available. Reconnect to sync progress, take quizzes, or start a mock interview.</p>
+        <p className="mt-3 text-sm leading-6 text-zinc-400">Previously opened learning pages may still be available. Reconnect to sync progress, take quizzes, or review flashcards.</p>
         <Link href="/dashboard" className="mt-7 inline-flex h-11 items-center gap-2 rounded-xl bg-white px-5 text-sm font-semibold text-black">
           <RefreshCw size={15} /> Try again
         </Link>

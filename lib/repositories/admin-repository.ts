@@ -178,20 +178,13 @@ export type ContentJob = {
 export async function getAdminOverview() {
   return adminFetch<{
     students: AdminStudent[];
-    subscriptions: AdminSubscription[];
     logs: AdminLog[];
   }>("/api/admin/overview");
 }
 
-export type AdminSubscription = {
-  id: string; user_id: string; plan: string; status: string; current_period_end?: string | null;
-  cancel_at_period_end?: boolean;
-};
 export type AdminStudent = {
-  id: string; email: string; name?: string | null; mobile?: string | null; subscription_status: string;
-  subscription_plan?: string | null; subscription_expires_at?: string | null; created_at: string;
-  subscription?: AdminSubscription | null;
-  quiz_attempts: number; mock_interviews: number; quiz_average: number; mock_average: number;
+  id: string; email: string; name?: string | null; mobile?: string | null; created_at: string;
+  quiz_attempts: number; quiz_average: number;
   mastery_percent: number; performance_score: number; active_devices: number; last_active?: string | null;
   is_online: boolean;
 };

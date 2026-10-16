@@ -125,5 +125,5 @@ async function listBank(bank: Bank): Promise<Question[]> {
 export function listPublishedGeneralQuestions() { return listBank("general_questions"); }
 export function listPublishedMcqQuestions() { return listBank("mcq_questions"); }
 
-/** General questions are the primary learning bank used by practice, flashcards and mock interviews. */
+/** General questions are the primary learning bank used by practice and flashcards. */
 export function listPublishedQuestions(): Promise<Question[]> { return listPublishedGeneralQuestions(); }

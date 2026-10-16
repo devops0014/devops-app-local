@@ -15,23 +15,13 @@ set role = 'admin'
 where email = 'your-admin-email@example.com';
 ```
 
-Never expose the service-role key to browser code. Payment webhooks, privileged
-AI processing, audit writes, and subscription changes must use server-side
-functions with the service role.
+Never expose the service-role key to browser code. Privileged AI content
+processing and audit writes must use server-side functions with the service role.
 
-## Phase 6 payment setup
+## Phase 6 (retired)
 
-Run `migrations/2026072702_phase6_payments.sql`, then configure the payment
-variables listed in `.env.example` on the hosting platform.
-
-- Razorpay webhook: `/api/webhooks/razorpay`
-- Razorpay events: `subscription.authenticated`, `subscription.activated`,
-  `subscription.charged`, `subscription.pending`, `subscription.cancelled`
-
-Create matching monthly, half-yearly, and yearly Razorpay subscription plans
-and copy their IDs into the corresponding environment variables.
-Checkout, signature verification, subscription activation, idempotency, and
-cancellation all run server-side.
+`migrations/2026072702_phase6_payments.sql` created the old payment tables. The
+app no longer uses them; it is kept so existing databases migrate in order.
 
 ## Phase 7 gamification setup
 
@@ -53,3 +43,40 @@ and the private `question-imports` Storage bucket.
 3. Open **AI Engine → Processing queue** and run enrichment.
 4. Review enriched questions in **Approval desk**.
 5. Approve to publish to `/practice`, or reject to keep a question private.
+
+## Free access
+
+Run `migrations/2026101201_free_access.sql` last. It removes the subscription
+requirement from question access so the platform is free for every signed-in
+user, and retires the AI mock-interview credit function.
+
+## Leads, WhatsApp verification and roles
+
+Run `migrations/2026101202_leads_rbac.sql` after the free-access migration. It
+adds the `sales` and `super_admin` roles, WhatsApp phone verification fields,
+the `leads` and `lead_activity` tables, and a trigger that stops students from
+changing their own role, XP or verified phone. Then promote yourself:
+
+```sql
+update public.profiles set role = 'super_admin' where email = 'you@example.com';
+```
+
+## Free WhatsApp verification
+
+Run `migrations/2026101203_whatsapp_inbound_verify.sql` after the leads migration.
+It stores the short `DC-XXXXXXXX` codes students send to your WhatsApp number.
+
+## Sales tools
+
+Run `migrations/2026101301_sales_tools.sql` last. It adds the lead source
+(UTM) and onboarding answers to profiles, the "No answer" and "Enrolled"
+statuses, follow-up dates, lead owners, callback requests and do-not-contact.
+
+Then run `migrations/2026101302_interest_topic.sql`. It saves the tool a student
+picked on the home page ("What's your interview on?") so callers can see it.
+
+## Phone confirmation and blocking
+
+Run `migrations/2026101601_phone_confirm_and_blocking.sql`. It records how each
+student's number was checked and adds the `blocked_contacts` list used when the
+team removes an account with a wrong mobile number.

@@ -81,7 +81,7 @@ export function CategoryManager({ query = "" }: { query?: string }) {
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-xs font-medium">{categories.length} categories</p>
-          <p className="mt-1 text-[10px] text-zinc-600">Question totals are calculated directly from Supabase.</p>
+          <p className="mt-1 text-xs text-zinc-600">Question totals are calculated directly from Supabase.</p>
         </div>
         <div className="flex gap-2">
           <Button variant="secondary" size="sm" onClick={() => void refresh()}><RefreshCw size={13} /> Refresh</Button>
@@ -99,7 +99,7 @@ export function CategoryManager({ query = "" }: { query?: string }) {
               <span className="grid size-11 shrink-0 place-items-center rounded-xl text-xs font-semibold" style={{ backgroundColor: `${category.color || "#8b5cf6"}18`, color: category.color || "#8b5cf6" }}>{category.name.slice(0, 2).toUpperCase()}</span>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2"><p className="truncate text-xs font-medium">{category.name}</p><Badge>{category.question_count}</Badge></div>
-                <p className="mt-1 truncate text-[9px] text-zinc-600">{category.published_count} published · {category.draft_count} drafts · /{category.slug}</p>
+                <p className="mt-1 truncate text-xs text-zinc-600">{category.published_count} published · {category.draft_count} drafts · /{category.slug}</p>
               </div>
               <div className="flex shrink-0">
                 <button onClick={() => setEditor(category)} className="grid size-8 place-items-center rounded-lg text-zinc-600 transition hover:bg-white/[.06] hover:text-white" aria-label={`Edit ${category.name}`}><Pencil size={13} /></button>

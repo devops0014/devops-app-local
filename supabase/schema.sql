@@ -147,12 +147,7 @@ create policy "categories_read_authenticated" on public.categories for select to
 
 drop policy if exists "questions_read_subscribed" on public.questions;
 create policy "questions_read_subscribed" on public.questions for select to authenticated using (
-  is_published = true and exists (
-    select 1 from public.profiles p
-    where p.id = auth.uid()
-      and p.subscription_status in ('trialing', 'active')
-      and (p.subscription_expires_at is null or p.subscription_expires_at > now())
-  )
+  is_published = true
 );
 
 drop policy if exists "progress_own_all" on public.user_progress;

@@ -11,19 +11,19 @@ export const supabaseAdmin = isSupabaseAdminConfigured
     })
   : null;
 
-export async function requirePaymentUser(request: Request) {
+export async function requireUser(request: Request) {
   if (!supabaseAdmin) {
-    throw new PaymentApiError("Subscription services are not configured yet.", 503);
+    throw new ApiError("Account services are not configured yet.", 503);
   }
   const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
-  if (!token) throw new PaymentApiError("Please sign in before subscribing.", 401);
+  if (!token) throw new ApiError("Please sign in to continue.", 401);
 
   const { data, error } = await supabaseAdmin.auth.getUser(token);
-  if (error || !data.user) throw new PaymentApiError("Your session has expired. Please sign in again.", 401);
+  if (error || !data.user) throw new ApiError("Your session has expired. Please sign in again.", 401);
   return data.user;
 }
 
-export class PaymentApiError extends Error {
+export class ApiError extends Error {
   constructor(message: string, public status = 400) {
     super(message);
   }

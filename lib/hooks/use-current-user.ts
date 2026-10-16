@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
+import { asRole, type Role } from "@/lib/rbac";
 
 export type CurrentUserProfile = {
   id: string;
@@ -9,8 +10,8 @@ export type CurrentUserProfile = {
   name: string;
   mobile: string;
   avatar: string | null;
-  subscriptionStatus: string;
-  role: "admin" | "student";
+  role: Role;
+  phoneVerified: boolean;
 };
 
 export function useCurrentUser() {
@@ -25,8 +26,8 @@ export function useCurrentUser() {
         name: "Demo Student",
         mobile: "",
         avatar: null,
-        subscriptionStatus: "active",
         role: "student",
+        phoneVerified: true,
       });
       setLoading(false);
       return;
@@ -41,7 +42,7 @@ export function useCurrentUser() {
 
     const { data } = await supabase
       .from("profiles")
-      .select("name,email,mobile,avatar,subscription_status,role")
+      .select("name,email,mobile,avatar,role,phone_verified_at")
       .eq("id", auth.user.id)
       .maybeSingle();
 
@@ -52,8 +53,8 @@ export function useCurrentUser() {
       name: data?.name ?? metadata.full_name ?? metadata.name ?? auth.user.email?.split("@")[0] ?? "Student",
       mobile: data?.mobile ?? metadata.phone ?? "",
       avatar: data?.avatar ?? metadata.avatar_url ?? metadata.picture ?? null,
-      subscriptionStatus: data?.subscription_status ?? "trialing",
-      role: data?.role === "admin" ? "admin" : "student",
+      role: asRole(data?.role),
+      phoneVerified: Boolean(data?.phone_verified_at),
     });
     setLoading(false);
   }, []);

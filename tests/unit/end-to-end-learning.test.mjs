@@ -1,24 +1,38 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import test from "node:test";
 
 const read = (path) => readFileSync(new URL(`../../${path}`, import.meta.url), "utf8");
 
 test("student learning modes use the Supabase content catalog", () => {
-  for (const page of ["practice", "quiz", "flashcards", "mock-interview"]) {
+  for (const page of ["practice", "quiz", "flashcards"]) {
     const source = read(`app/(platform)/${page}/page.tsx`);
     assert.match(source, /useContentCatalog/);
     assert.doesNotMatch(source, /from ["']@\/lib\/data["']/);
   }
 });
 
-test("mock interview evaluation is authenticated, strict, cached, metered and persisted", () => {
-  const source = read("app/api/ai/mock-evaluate/route.ts");
-  assert.match(source, /requirePaymentUser/);
-  assert.match(source, /getCachedAIResponse/);
-  assert.match(source, /consumeAIAllowance/);
-  assert.match(source, /Irrelevant, generic/);
-  assert.match(source, /mock_interviews/);
+test("platform is free: no payment gateway, paywall or AI mock interview", () => {
+  for (const path of [
+    "app/pricing/page.tsx",
+    "app/(platform)/billing/page.tsx",
+    "app/(platform)/mock-interview/page.tsx",
+    "app/api/payments/create-checkout/route.ts",
+    "app/api/webhooks/razorpay/route.ts",
+    "app/api/ai/mock-evaluate/route.ts",
+    "lib/payments.ts",
+  ]) {
+    assert.equal(existsSync(new URL(`../../${path}`, import.meta.url)), false, `${path} should be removed`);
+  }
+  const gate = read("components/access-gate.tsx");
+  const layout = read("app/(platform)/layout.tsx");
+  const shell = read("components/app-shell.tsx");
+  assert.match(layout, /AuthGate/);
+  assert.doesNotMatch(gate, /subscription|\/pricing/i);
+  assert.doesNotMatch(shell, /\/billing|\/mock-interview/);
+  const migration = read("supabase/migrations/2026101201_free_access.sql");
+  assert.match(migration, /questions_read_published/);
+  assert.doesNotMatch(migration.split("OPTIONAL CLEANUP")[0], /subscription_status in/);
 });
 
 test("admin question management supports MCQ options", () => {
