@@ -81,16 +81,29 @@ export async function completePhoneVerification(
     marketing_consent_at: consentAt,
     updated_at: now,
   };
-  let { error } = await supabaseAdmin!.from("profiles").update({ ...base, phone_verification_method: method }).eq("id", userId);
+  const save = (fields: Record<string, unknown>) =>
+    supabaseAdmin!.from("profiles").update(fields).eq("id", userId).select("id");
+  let { data: saved, error } = await save({ ...base, phone_verification_method: method });
   // Database not migrated to 2026101601 yet (no phone_verification_method column)? Save without it.
   if (error && (error.code === "42703" || error.code === "PGRST204")) {
     console.warn("profiles.phone_verification_method is missing — run supabase/migrations/2026101601_phone_confirm_and_blocking.sql");
-    ({ error } = await supabaseAdmin!.from("profiles").update(base).eq("id", userId));
+    ({ data: saved, error } = await save(base));
   }
   if (error) {
     if (error.code === "23505") return { ok: false, error: "This mobile number is already linked to another account." };
     console.error("Saving phone number failed", error);
     return { ok: false, error: `Could not save your number (${error.code ?? "database error"}: ${error.message}).` };
+  }
+  if (!saved?.length) {
+    // No row was updated: either the profile row is missing, or the server is not
+    // using the service-role key (then row-level security silently blocks the update).
+    const { data: authUser } = await supabaseAdmin!.auth.admin.getUserById(userId);
+    const { data: created, error: insertError } = await supabaseAdmin!.from("profiles")
+      .upsert({ id: userId, email: authUser.user?.email ?? "", ...base }, { onConflict: "id" }).select("id");
+    if (insertError || !created?.length) {
+      console.error("Saving phone number updated no rows. Check SUPABASE_SERVICE_ROLE_KEY in .env.local is the service_role key, not the anon key.", insertError);
+      return { ok: false, error: "Your number couldn't be saved because of a server setting. If you run this site, check SUPABASE_SERVICE_ROLE_KEY in .env.local (it must be the service_role key) and restart." };
+    }
   }
   await supabaseAdmin!.from("leads").upsert({ user_id: userId }, { onConflict: "user_id", ignoreDuplicates: true });
   const { data: authUser } = await supabaseAdmin!.auth.admin.getUserById(userId);
