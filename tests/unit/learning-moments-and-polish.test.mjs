@@ -27,12 +27,15 @@ test("landing page shows product screens and no mentor card", () => {
   assert.doesNotMatch(read("lib/site-config.ts"), /mentor:/);
 });
 
-test("streak flame grows with the streak", async () => {
-  const { flameLevel } = await import("../../lib/streak.ts");
-  const sizes = [0, 1, 3, 7, 14, 60].map((days) => flameLevel(days));
-  assert.equal(sizes[0].level, 0);
-  assert.equal(sizes.at(-1).level, 4);
-  for (let index = 1; index < sizes.length; index += 1) assert.ok(sizes[index].size >= sizes[index - 1].size);
+test("streak flame grows with the streak", () => {
+  // Read the source (CI's Node 22.13 can't import .ts files directly).
+  const source = read("lib/streak.ts");
+  const levels = [...source.matchAll(/level: (\d), size: (\d+), glow: (\d+)/g)].map((match) => match.slice(1).map(Number));
+  assert.deepEqual(levels.map(([level]) => level), [0, 1, 2, 3, 4]);
+  for (let index = 1; index < levels.length; index += 1) {
+    assert.ok(levels[index][1] > levels[index - 1][1], "flame gets bigger");
+    assert.ok(levels[index][2] > levels[index - 1][2], "glow gets stronger");
+  }
   assert.match(read("app/(platform)/dashboard/page.tsx"), /flameLevel\(streak\)/);
 });
 

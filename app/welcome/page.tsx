@@ -83,7 +83,7 @@ export default function WelcomePage() {
             <form onSubmit={submit}>
               <Badge tone="violet"><Sparkles size={12} className="mr-1" /> Last step · 15 seconds</Badge>
               <h1 className="mt-5 text-2xl font-semibold tracking-[-.04em] sm:text-3xl">Tell us about you</h1>
-              <p className="mt-2 text-sm leading-6 text-zinc-400">We'll suggest the right topics to start with.</p>
+              <p className="mt-2 text-sm leading-6 text-zinc-400">We&rsquo;ll suggest the right topics to start with.</p>
 
               <fieldset className="mt-6">
                 <legend className="mb-2 text-sm font-medium text-zinc-300">Your experience</legend>

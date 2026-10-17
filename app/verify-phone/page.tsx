@@ -311,7 +311,7 @@ function InboundFlow({ initial, onVerified }: { initial: Status; onVerified: () 
       <Badge tone="green"><MessageCircle size={11} className="mr-1" /> One-time step · takes 10 seconds</Badge>
       <h1 className="mt-5 text-2xl font-semibold tracking-[-.04em] sm:text-3xl">Verify with WhatsApp</h1>
       <p className="mt-2 text-xs leading-6 text-zinc-500">
-        Tap the button, then press <strong className="text-zinc-300">Send</strong> in WhatsApp. That's it — we'll unlock your free account the moment your message arrives.
+        Tap the button, then press <strong className="text-zinc-300">Send</strong> in WhatsApp. That&rsquo;s it — we&rsquo;ll unlock your free account the moment your message arrives.
       </p>
 
       <div className="mt-6 space-y-4">
@@ -332,7 +332,7 @@ function InboundFlow({ initial, onVerified }: { initial: Status; onVerified: () 
 
         {started && !expired && (
           <div className="rounded-xl border border-white/[.07] bg-black/25 p-4">
-            <p className="text-xs text-zinc-500">On a computer, or if WhatsApp didn't open, send this message{number ? <> to <span className="font-medium text-zinc-200">{number}</span></> : null}:</p>
+            <p className="text-xs text-zinc-500">On a computer, or if WhatsApp didn&rsquo;t open, send this message{number ? <> to <span className="font-medium text-zinc-200">{number}</span></> : null}:</p>
             <div className="mt-2 flex items-center gap-2">
               <code className="flex-1 rounded-lg border border-white/[.08] bg-white/[.03] px-3 py-2 font-mono text-sm tracking-wide text-emerald-200">{started.message}</code>
               <button onClick={() => void copy()} className="grid size-9 place-items-center rounded-lg border border-white/[.08] text-zinc-400 hover:text-white" aria-label="Copy message"><Copy size={14} /></button>
