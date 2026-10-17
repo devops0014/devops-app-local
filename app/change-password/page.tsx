@@ -79,7 +79,7 @@ export default function ChangePasswordPage() {
           <span className="grid size-12 place-items-center rounded-2xl bg-violet-400/10 text-violet-300"><KeyRound size={21} /></span>
           <h1 className="mt-5 text-2xl font-semibold tracking-[-.04em]">Update your password</h1>
           <p className="mt-2 text-xs leading-6 text-zinc-500">Confirm your current password first. After the update, we’ll sign you out securely so you can log in with the new password.</p>
-          <form onSubmit={submit} className="mt-7 space-y-4">
+          <form method="post" onSubmit={submit} className="mt-7 space-y-4">
             <PasswordField name="currentPassword" label="Current password" autoComplete="current-password" visible={showPasswords} />
             <PasswordField name="newPassword" label="New password" autoComplete="new-password" visible={showPasswords} />
             <PasswordField name="confirmation" label="Confirm new password" autoComplete="new-password" visible={showPasswords} />

@@ -412,7 +412,7 @@ function Course() {
           <div className="max-w-2xl">
             <h2 className="text-2xl font-semibold tracking-[-.02em] text-white sm:text-3xl">Want a mentor in your corner?</h2>
             <p className="mt-3 text-[15px] leading-7 text-zinc-300">
-              When you're ready for more than self-study, the {siteConfig.course.name} adds {siteConfig.course.pitch.charAt(0).toLowerCase() + siteConfig.course.pitch.slice(1)}
+              When you&rsquo;re ready for more than self-study, the {siteConfig.course.name} adds {siteConfig.course.pitch.charAt(0).toLowerCase() + siteConfig.course.pitch.slice(1)}
             </p>
             <p className="mt-3 text-sm text-zinc-400">Start with the free platform. You can request a callback from inside the app whenever you like.</p>
             {siteConfig.course.url && (
@@ -430,7 +430,7 @@ function FinalCta() {
     <section className="py-16 sm:py-24">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <h2 className="max-w-2xl text-3xl font-semibold tracking-[-.03em] text-white sm:text-5xl">Your next interview is closer than you think.</h2>
-        <p className="mt-4 max-w-lg text-lg text-zinc-300">Practise today. It's free.</p>
+        <p className="mt-4 max-w-lg text-lg text-zinc-300">Practise today. It&rsquo;s free.</p>
         <Link href={SIGNUP} className="mt-8 inline-flex h-12 items-center justify-center rounded-xl bg-violet-500 px-6 text-base font-semibold text-white hover:bg-violet-400">Start preparing free</Link>
       </div>
     </section>

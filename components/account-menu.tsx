@@ -56,7 +56,7 @@ export function AccountMenu({ profile, onUpdated, onSignOut }: { profile: Curren
             <div><Dialog.Title className="text-2xl font-semibold tracking-[-.04em]">Account settings</Dialog.Title><Dialog.Description className="mt-2 text-xs text-zinc-500">Manage your personal information and account security.</Dialog.Description></div>
             <Dialog.Close className="grid size-9 place-items-center rounded-xl text-zinc-500 hover:bg-white/[.06]"><X size={18} /></Dialog.Close>
           </div>
-          <form onSubmit={save} className="mt-7 space-y-4">
+          <form method="post" onSubmit={save} className="mt-7 space-y-4">
             <AccountField icon={UserRound} label="Full name" name="name" defaultValue={profile?.name ?? ""} />
             <AccountField icon={Phone} label="Mobile number" name="mobile" defaultValue={profile?.mobile ?? ""} disabled />
             <AccountField icon={Mail} label="Email address" name="email" defaultValue={profile?.email ?? ""} disabled />

@@ -52,7 +52,7 @@ export default function ForgotPasswordPage() {
             <>
               <h1 className="text-2xl font-semibold tracking-[-.04em]">Reset your password</h1>
               <p className="mt-2 text-xs leading-5 text-zinc-600">Enter your account email and we’ll send you a secure reset link.</p>
-              <form onSubmit={submit} className="mt-7 space-y-4">
+              <form method="post" onSubmit={submit} className="mt-7 space-y-4">
                 <label className="block">
                   <span className="mb-2 block text-xs font-medium text-zinc-500">Email address</span>
                   <span className="flex h-11 items-center gap-3 rounded-xl border border-white/[.08] bg-white/[.025] px-3 focus-within:border-violet-400/30">

@@ -29,6 +29,7 @@ function TeamManager() {
     catch (cause) { setMessage({ tone: "error", text: cause instanceof Error ? cause.message : "Could not load the team." }); }
     finally { setLoading(false); }
   };
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- load the team once
   useEffect(() => { void load(); }, []);
 
   const assign = async (targetEmail: string, targetRole: Role) => {
@@ -68,7 +69,7 @@ function TeamManager() {
       </section>
 
       <Card className="mt-5 p-5">
-        <form onSubmit={submit} className="flex flex-col gap-2 sm:flex-row">
+        <form method="post" onSubmit={submit} className="flex flex-col gap-2 sm:flex-row">
           <input value={email} onChange={(event) => setEmail(event.target.value)} type="email" required placeholder="teammate@example.com" className="h-10 flex-1 rounded-xl border border-white/[.08] bg-white/[.03] px-3 text-xs" />
           <select value={role} onChange={(event) => setRole(event.target.value as Role)} className="h-10 rounded-xl border border-white/[.08] bg-[var(--panel)] px-3 text-xs">
             {staffRoles.map((item) => <option key={item} value={item}>{roleLabels[item]}</option>)}

@@ -176,7 +176,7 @@ function ConfirmFlow({ initialPhone, onConfirmed }: { initialPhone: string; onCo
         ))}
       </div>
 
-      <form onSubmit={submit} className="mt-4 space-y-4">
+      <form method="post" onSubmit={submit} className="mt-4 space-y-4">
         <label className="block">
           <span className="mb-2 block text-sm font-medium text-zinc-300">{abroad ? "WhatsApp number" : "Mobile number"}</span>
           <span className="auth-field">
@@ -245,6 +245,7 @@ function InboundFlow({ initial, onVerified }: { initial: Status; onVerified: () 
   // Prepare the code as soon as consent is given so the WhatsApp button is a
   // plain link (one tap, never blocked as a pop-up).
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- prepare the code once consent is given
     if (consent && !started && !busy && !error) void start();
   }, [busy, consent, error, start, started]);
 
@@ -311,7 +312,7 @@ function InboundFlow({ initial, onVerified }: { initial: Status; onVerified: () 
       <Badge tone="green"><MessageCircle size={11} className="mr-1" /> One-time step · takes 10 seconds</Badge>
       <h1 className="mt-5 text-2xl font-semibold tracking-[-.04em] sm:text-3xl">Verify with WhatsApp</h1>
       <p className="mt-2 text-xs leading-6 text-zinc-500">
-        Tap the button, then press <strong className="text-zinc-300">Send</strong> in WhatsApp. That's it — we'll unlock your free account the moment your message arrives.
+        Tap the button, then press <strong className="text-zinc-300">Send</strong> in WhatsApp. That&rsquo;s it — we&rsquo;ll unlock your free account the moment your message arrives.
       </p>
 
       <div className="mt-6 space-y-4">
@@ -332,7 +333,7 @@ function InboundFlow({ initial, onVerified }: { initial: Status; onVerified: () 
 
         {started && !expired && (
           <div className="rounded-xl border border-white/[.07] bg-black/25 p-4">
-            <p className="text-xs text-zinc-500">On a computer, or if WhatsApp didn't open, send this message{number ? <> to <span className="font-medium text-zinc-200">{number}</span></> : null}:</p>
+            <p className="text-xs text-zinc-500">On a computer, or if WhatsApp didn&rsquo;t open, send this message{number ? <> to <span className="font-medium text-zinc-200">{number}</span></> : null}:</p>
             <div className="mt-2 flex items-center gap-2">
               <code className="flex-1 rounded-lg border border-white/[.08] bg-white/[.03] px-3 py-2 font-mono text-sm tracking-wide text-emerald-200">{started.message}</code>
               <button onClick={() => void copy()} className="grid size-9 place-items-center rounded-lg border border-white/[.08] text-zinc-400 hover:text-white" aria-label="Copy message"><Copy size={14} /></button>
@@ -345,7 +346,7 @@ function InboundFlow({ initial, onVerified }: { initial: Status; onVerified: () 
         )}
 
         {started?.devMode && !expired && (
-          <form onSubmit={simulate} className="rounded-xl border border-amber-400/20 bg-amber-400/[.05] p-3">
+          <form method="post" onSubmit={simulate} className="rounded-xl border border-amber-400/20 bg-amber-400/[.05] p-3">
             <p className="text-xs text-amber-200">Dev mode (webhook not configured): simulate the WhatsApp message.</p>
             <div className="mt-2 flex gap-2">
               <input value={simPhone} onChange={(event) => setSimPhone(event.target.value)} placeholder="+91 98765 43210" className="h-9 min-w-0 flex-1 rounded-lg border border-white/[.1] bg-black/30 px-3 text-xs" />
@@ -418,7 +419,7 @@ function OtpFlow({ onVerified }: { onVerified: () => void }) {
         {step === "phone" ? "We'll send a 6-digit code to your WhatsApp." : <>We sent a code on WhatsApp to <span className="font-medium text-zinc-200">{sentTo}</span>.</>}
       </p>
       {step === "phone" ? (
-        <form onSubmit={sendCode} className="mt-6 space-y-4">
+        <form method="post" onSubmit={sendCode} className="mt-6 space-y-4">
           <label className="block">
             <span className="mb-2 block text-xs font-medium text-zinc-500">WhatsApp number</span>
             <span className="auth-field"><Phone size={17} /><input value={phone} onChange={(event) => setPhone(event.target.value)} type="tel" required autoComplete="tel" inputMode="tel" placeholder="+91 98765 43210" /></span>
@@ -428,7 +429,7 @@ function OtpFlow({ onVerified }: { onVerified: () => void }) {
           <Button type="submit" size="lg" disabled={busy || !consent} className="w-full">{busy ? "Sending…" : "Send code on WhatsApp"} {!busy && <ArrowRight size={15} />}</Button>
         </form>
       ) : (
-        <form onSubmit={verifyCode} className="mt-6 space-y-4">
+        <form method="post" onSubmit={verifyCode} className="mt-6 space-y-4">
           <input value={code} onChange={(event) => setCode(event.target.value.replace(/\D/g, "").slice(0, 6))} inputMode="numeric" autoComplete="one-time-code" autoFocus placeholder="••••••" aria-label="6-digit code" className="h-14 w-full rounded-xl border border-white/[.1] bg-white/[.03] text-center font-mono text-2xl tracking-[.6em] text-white outline-none focus:border-violet-400/50" />
           {devCode && <p className="rounded-xl border border-amber-400/20 bg-amber-400/[.06] px-3 py-2 text-xs text-amber-200">Dev mode: your code is <strong className="font-mono">{devCode}</strong></p>}
           {error && <p className="rounded-xl border border-rose-400/15 bg-rose-400/[.06] px-3 py-2.5 text-xs text-rose-300">{error}</p>}

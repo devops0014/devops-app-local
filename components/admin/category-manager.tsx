@@ -174,7 +174,7 @@ function CategoryEditor({ category, open, onClose, onSaved }: {
             <Dialog.Close className="grid size-9 place-items-center rounded-xl text-zinc-500 hover:bg-white/[.06]"><X size={17} /></Dialog.Close>
           </div>
           <Dialog.Description className="mt-1 text-xs text-zinc-500">Categories organize the question bank, quizzes, analytics and learning paths.</Dialog.Description>
-          <form onSubmit={submit} className="mt-6 space-y-4">
+          <form method="post" onSubmit={submit} className="mt-6 space-y-4">
             <Field label="Category name">
               <input
                 name="name"

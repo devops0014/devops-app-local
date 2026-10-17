@@ -16,6 +16,7 @@ import { topicLabel } from "@/lib/leads";
 export function StartHere({ firstName, categories, loading }: { firstName: string; categories: ContentCategory[]; loading: boolean }) {
   const reduced = useReducedMotion();
   const [picked, setPicked] = useState<string | null>(null);
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- localStorage is only readable after hydration
   useEffect(() => { setPicked(interestTopic()); }, []);
 
   const sorted = [...categories].sort((a, b) => b.total - a.total);

@@ -24,4 +24,17 @@ jobs:
           node-version: 22.13.0
           cache: npm
       - run: npm ci
-      - run: npm run test:ci
+      - name: Run quality gate
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run test:ci 2>&1 | tee quality-gate.log
+      - name: Show why the quality gate failed
+        if: failure()
+        shell: bash
+        run: |
+          # One annotation each (GitHub shows at most 10 per step): failing files + messages, then the log tail.
+          summary=$(grep -E "^/|^ +[0-9]+:[0-9]+ +error|not ok|^Error|ERR!" quality-gate.log | sed "s#$GITHUB_WORKSPACE/##" | tail -60)
+          echo "::error title=Failures::${summary//$'\n'/%0A}"
+          tail_lines=$(tail -40 quality-gate.log | sed "s#$GITHUB_WORKSPACE/##")
+          echo "::error title=Log tail::${tail_lines//$'\n'/%0A}"

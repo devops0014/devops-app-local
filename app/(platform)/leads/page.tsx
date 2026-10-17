@@ -96,6 +96,7 @@ function LeadsDashboard() {
     }
   }, [filters]);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- load data when filters change
   useEffect(() => { void load(); }, [load]);
 
   const choosePreset = (next: Preset) => {
@@ -414,6 +415,7 @@ function LeadDrawer({ lead, today, callers, canUpdate, onClose, onPatch, onNoteA
   useEffect(() => {
     if (!leadId) return;
     let active = true;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reset before fetching this lead
     setLoading(true);
     setError("");
     listLeadActivity(leadId)
@@ -486,7 +488,7 @@ function LeadDrawer({ lead, today, callers, canUpdate, onClose, onPatch, onNoteA
               </dl>
               <div className="mt-3 flex items-center gap-2"><HeatBadge score={lead.score} /><span className="text-xs text-zinc-500">Engagement score {lead.score}/100</span></div>
 
-              {lead.doNotContact && <p className="mt-4 flex items-center gap-2 rounded-xl border border-rose-400/20 bg-rose-400/[.06] p-3 text-sm text-rose-200"><PhoneOff size={15} /> This student withdrew consent. Don't call or message them.</p>}
+              {lead.doNotContact && <p className="mt-4 flex items-center gap-2 rounded-xl border border-rose-400/20 bg-rose-400/[.06] p-3 text-sm text-rose-200"><PhoneOff size={15} /> This student withdrew consent. Don&rsquo;t call or message them.</p>}
 
               <p className="mb-2 mt-5 text-sm font-medium text-zinc-500">Call status</p>
               <div className="grid grid-cols-2 gap-2">

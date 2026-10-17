@@ -31,3 +31,24 @@ test("renders development preview metadata", async () => {
   );
   assert.match(await response.text(), developmentPreviewMeta);
 });
+
+test("sign-in page ships the app scripts, so the form never submits natively", async () => {
+  const workerUrl = new URL("../dist/server/index.js", import.meta.url);
+  workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}-login`);
+  const { default: worker } = await import(workerUrl.href);
+  const response = await worker.fetch(
+    new Request("http://localhost/login", { headers: { accept: "text/html" } }),
+    { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } },
+    { waitUntil() {}, passThroughOnException() {} },
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  const inline = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)].map((match) => `${match[1]}|${match[2].slice(0, 160)}`);
+  const head = html.slice(0, html.indexOf("<body"));
+  assert.ok(
+    /<script[^>]+src=|import\(|modulepreload|\/assets\//.test(html),
+    `no app bootstrap in /login. head=${head.replace(/<style[\s\S]*?<\/style>/g, "").slice(0, 900)} scripts=${inline.join(" || ").slice(0, 1500)}`,
+  );
+  assert.match(html, /<form[^>]*method="post"/);
+  assert.doesNotMatch(html, /<head>\s*<link rel="preconnect"/);
+});

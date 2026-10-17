@@ -88,7 +88,9 @@ export function QuestionManager() {
   const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
   const visibleQuestions = filtered.slice((page - 1) * pageSize, page * pageSize);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- back to page 1 when filters change
   useEffect(() => { setPage(1); }, [bankFilter, query]);
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- keep the page in range
   useEffect(() => { if (page > pageCount) setPage(pageCount); }, [page, pageCount]);
 
   const remove = async (question: AdminQuestion) => {
@@ -359,7 +361,7 @@ function QuestionEditor({
       setError(cause instanceof Error ? cause.message : "Unable to save question.");
     } finally { setSaving(false); }
   };
-  return <Dialog.Root open={state.open} onOpenChange={(open) => !open && onClose()}><Dialog.Portal><Dialog.Overlay className="fixed inset-0 z-[80] bg-black/70 backdrop-blur-sm" /><Dialog.Content className="fixed left-1/2 top-1/2 z-[90] max-h-[92vh] w-[calc(100%-24px)] max-w-2xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-[24px] border border-white/10 bg-[var(--panel)] p-6 shadow-2xl"><div className="flex items-center justify-between"><Dialog.Title className="text-lg font-semibold">{question ? "Edit question" : "Add question"}</Dialog.Title><Dialog.Close className="grid size-9 place-items-center rounded-xl text-zinc-500 hover:bg-white/[.06]"><X size={17} /></Dialog.Close></div><Dialog.Description className="mt-1 text-xs text-zinc-500">Save directly to the production question bank.</Dialog.Description><form onSubmit={submit} className="mt-6 space-y-4">
+  return <Dialog.Root open={state.open} onOpenChange={(open) => !open && onClose()}><Dialog.Portal><Dialog.Overlay className="fixed inset-0 z-[80] bg-black/70 backdrop-blur-sm" /><Dialog.Content className="fixed left-1/2 top-1/2 z-[90] max-h-[92vh] w-[calc(100%-24px)] max-w-2xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-[24px] border border-white/10 bg-[var(--panel)] p-6 shadow-2xl"><div className="flex items-center justify-between"><Dialog.Title className="text-lg font-semibold">{question ? "Edit question" : "Add question"}</Dialog.Title><Dialog.Close className="grid size-9 place-items-center rounded-xl text-zinc-500 hover:bg-white/[.06]"><X size={17} /></Dialog.Close></div><Dialog.Description className="mt-1 text-xs text-zinc-500">Save directly to the production question bank.</Dialog.Description><form method="post" onSubmit={submit} className="mt-6 space-y-4">
     <Field label="Category">
       {categories.length ? (
         <select name="category_id" required defaultValue={question?.category_id ?? emptyInput.category_id} className="admin-input cursor-pointer">

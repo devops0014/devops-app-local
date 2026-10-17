@@ -27,6 +27,7 @@ async function call(method: "GET" | "POST", body?: unknown) {
 export function CourseCallout({ context, headline, compact = false }: { context: string; headline?: string; compact?: boolean }) {
   const { profile } = useCurrentUser();
   const [requestedAt, setRequestedAt] = useState<string | null>(null);
+  const [now] = useState(() => Date.now());
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const isStudent = profile?.role === "student" && Boolean(supabase);
@@ -51,7 +52,7 @@ export function CourseCallout({ context, headline, compact = false }: { context:
     }
   };
 
-  const recent = requestedAt && Date.now() - Date.parse(requestedAt) < 7 * 24 * 60 * 60_000;
+  const recent = requestedAt && now - Date.parse(requestedAt) < 7 * 24 * 60 * 60_000;
 
   return (
     <section className={cn(
@@ -68,7 +69,7 @@ export function CourseCallout({ context, headline, compact = false }: { context:
         </div>
         <div className="flex shrink-0 flex-col gap-2 sm:items-end">
           {recent ? (
-            <p className="flex items-center gap-2 rounded-xl border border-emerald-400/25 bg-emerald-400/[.08] px-4 py-2.5 text-sm text-emerald-200"><BadgeCheck size={16} /> We'll call you soon</p>
+            <p className="flex items-center gap-2 rounded-xl border border-emerald-400/25 bg-emerald-400/[.08] px-4 py-2.5 text-sm text-emerald-200"><BadgeCheck size={16} /> We&rsquo;ll call you soon</p>
           ) : (
             <button onClick={() => void request()} disabled={busy} className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-white px-5 text-sm font-semibold text-black transition hover:bg-violet-50 disabled:opacity-60">
               {busy ? <LoaderCircle size={16} className="animate-spin" /> : <PhoneCall size={16} />} Request a callback
