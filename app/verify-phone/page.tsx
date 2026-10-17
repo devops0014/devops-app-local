@@ -245,6 +245,7 @@ function InboundFlow({ initial, onVerified }: { initial: Status; onVerified: () 
   // Prepare the code as soon as consent is given so the WhatsApp button is a
   // plain link (one tap, never blocked as a pop-up).
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- prepare the code once consent is given
     if (consent && !started && !busy && !error) void start();
   }, [busy, consent, error, start, started]);
 

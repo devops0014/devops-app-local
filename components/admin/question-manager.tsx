@@ -88,7 +88,9 @@ export function QuestionManager() {
   const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
   const visibleQuestions = filtered.slice((page - 1) * pageSize, page * pageSize);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- back to page 1 when filters change
   useEffect(() => { setPage(1); }, [bankFilter, query]);
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- keep the page in range
   useEffect(() => { if (page > pageCount) setPage(pageCount); }, [page, pageCount]);
 
   const remove = async (question: AdminQuestion) => {

@@ -51,7 +51,8 @@ export function CourseCallout({ context, headline, compact = false }: { context:
     }
   };
 
-  const recent = requestedAt && Date.now() - Date.parse(requestedAt) < 7 * 24 * 60 * 60_000;
+  const [now] = useState(() => Date.now());
+  const recent = requestedAt && now - Date.parse(requestedAt) < 7 * 24 * 60 * 60_000;
 
   return (
     <section className={cn(

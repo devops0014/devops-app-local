@@ -96,6 +96,7 @@ function LeadsDashboard() {
     }
   }, [filters]);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- load data when filters change
   useEffect(() => { void load(); }, [load]);
 
   const choosePreset = (next: Preset) => {
@@ -414,6 +415,7 @@ function LeadDrawer({ lead, today, callers, canUpdate, onClose, onPatch, onNoteA
   useEffect(() => {
     if (!leadId) return;
     let active = true;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reset before fetching this lead
     setLoading(true);
     setError("");
     listLeadActivity(leadId)

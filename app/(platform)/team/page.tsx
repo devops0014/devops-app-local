@@ -29,6 +29,7 @@ function TeamManager() {
     catch (cause) { setMessage({ tone: "error", text: cause instanceof Error ? cause.message : "Could not load the team." }); }
     finally { setLoading(false); }
   };
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- load the team once
   useEffect(() => { void load(); }, []);
 
   const assign = async (targetEmail: string, targetRole: Role) => {

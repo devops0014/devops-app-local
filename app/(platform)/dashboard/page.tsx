@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { flameLevel } from "@/lib/streak";
 import {
@@ -74,8 +75,9 @@ export default function DashboardPage() {
   ];
 
   // Approximate the last 7 days from the current streak (today is the last box).
+  const [today] = useState(() => Date.now());
   const lastSevenDays = Array.from({ length: 7 }, (_, index) => {
-    const date = new Date(Date.now() - (6 - index) * 86_400_000);
+    const date = new Date(today - (6 - index) * 86_400_000);
     return { key: index, letter: date.toLocaleDateString("en-IN", { weekday: "narrow" }), done: 6 - index < streak };
   });
 

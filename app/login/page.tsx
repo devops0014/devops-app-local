@@ -88,6 +88,7 @@ export default function LoginPage() {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- read ?mode after hydration
     if (new URLSearchParams(window.location.search).get("mode") === "signup") setMode("signup");
   }, []);
 
