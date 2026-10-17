@@ -1384,3 +1384,103 @@ a {
     animation: none !important;
   }
 }
+
+/* ---------- Landing hero: 3D keycap tool picker ---------- */
+.kc-stage {
+  position: relative;
+  margin-top: 8px;
+  aspect-ratio: 560 / 430;
+  max-width: 100%;
+  perspective: 1500px;
+}
+.kc-board {
+  --kc-rx: 54deg;
+  --kc-rz: -32deg;
+  position: absolute;
+  left: 50%;
+  top: 54%;
+  width: 470px;
+  height: 360px;
+  margin: -180px 0 0 -235px;
+  transform-style: preserve-3d;
+  transform: scale(var(--kc-s, 1)) rotateX(calc(var(--kc-rx) + var(--kc-dy, 0deg))) rotateZ(calc(var(--kc-rz) + var(--kc-dx, 0deg)));
+}
+.kc-plate {
+  position: absolute;
+  inset: 0;
+  border-radius: 30px;
+  background: linear-gradient(145deg, #1f1b2d, #121119);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .06), 0 70px 110px rgba(0, 0, 0, .6), 0 0 120px rgba(124, 58, 237, .18);
+}
+.kc-keys {
+  position: absolute;
+  inset: 24px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 15px;
+  transform-style: preserve-3d;
+}
+.kc-cell, .kc-key { position: relative; transform-style: preserve-3d; }
+.kc-key { display: block; width: 100%; height: 100%; border-radius: 16px; outline: none; -webkit-tap-highlight-color: transparent; }
+.kc-side { position: absolute; inset: 0; border-radius: 16px; background: #2b2640; }
+.kc-top {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  transform: translateZ(26px);
+  background: linear-gradient(160deg, #ffffff, #e7e5f1);
+  box-shadow: inset 0 -5px 0 rgba(0, 0, 0, .08);
+  transition: transform .16s ease, background .2s ease, box-shadow .2s ease;
+}
+.kc-top img { width: 40px; height: 40px; transition: filter .2s ease; }
+.kc-letter {
+  position: absolute;
+  top: 7px;
+  left: 10px;
+  font: 600 11px/1 var(--font-mono);
+  color: #71717a;
+}
+.kc-key.is-on .kc-top {
+  transform: translateZ(8px);
+  background: linear-gradient(160deg, #ddd6fe, #8b5cf6);
+  box-shadow: 0 0 50px rgba(139, 92, 246, .9), inset 0 -5px 0 rgba(0, 0, 0, .12);
+}
+.kc-key.is-on .kc-upper { opacity: 0; }
+.kc-key.is-on .kc-top img, .kc-key.is-on .kc-top svg { filter: brightness(0) invert(1); }
+.kc-key.is-on .kc-letter { color: #fff; }
+.kc-key.is-pressed .kc-top { transform: translateZ(1px); transition-duration: .08s; }
+.kc-key.is-pressed .kc-side:not(:first-child) { opacity: 0; }
+.kc-key:focus-visible .kc-top { box-shadow: 0 0 0 3px #fff, 0 0 0 6px #8b5cf6; }
+.kc-tip {
+  position: absolute;
+  right: 4%;
+  top: 6%;
+  z-index: 2;
+  margin: 0;
+  border-radius: 14px;
+  background: #fff;
+  color: #18181b;
+  padding: 9px 14px;
+  font-size: 14px;
+  line-height: 1.35;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, .5);
+  pointer-events: none;
+}
+.kc-tip b { display: block; font-size: 16px; }
+.kc-hint { display: none; margin: 0; }
+@media (hover: hover) and (pointer: fine) { .kc-hint { display: block; } }
+/* Phones: flatter and bigger so keys are easy to tap. */
+@media (max-width: 640px) {
+  .kc-stage { aspect-ratio: 560 / 470; }
+  .kc-board { --kc-rx: 36deg; --kc-rz: -16deg; top: 56%; }
+  .kc-tip { top: 0; right: 0; font-size: 13px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kc-top { transition: none; }
+}

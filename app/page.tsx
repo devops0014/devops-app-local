@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type MouseEvent as ReactMouseEvent, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import {
@@ -40,20 +41,23 @@ const samples: Sample[] = [
   },
 ];
 
-/** Hero tool picker. `slug` matches the question bank category; `icon` is a file in /public/category-icons. */
-const interviewTools: { name: string; slug: string; icon?: string; color: string }[] = [
-  { name: "Linux", slug: "linux", icon: "linux", color: "#FCC624" },
-  { name: "Git", slug: "git", icon: "git", color: "#F05032" },
-  { name: "Docker", slug: "docker", icon: "docker", color: "#2496ED" },
-  { name: "Kubernetes", slug: "kubernetes", icon: "kubernetes", color: "#326CE5" },
-  { name: "Helm", slug: "helm", icon: "helm", color: "#277A9F" },
-  { name: "Terraform", slug: "terraform", icon: "terraform", color: "#844FBA" },
-  { name: "Ansible", slug: "ansible", icon: "ansible", color: "#EE0000" },
-  { name: "AWS", slug: "aws", color: "#FF9900" },
-  { name: "Jenkins", slug: "jenkins", icon: "jenkins", color: "#D24939" },
-  { name: "GitHub Actions", slug: "github-actions", icon: "githubactions", color: "#2088FF" },
-  { name: "ArgoCD", slug: "argocd", icon: "argo", color: "#EF7B4D" },
-  { name: "Prometheus", slug: "prometheus", icon: "prometheus", color: "#E6522C" },
+/**
+ * Hero tool picker. `slug` matches the question bank category; `icon` is a file in
+ * /public/category-icons; `key` is the keyboard shortcut shown on the keycap.
+ */
+const interviewTools: { name: string; slug: string; icon?: string; color: string; key: string }[] = [
+  { name: "Linux", slug: "linux", icon: "linux", color: "#FCC624", key: "L" },
+  { name: "Git", slug: "git", icon: "git", color: "#F05032", key: "G" },
+  { name: "Docker", slug: "docker", icon: "docker", color: "#2496ED", key: "D" },
+  { name: "Kubernetes", slug: "kubernetes", icon: "kubernetes", color: "#326CE5", key: "K" },
+  { name: "Helm", slug: "helm", icon: "helm", color: "#277A9F", key: "H" },
+  { name: "Terraform", slug: "terraform", icon: "terraform", color: "#844FBA", key: "T" },
+  { name: "Ansible", slug: "ansible", icon: "ansible", color: "#EE0000", key: "N" },
+  { name: "AWS", slug: "aws", color: "#FF9900", key: "A" },
+  { name: "Jenkins", slug: "jenkins", icon: "jenkins", color: "#D24939", key: "J" },
+  { name: "GitHub Actions", slug: "github-actions", icon: "githubactions", color: "#2088FF", key: "C" },
+  { name: "ArgoCD", slug: "argocd", icon: "argo", color: "#EF7B4D", key: "R" },
+  { name: "Prometheus", slug: "prometheus", icon: "prometheus", color: "#E6522C", key: "P" },
 ];
 
 export default function LandingPage() {
@@ -126,33 +130,143 @@ function Hero() {
   );
 }
 
-/** The hero: "What's your interview on?" — one tap opens sign-up for that topic. */
+/**
+ * The hero: "What's your interview on?" as a 3D board of keycaps. One tap (or the
+ * key's letter, then Enter) opens sign-up with that topic remembered.
+ */
 function ToolPicker() {
+  const reduced = useReducedMotion();
+  const router = useRouter();
+  const stageRef = useRef<HTMLDivElement>(null);
+  const boardRef = useRef<HTMLDivElement>(null);
+  const keyRefs = useRef<(HTMLAnchorElement | null)[]>([]);
+  const [active, setActive] = useState(3);
+  const [pressed, setPressed] = useState<number | null>(null);
+  const [paused, setPaused] = useState(false);
   const pick = (slug: string) => rememberInterestTopic(slug);
+
+  // When nobody is interacting, light the keys one after another.
+  useEffect(() => {
+    if (reduced || paused) return;
+    const timer = window.setInterval(() => setActive((index) => (index + 1) % interviewTools.length), 1600);
+    return () => window.clearInterval(timer);
+  }, [reduced, paused]);
+
+  // Fit the fixed-size board to the stage, and tilt it toward the pointer (or the phone's tilt).
+  useEffect(() => {
+    const stage = stageRef.current;
+    const board = boardRef.current;
+    if (!stage || !board) return;
+    const fit = () => board.style.setProperty("--kc-s", String(Math.min(1.08, stage.clientWidth / 560)));
+    const observer = new ResizeObserver(fit);
+    observer.observe(stage);
+    fit();
+    if (reduced) return () => observer.disconnect();
+
+    const target = { x: 0, y: 0 };
+    const current = { x: 0, y: 0 };
+    let pointerActive = false;
+    const onMove = (event: PointerEvent) => {
+      if (event.pointerType !== "mouse") return;
+      const rect = stage.getBoundingClientRect();
+      target.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      target.y = ((event.clientY - rect.top) / rect.height) * 2 - 1;
+      pointerActive = true;
+    };
+    const onLeave = () => { target.x = 0; target.y = 0; pointerActive = false; };
+    const onTilt = (event: DeviceOrientationEvent) => {
+      if (event.gamma == null || event.beta == null) return;
+      target.x = Math.max(-1, Math.min(1, event.gamma / 30));
+      target.y = Math.max(-1, Math.min(1, (event.beta - 45) / 30));
+      pointerActive = true;
+    };
+    stage.addEventListener("pointermove", onMove);
+    stage.addEventListener("pointerleave", onLeave);
+    window.addEventListener("deviceorientation", onTilt);
+    const start = performance.now();
+    let frame = 0;
+    const tick = (now: number) => {
+      current.x += (target.x - current.x) * 0.08;
+      current.y += (target.y - current.y) * 0.08;
+      const idle = pointerActive ? 0 : Math.sin((now - start) / 1700);
+      board.style.setProperty("--kc-dx", `${(current.x * 10 + idle * 4).toFixed(2)}deg`);
+      board.style.setProperty("--kc-dy", `${(-current.y * 8 + idle * 2.5).toFixed(2)}deg`);
+      frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(frame);
+      stage.removeEventListener("pointermove", onMove);
+      stage.removeEventListener("pointerleave", onLeave);
+      window.removeEventListener("deviceorientation", onTilt);
+    };
+  }, [reduced]);
+
+  // Type a tool's letter to light its key; Enter then opens it.
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+      const target = event.target as HTMLElement | null;
+      if (target && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))) return;
+      const index = interviewTools.findIndex((tool) => tool.key === event.key.toUpperCase());
+      if (index < 0) return;
+      setPaused(true);
+      setActive(index);
+      keyRefs.current[index]?.focus({ preventScroll: true });
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  const open = (event: ReactMouseEvent<HTMLAnchorElement>, index: number, slug: string) => {
+    pick(slug);
+    if (event.metaKey || event.ctrlKey || event.shiftKey || reduced) return;
+    // Let the key visibly sink before leaving the page.
+    event.preventDefault();
+    setPressed(index);
+    window.setTimeout(() => router.push(SIGNUP), 170);
+  };
+
+  const tool = interviewTools[active];
   return (
-    <div className="rounded-[22px] border border-white/[.09] bg-[#111113] p-5 shadow-[0_30px_100px_rgba(0,0,0,.45)] sm:p-6">
+    <div>
       <h2 className="text-xl font-semibold tracking-[-.02em] text-white">What&rsquo;s your interview on?</h2>
-      <p className="mt-1 text-sm text-zinc-400">Pick a tool and start with its questions.</p>
-      <ul className="mt-5 grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-2.5">
-        {interviewTools.map((tool) => (
-          <li key={tool.slug}>
-            <Link
-              href={SIGNUP}
-              onClick={() => pick(tool.slug)}
-              className="group flex aspect-square flex-col items-center justify-center gap-2 rounded-2xl border border-white/[.08] bg-white/[.02] p-2 text-center transition hover:-translate-y-0.5 focus-visible:-translate-y-0.5"
-              style={{ ["--tool" as string]: tool.color }}
-            >
-              <span className="grid size-11 place-items-center rounded-xl bg-white shadow-[0_6px_20px_rgba(0,0,0,.25)] transition group-hover:shadow-[0_0_0_3px_var(--tool)] sm:size-12">
-                {tool.icon
-                  ? <img src={`/category-icons/${tool.icon}.svg`} alt="" width={26} height={26} className="size-6 sm:size-7" />
-                  : <Cloud size={24} style={{ color: tool.color }} aria-hidden />}
-              </span>
-              <span className="text-[13px] font-medium leading-tight text-zinc-200 group-hover:text-white">{tool.name}</span>
-            </Link>
-          </li>
-        ))}
-      </ul>
-      <p className="mt-4 text-sm text-zinc-500">Plus Nginx, Grafana, Python and more inside.</p>
+      <p className="mt-1 text-sm text-zinc-400">Press a key to start with its questions.</p>
+      <div ref={stageRef} className="kc-stage" onPointerEnter={() => setPaused(true)} onPointerLeave={() => setPaused(false)}>
+        <p className="kc-tip" aria-live="polite"><b>{tool.name}</b> Start with these questions</p>
+        <div ref={boardRef} className="kc-board">
+          <div className="kc-plate" />
+          <ul className="kc-keys">
+            {interviewTools.map((item, index) => (
+              <li key={item.slug} className="kc-cell">
+                <Link
+                  ref={(node) => { keyRefs.current[index] = node; }}
+                  href={SIGNUP}
+                  onClick={(event) => open(event, index, item.slug)}
+                  onPointerEnter={() => setActive(index)}
+                  onFocus={() => setActive(index)}
+                  className={cn("kc-key", index === active && "is-on", index === pressed && "is-pressed")}
+                  aria-label={`${item.name} interview questions`}
+                  aria-keyshortcuts={item.key}
+                >
+                  {Array.from({ length: 7 }, (_, slice) => (
+                    <i key={slice} className={cn("kc-side", slice >= 3 && "kc-upper")} style={{ transform: `translateZ(${slice * 3.6}px)`, filter: `brightness(${0.7 + slice * 0.045})` }} />
+                  ))}
+                  <span className="kc-top">
+                    {item.icon
+                      ? <img src={`/category-icons/${item.icon}.svg`} alt="" width={40} height={40} />
+                      : <Cloud size={34} style={{ color: item.color }} aria-hidden />}
+                    <span className="kc-letter" aria-hidden>{item.key}</span>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+      <p className="kc-hint text-sm text-zinc-500">Tip: press K for Kubernetes or D for Docker.</p>
+      <p className="mt-1 text-sm text-zinc-500">Plus Nginx, Grafana, Python and more inside.</p>
     </div>
   );
 }
