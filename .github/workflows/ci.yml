@@ -33,5 +33,8 @@ jobs:
         if: failure()
         shell: bash
         run: |
-          grep -nE "not ok|Error|error|failed|✖" quality-gate.log | grep -v "warning" | tail -25 | while IFS= read -r line; do echo "::error title=Quality gate::${line}"; done
-          tail -40 quality-gate.log | while IFS= read -r line; do echo "::error title=Log tail::${line}"; done
+          # One annotation each (GitHub shows at most 10 per step): failing files + messages, then the log tail.
+          summary=$(grep -E "^/|^ +[0-9]+:[0-9]+ +error|not ok|^Error|ERR!" quality-gate.log | sed "s#$GITHUB_WORKSPACE/##" | tail -60)
+          echo "::error title=Failures::${summary//$'\n'/%0A}"
+          tail_lines=$(tail -40 quality-gate.log | sed "s#$GITHUB_WORKSPACE/##")
+          echo "::error title=Log tail::${tail_lines//$'\n'/%0A}"
