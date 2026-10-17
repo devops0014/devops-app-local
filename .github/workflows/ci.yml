@@ -24,4 +24,14 @@ jobs:
           node-version: 22.13.0
           cache: npm
       - run: npm ci
-      - run: npm run test:ci
+      - name: Run quality gate
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run test:ci 2>&1 | tee quality-gate.log
+      - name: Show why the quality gate failed
+        if: failure()
+        shell: bash
+        run: |
+          grep -nE "not ok|Error|error|failed|✖" quality-gate.log | grep -v "warning" | tail -25 | while IFS= read -r line; do echo "::error title=Quality gate::${line}"; done
+          tail -40 quality-gate.log | while IFS= read -r line; do echo "::error title=Log tail::${line}"; done
