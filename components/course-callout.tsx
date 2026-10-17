@@ -27,6 +27,7 @@ async function call(method: "GET" | "POST", body?: unknown) {
 export function CourseCallout({ context, headline, compact = false }: { context: string; headline?: string; compact?: boolean }) {
   const { profile } = useCurrentUser();
   const [requestedAt, setRequestedAt] = useState<string | null>(null);
+  const [now] = useState(() => Date.now());
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const isStudent = profile?.role === "student" && Boolean(supabase);
@@ -51,7 +52,6 @@ export function CourseCallout({ context, headline, compact = false }: { context:
     }
   };
 
-  const [now] = useState(() => Date.now());
   const recent = requestedAt && now - Date.parse(requestedAt) < 7 * 24 * 60 * 60_000;
 
   return (
