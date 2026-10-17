@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { LoaderCircle } from "lucide-react";
+import { Skeleton } from "@/components/ui";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase/client";
 import { asRole, can, isStaff, type Permission } from "@/lib/rbac";
 
@@ -65,9 +65,15 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
   if (!ready) {
     return (
       <div className="grid min-h-[calc(100vh-72px)] place-items-center">
-        <div className="text-center">
-          <LoaderCircle size={24} className="mx-auto animate-spin text-violet-400" />
-          <p className="mt-3 text-xs text-zinc-600">Loading your workspace…</p>
+        <div role="status" aria-label="Loading your workspace" className="w-full max-w-[1100px] space-y-5 self-start px-4 py-8 sm:px-6 lg:px-8">
+          <Skeleton className="h-8 w-64" />
+          <Skeleton className="h-4 w-80 max-w-full" />
+          <div className="grid gap-4 sm:grid-cols-3">
+            <Skeleton className="h-28 rounded-2xl" />
+            <Skeleton className="h-28 rounded-2xl" />
+            <Skeleton className="h-28 rounded-2xl" />
+          </div>
+          <Skeleton className="h-64 rounded-2xl" />
         </div>
       </div>
     );

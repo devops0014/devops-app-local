@@ -80,7 +80,7 @@ export default function LeaderboardPage() {
       </div>
 
       <Card className="mt-4 overflow-hidden">
-        <div className="grid grid-cols-[48px_1fr_90px_70px] border-b border-white/[.06] px-4 py-3 text-xs font-medium uppercase tracking-wider text-zinc-700 sm:grid-cols-[60px_1fr_120px_100px_130px]">
+        <div className="grid grid-cols-[48px_1fr_90px_70px] border-b border-white/[.06] px-4 py-3 text-sm font-medium text-zinc-500 sm:grid-cols-[60px_1fr_120px_100px_130px]">
           <span>Rank</span><span>Learner</span><span>XP</span><span>Streak</span><span className="hidden sm:block">Level</span>
         </div>
         {!loading && !filtered.length && (

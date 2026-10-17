@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Activity, Download, Laptop, LoaderCircle, UsersRound } from "lucide-react";
-import { Badge, Button, Card } from "@/components/ui";
+import { Activity, Download, Laptop, UsersRound } from "lucide-react";
+import { Badge, Button, Card, SkeletonRows } from "@/components/ui";
 import { getAdminOverview, type AdminLog, type AdminStudent } from "@/lib/repositories/admin-repository";
 
 export function PlatformManager({ mode, query = "" }: { mode: "students" | "audit"; query?: string }) {
@@ -27,7 +27,7 @@ export function PlatformManager({ mode, query = "" }: { mode: "students" | "audi
       && statusMatch && bandMatch;
   }), [students, term, status, scoreBand]);
   const visibleLogs = useMemo(() => logs.filter((item) => !term || `${item.action} ${item.entity_type} ${item.profiles?.email}`.toLowerCase().includes(term)), [logs, term]);
-  if (loading) return <Card className="mt-4 grid min-h-64 place-items-center"><LoaderCircle className="animate-spin text-violet-400" /></Card>;
+  if (loading) return <Card className="mt-4 overflow-hidden"><SkeletonRows rows={5} /></Card>;
   if (error) return <p className="mt-4 rounded-xl border border-rose-400/15 bg-rose-400/[.05] p-4 text-xs text-rose-300">{error}</p>;
   if (mode === "audit") return <Card className="mt-4 overflow-hidden">
     {visibleLogs.length ? visibleLogs.map((log) => <div key={log.id} className="flex items-start gap-3 border-b border-white/[.05] p-4 last:border-0"><span className="grid size-9 shrink-0 place-items-center rounded-xl bg-violet-400/10 text-violet-300"><Activity size={15} /></span><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><p className="text-xs font-medium">{humanize(log.action)}</p><Badge>{log.entity_type}</Badge></div><p className="mt-1 text-xs text-zinc-600">{log.profiles?.name || log.profiles?.email || "System administrator"} · {new Date(log.created_at).toLocaleString()}</p></div></div>) : <Empty label="No admin activity has been recorded yet." />}

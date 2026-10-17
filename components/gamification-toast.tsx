@@ -44,7 +44,7 @@ export function GamificationToast() {
               <Award size={23} />
             </motion.span>
             <div className="min-w-0 flex-1">
-              <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[.16em] text-amber-300"><Sparkles size={11} /> Badge unlocked</p>
+              <p className="flex items-center gap-1.5 text-sm font-medium text-amber-300"><Sparkles size={11} /> Badge unlocked</p>
               <p className="mt-1 truncate text-sm font-semibold">{badgeNames[badge] ?? badge}</p>
               <p className="mt-1 text-xs text-zinc-500">Your achievement is now part of your profile.</p>
             </div>

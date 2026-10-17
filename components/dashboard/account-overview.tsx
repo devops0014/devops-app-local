@@ -37,17 +37,17 @@ export function AccountOverview() {
   return <section className="mt-6 grid gap-3 xl:grid-cols-[.85fr_1.15fr_1fr]">
     <Card className="bg-gradient-to-br from-violet-500/[.11] to-transparent p-5">
       <div className="flex items-center justify-between"><span className="grid size-10 place-items-center rounded-xl bg-violet-400/10 text-violet-300"><BadgeCheck size={18} /></span><Link href="/practice" className="text-xs text-violet-300">Start practising</Link></div>
-      <p className="mt-5 text-xs uppercase tracking-[.16em] text-zinc-600">Your access</p>
+      <p className="mt-5 text-sm text-zinc-400">Your access</p>
       <h2 className="mt-1 text-lg font-semibold">Free · Full access</h2>
       <p className="mt-3 text-xs text-zinc-500">Question bank, quizzes and flashcards are free for everyone.</p>
     </Card>
     <Card className="p-5">
-      <div className="flex items-center justify-between"><p className="text-xs uppercase tracking-[.16em] text-zinc-600">Study activity</p><BookOpenCheck size={15} className="text-cyan-300" /></div>
+      <div className="flex items-center justify-between"><p className="text-sm text-zinc-400">Study activity</p><BookOpenCheck size={15} className="text-cyan-300" /></div>
       <div className="mt-3"><div className="mb-1.5 flex justify-between text-xs"><span className="text-zinc-400">Questions mastered</span><span>{mastered} / {touched} attempted</span></div><ProgressBar value={masteredPercent} /></div>
       <p className="mt-4 text-xs text-zinc-400">{reviewed} flashcards reviewed · {data.quizzes.length} recent quizzes</p>
     </Card>
     <Card className="p-5">
-      <div className="flex items-center justify-between"><p className="text-xs uppercase tracking-[.16em] text-zinc-600">Secure devices</p><Laptop size={15} className="text-emerald-300" /></div>
+      <div className="flex items-center justify-between"><p className="text-sm text-zinc-400">Secure devices</p><Laptop size={15} className="text-emerald-300" /></div>
       <p className="mt-3 text-xl font-semibold">{data.sessions.length} <span className="text-xs font-normal text-zinc-600">/ 2 active</span></p>
       <div className="mt-3 space-y-2">{data.sessions.slice(0,2).map((session) => <div key={session.id} className="flex items-center justify-between text-xs"><span className="text-zinc-300">{session.device_name} · {session.browser}</span><span className="text-zinc-700">{new Date(session.last_active).toLocaleDateString()}</span></div>)}</div>
     </Card>

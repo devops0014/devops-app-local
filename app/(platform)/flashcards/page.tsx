@@ -14,7 +14,8 @@ import {
 } from "lucide-react";
 import { AnimatePresence, motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "framer-motion";
 import ReactMarkdown from "react-markdown";
-import { Badge, Button, Card, ProgressBar } from "@/components/ui";
+import Link from "next/link";
+import { Badge, Button, Card, ProgressBar, Skeleton } from "@/components/ui";
 import { useContentCatalog } from "@/lib/hooks/use-content-catalog";
 import type { Question } from "@/lib/types";
 import { difficultyTone } from "@/lib/utils";
@@ -83,7 +84,7 @@ function SwipeCard({
             </>
           ) : (
             <motion.div initial={{ opacity: 0, rotateY: -90, scale: 0.96 }} animate={{ opacity: 1, rotateY: 0, scale: 1 }} transition={{ type: "spring", stiffness: 150, damping: 18 }} className="mx-auto max-h-[330px] max-w-xl overflow-y-auto text-left">
-              <p className="mb-4 text-center text-xs font-semibold uppercase tracking-[.15em] text-violet-400">Expert answer</p>
+              <p className="mb-4 text-center text-sm font-medium text-violet-400">Expert answer</p>
               <ReactMarkdown components={{
                 p: ({ children }) => <p className="mb-4 text-sm leading-7 text-zinc-300">{children}</p>,
                 ol: ({ children }) => <ol className="ml-5 list-decimal space-y-2 text-sm leading-6 text-zinc-300">{children}</ol>,
@@ -103,7 +104,7 @@ function SwipeCard({
 }
 
 export default function FlashcardsPage() {
-  const { questions } = useContentCatalog();
+  const { questions, loading } = useContentCatalog();
   const reviews = useAppStore((state) => state.flashcardReviews);
   const recordReview = useAppStore((state) => state.recordFlashcardReview);
   const [sessionStartedAt] = useState(() => Date.now());
@@ -147,7 +148,7 @@ export default function FlashcardsPage() {
     <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[.17em] text-violet-400">Active recall</p>
+          <p className="text-sm font-medium text-violet-400">Active recall</p>
           <h1 className="mt-1 text-2xl font-semibold tracking-[-.04em] sm:text-3xl">Daily flashcards</h1>
           <p className="mt-2 text-xs text-zinc-500">A focused mixed-topic deck selected from your revision list.</p>
           <p className="mt-2 text-xs text-cyan-400">{dueCount} cards due now · spaced repetition active</p>
@@ -161,12 +162,27 @@ export default function FlashcardsPage() {
 
       <div className="mt-6">
         <div className="flex items-center gap-3">
-          <ProgressBar value={(Math.min(index, deck.length) / deck.length) * 100} className="flex-1" />
-          <span className="text-xs text-zinc-600">{Math.round((Math.min(index, deck.length) / deck.length) * 100)}%</span>
+          <ProgressBar value={(deck.length ? (Math.min(index, deck.length) / deck.length) * 100 : 0)} className="flex-1" />
+          <span className="text-xs text-zinc-600">{Math.round((deck.length ? (Math.min(index, deck.length) / deck.length) * 100 : 0))}%</span>
         </div>
       </div>
 
-      {!complete ? (
+      {!deck.length ? (
+        loading ? (
+          <div role="status" aria-label="Loading flashcards" className="mx-auto mt-7 max-w-3xl">
+            <Skeleton className="h-[520px] w-full rounded-3xl" />
+          </div>
+        ) : (
+          <Card className="mx-auto mt-10 grid max-w-2xl place-items-center p-10 text-center">
+            <div>
+              <span className="mx-auto grid size-16 place-items-center rounded-[22px] bg-violet-400/10 text-violet-300"><Sparkles size={26} /></span>
+              <h2 className="mt-5 text-xl font-semibold">Your deck is getting ready</h2>
+              <p className="mt-2 text-sm leading-6 text-zinc-400">Questions haven&rsquo;t been added yet. Check back soon, or browse the question bank in the meantime.</p>
+              <Link href="/practice" className="mt-5 inline-flex h-11 items-center rounded-xl bg-violet-500 px-5 text-sm font-semibold text-white hover:bg-violet-400">Open the question bank</Link>
+            </div>
+          </Card>
+        )
+      ) : !complete ? (
         <div className="mx-auto mt-7 max-w-3xl">
           <div className="relative h-[560px] sm:h-[520px]">
             <div className="absolute inset-x-10 bottom-[-22px] top-6 rounded-3xl border border-violet-400/[.05] bg-[#0c0c10] shadow-[0_30px_60px_rgba(0,0,0,.35)]" />

@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
+import { flameLevel } from "@/lib/streak";
 import {
   ArrowRight,
   BookOpenCheck,
@@ -27,11 +28,14 @@ import { OrbitalProgress, SpatialCard } from "@/components/spatial-card";
 import { useAppStore } from "@/lib/store";
 import { AccountOverview } from "@/components/dashboard/account-overview";
 import { CourseCallout } from "@/components/course-callout";
+import { StartHere } from "@/components/dashboard/start-here";
 import { useCurrentUser } from "@/lib/hooks/use-current-user";
 
 export default function DashboardPage() {
-  const { xp, level, levelName, streak, bestStreak, progress, quizAttempts, flashcardReviews } = useAppStore();
-  const { questions, categories: contentCategories } = useContentCatalog();
+  const { xp, level, levelName, streak, bestStreak, progress, quizAttempts, flashcardReviews, cloudStatus } = useAppStore();
+  const reduceMotion = useReducedMotion();
+  const flame = flameLevel(streak);
+  const { questions, categories: contentCategories, loading: catalogLoading } = useContentCatalog();
   const { profile } = useCurrentUser();
   const firstName = profile?.name?.split(/\s+/)[0] ?? "Student";
   const solved = Object.values(progress).filter((item) => item.status !== "Not Started").length;
@@ -69,6 +73,32 @@ export default function DashboardPage() {
     { label: "Hours practiced", value: `${(practiceSeconds / 3600).toFixed(1)}h`, delta: `${Object.keys(flashcardReviews).length} flashcards`, icon: Clock3, gradient: "from-emerald-500/14 to-emerald-500/[.02]", iconClass: "bg-emerald-400/10 text-emerald-300" },
   ];
 
+  // Approximate the last 7 days from the current streak (today is the last box).
+  const lastSevenDays = Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(Date.now() - (6 - index) * 86_400_000);
+    return { key: index, letter: date.toLocaleDateString("en-IN", { weekday: "narrow" }), done: 6 - index < streak };
+  });
+
+  // Brand-new student: one clear next step instead of a dashboard full of zeros.
+  const isNewStudent = solved === 0 && quizAttempts.length === 0 && Object.keys(flashcardReviews).length === 0;
+  if (isNewStudent && cloudStatus === "connecting") {
+    // Still loading saved progress: don't flash the welcome screen at returning students.
+    return (
+      <div className="mx-auto max-w-[1100px] px-4 py-6 sm:px-6 lg:px-8 lg:py-10" aria-busy="true">
+        <div className="h-64 animate-pulse rounded-[26px] bg-white/[.04]" />
+        <div className="mt-6 grid gap-3 sm:grid-cols-2"><div className="h-20 animate-pulse rounded-2xl bg-white/[.04]" /><div className="h-20 animate-pulse rounded-2xl bg-white/[.04]" /></div>
+      </div>
+    );
+  }
+  if (isNewStudent) {
+    return (
+      <div className="relative mx-auto max-w-[1100px] px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
+        <StartHere firstName={firstName} categories={contentCategories} loading={catalogLoading} />
+        <div className="mt-10"><CourseCallout context="dashboard-new" /></div>
+      </div>
+    );
+  }
+
   return (
     <div className="relative mx-auto max-w-[1500px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
       <div className="cinematic-grid pointer-events-none absolute inset-0 opacity-25" />
@@ -76,33 +106,39 @@ export default function DashboardPage() {
         <div className="absolute -right-6 -top-10 size-28 rounded-full bg-cyan-400/10 blur-2xl" />
         <div className="relative flex items-center gap-3">
           <span className="grid size-10 place-items-center rounded-xl border border-violet-400/20 bg-violet-400/10 text-violet-300"><Zap size={19} fill="currentColor" /></span>
-          <div><p className="text-xs font-semibold uppercase tracking-[.16em] text-zinc-500">Total XP</p><p className="mt-0.5 text-xl font-semibold tracking-tight">{xp.toLocaleString()} <span className="text-xs text-violet-300">XP</span></p></div>
+          <div><p className="text-sm font-medium text-zinc-500">Total XP</p><p className="mt-0.5 text-xl font-semibold tracking-tight">{xp.toLocaleString()} <span className="text-xs text-violet-300">XP</span></p></div>
         </div>
         <div className="relative text-right"><p className="text-xs font-semibold">Level {level}</p><p className="mt-1 text-xs text-zinc-500">{levelName}</p></div>
       </section>
       <section className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
         <div className="relative">
-          <p className="mb-2 flex items-center gap-2 font-mono text-[11px] uppercase tracking-[.18em] text-emerald-400"><span className="size-1.5 animate-pulse rounded-full bg-emerald-400" /> Command centre online</p>
-          <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2">
             <h1 className="text-2xl font-semibold tracking-[-.04em] sm:text-3xl">Welcome back, {firstName}</h1>
             <span className="text-2xl">👋</span>
           </div>
-          <p className="mt-2 text-xs text-zinc-500">You’re 18 questions away from today’s goal. Keep the momentum going.</p>
+          <p className="mt-2 text-sm text-zinc-400">{streak > 0 ? `You're on a ${streak}-day streak. Practise today to keep it going.` : "Answer a few questions today to start a streak."}</p>
         </div>
         <div className="relative flex items-center gap-3 overflow-hidden rounded-2xl border border-amber-400/15 bg-amber-400/[.055] px-4 py-3 shadow-[0_18px_60px_rgba(245,158,11,.07)]">
           <div className="absolute -left-8 -top-8 size-24 rounded-full bg-amber-400/10 blur-2xl" />
-          <motion.span animate={{ filter: ["drop-shadow(0 0 2px #f59e0b)", "drop-shadow(0 0 12px #f59e0b)", "drop-shadow(0 0 2px #f59e0b)"] }} transition={{ duration: 1.8, repeat: Infinity }} className="relative grid size-9 place-items-center rounded-xl bg-amber-400/10 text-amber-300"><Flame size={19} fill="currentColor" /></motion.span>
+          <motion.span
+            animate={flame.level && !reduceMotion ? { filter: ["drop-shadow(0 0 2px #f59e0b)", `drop-shadow(0 0 ${flame.glow}px #f59e0b)`, "drop-shadow(0 0 2px #f59e0b)"], scale: [1, 1 + flame.level * 0.03, 1] } : undefined}
+            transition={{ duration: 1.8, repeat: Infinity }}
+            className={`relative grid size-11 place-items-center rounded-xl ${flame.level ? "bg-amber-400/10 text-amber-300" : "bg-white/[.05] text-zinc-500"} ${flame.level >= 3 ? "text-orange-300" : ""}`}
+          >
+            <Flame size={flame.size} fill={flame.level ? "currentColor" : "none"} />
+          </motion.span>
           <div>
-            <p className="text-xs font-semibold">{streak} day streak</p>
-            <p className="text-xs text-zinc-500">Personal best: {bestStreak} days</p>
+            <p className="text-sm font-semibold">{streak} day streak</p>
+            <p className="text-xs text-zinc-400">{flame.label}{bestStreak > streak ? ` · best ${bestStreak}` : ""}</p>
           </div>
           <div className="ml-2 flex gap-1">
-            {[1, 1, 1, 1, 1, 1, 0].map((done, index) => (
+            {lastSevenDays.map((day) => (
               <span
-                key={index}
-                className={`grid size-5 place-items-center rounded-md text-[11px] ${done ? "bg-amber-400/15 text-amber-300" : "bg-white/[.05] text-zinc-700"}`}
+                key={day.key}
+                title={day.done ? "Practised" : "No practice"}
+                className={`grid size-5 place-items-center rounded-md text-[11px] ${day.done ? "bg-amber-400/15 text-amber-300" : "bg-white/[.05] text-zinc-500"}`}
               >
-                {done ? <Check size={10} /> : "S"}
+                {day.done ? <Check size={10} /> : day.letter}
               </span>
             ))}
           </div>
@@ -117,7 +153,7 @@ export default function DashboardPage() {
             <SpatialCard glow={index === 0 ? "violet" : index === 1 ? "cyan" : index === 2 ? "amber" : "emerald"} className={`relative min-h-[144px] bg-gradient-to-br ${stat.gradient} p-5`}>
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-xs font-medium uppercase tracking-[.12em] text-zinc-600">{stat.label}</p>
+                  <p className="text-sm font-medium text-zinc-400">{stat.label}</p>
                   <p className="mt-3 text-2xl font-semibold tracking-tight">{stat.value}</p>
                   <p className="mt-2 flex items-center gap-1 text-xs text-zinc-500"><TrendingUp size={11} className="text-emerald-400" /> {stat.delta}</p>
                 </div>
@@ -133,10 +169,10 @@ export default function DashboardPage() {
         <SpatialCard glow="violet" className="overflow-hidden">
           <div className="flex items-center justify-between border-b border-white/[.07] p-5">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[.15em] text-violet-400">Continue learning</p>
+              <p className="text-sm font-medium text-violet-400">Continue learning</p>
               <h2 className="mt-1 text-base font-semibold">{continueQuestion ? `${continueQuestion.category} interview preparation` : "Start your first learning session"}</h2>
             </div>
-            <span className="rounded-full border border-white/[.08] bg-white/[.04] px-2.5 py-1 text-xs text-zinc-500">Hard · 12 min</span>
+            <span className="rounded-full border border-white/[.08] bg-white/[.04] px-2.5 py-1 text-xs text-zinc-500">{continuePercent}% mastered</span>
           </div>
           <div className="grid gap-6 p-5 md:grid-cols-[1fr_220px] md:items-center">
             <div>

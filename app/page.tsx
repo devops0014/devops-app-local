@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import {
@@ -252,34 +252,47 @@ function TryQuestion() {
 }
 
 function Tools() {
+  const reduced = useReducedMotion();
   const tools = [
     {
       icon: BookOpenCheck, name: "Question bank",
       copy: "Questions grouped by tool and difficulty, each with a clear answer. Mark what you've mastered, bookmark what to revise and add your own notes.",
-      preview: <PreviewRow left="What's the difference between a Deployment and a StatefulSet?" right="Mastered" tone="emerald" />,
+      screen: <QuestionScreen />,
     },
     {
       icon: Timer, name: "Quizzes",
-      copy: "Timed and classic quizzes across one topic or many. Get your score and a review of every answer, earn XP and keep your streak going.",
-      preview: <PreviewRow left="Kubernetes · 20 questions · 14 min" right="17/20" tone="violet" />,
+      copy: "Timed and classic quizzes across one topic or many. See right and wrong instantly, then review every answer at the end.",
+      screen: <QuizScreen />,
     },
     {
       icon: Layers, name: "Flashcards",
       copy: "Flip through cards before an interview. Anything you don't know comes back sooner, so revision time goes where you need it.",
-      preview: <PreviewRow left="What does terraform plan -out do?" right="Again tomorrow" tone="amber" />,
+      screen: <FlashcardScreen />,
     },
   ];
   return (
     <section id="tools" className="scroll-mt-20 border-b border-white/[.06] py-16 sm:py-20">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <h2 className="max-w-xl text-3xl font-semibold tracking-[-.03em] text-white sm:text-4xl">Three ways to prepare, all free</h2>
-        <div className="mt-10 divide-y divide-white/[.07] border-y border-white/[.07]">
-          {tools.map((tool) => (
-            <div key={tool.name} className="grid gap-4 py-7 md:grid-cols-[220px_1fr_1fr] md:items-center md:gap-8">
-              <h3 className="flex items-center gap-3 text-xl font-semibold text-white"><tool.icon size={22} className="text-violet-300" /> {tool.name}</h3>
-              <p className="text-[15px] leading-7 text-zinc-300">{tool.copy}</p>
-              {tool.preview}
-            </div>
+        <p className="mt-3 max-w-xl text-[15px] leading-7 text-zinc-400">This is what you get inside. No trial, no card, nothing locked.</p>
+        <div className="mt-10 grid gap-5 md:grid-cols-3">
+          {tools.map((tool, index) => (
+            <motion.article
+              key={tool.name}
+              initial={reduced ? false : { opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.45, delay: index * 0.08, ease: "easeOut" }}
+              className="flex flex-col overflow-hidden rounded-[22px] border border-white/[.08] bg-[#111113]"
+            >
+              <div aria-hidden className="relative h-[262px] overflow-hidden border-b border-white/[.06] bg-[radial-gradient(120%_90%_at_50%_0%,rgba(139,92,246,.16),transparent_70%)] px-5 pt-5">
+                {tool.screen}
+              </div>
+              <div className="p-5">
+                <h3 className="flex items-center gap-2.5 text-lg font-semibold text-white"><tool.icon size={20} className="text-violet-300" /> {tool.name}</h3>
+                <p className="mt-2 text-[15px] leading-7 text-zinc-300">{tool.copy}</p>
+              </div>
+            </motion.article>
           ))}
         </div>
       </div>
@@ -287,13 +300,79 @@ function Tools() {
   );
 }
 
-function PreviewRow({ left, right, tone }: { left: string; right: string; tone: "emerald" | "violet" | "amber" }) {
-  const tones = { emerald: "text-emerald-300 bg-emerald-400/10", violet: "text-violet-200 bg-violet-400/10", amber: "text-amber-200 bg-amber-400/10" };
+/** Code-drawn previews of the real screens (no screenshots to keep up to date). */
+function ScreenFrame({ children }: { children: ReactNode }) {
   return (
-    <div aria-hidden className="flex items-center gap-3 rounded-xl border border-white/[.07] bg-[#111113] px-4 py-3">
-      <span className="min-w-0 flex-1 truncate text-sm text-zinc-300">{left}</span>
-      <span className={cn("shrink-0 rounded-full px-2.5 py-1 text-xs font-medium", tones[tone])}>{right}</span>
+    <div className="mx-auto h-full max-w-[300px] rounded-t-2xl border border-b-0 border-white/[.1] bg-[#0c0c0e] p-4 shadow-[0_-10px_50px_rgba(0,0,0,.4)]">
+      {children}
     </div>
+  );
+}
+
+function QuestionScreen() {
+  return (
+    <ScreenFrame>
+      <div className="flex items-center gap-2 text-xs">
+        <span className="rounded-full bg-sky-400/10 px-2 py-0.5 font-medium text-sky-200">Kubernetes</span>
+        <span className="rounded-full bg-amber-400/10 px-2 py-0.5 text-amber-200">Medium</span>
+      </div>
+      <p className="mt-3 text-sm font-medium leading-6 text-white">Deployment vs StatefulSet: when do you need a StatefulSet?</p>
+      <div className="mt-3 space-y-1.5">
+        <span className="block h-2 w-full rounded-full bg-white/[.08]" />
+        <span className="block h-2 w-11/12 rounded-full bg-white/[.08]" />
+        <span className="block h-2 w-3/4 rounded-full bg-white/[.08]" />
+      </div>
+      <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
+        <span className="flex h-8 items-center justify-center gap-1 rounded-lg bg-emerald-400/15 font-medium text-emerald-200"><Check size={13} /> Mastered</span>
+        <span className="flex h-8 items-center justify-center rounded-lg border border-white/[.1] text-zinc-300">Revise later</span>
+      </div>
+    </ScreenFrame>
+  );
+}
+
+function QuizScreen() {
+  return (
+    <ScreenFrame>
+      <div className="flex items-center justify-between text-xs text-zinc-400">
+        <span>Question 7 of 10</span>
+        <span className="flex items-center gap-1 font-mono text-amber-200"><Timer size={12} /> 00:42</span>
+      </div>
+      <span className="mt-2 block h-1 rounded-full bg-white/[.08]"><span className="block h-1 w-[70%] rounded-full bg-violet-400" /></span>
+      <p className="mt-3 text-sm font-medium leading-6 text-white">Which file stores Terraform&rsquo;s view of real infrastructure?</p>
+      <ul className="mt-3 space-y-1.5 text-xs">
+        <li className="flex h-8 items-center gap-2 rounded-lg border border-emerald-400/50 bg-emerald-400/[.1] px-2.5 text-emerald-100"><span className="font-semibold">A</span> terraform.tfstate <Check size={13} className="ml-auto" /></li>
+        <li className="flex h-8 items-center gap-2 rounded-lg border border-rose-400/50 bg-rose-400/[.1] px-2.5 text-rose-100"><span className="font-semibold">B</span> main.tf <X size={13} className="ml-auto" /></li>
+        <li className="flex h-8 items-center gap-2 rounded-lg border border-white/[.07] px-2.5 text-zinc-500"><span className="font-semibold">C</span> .terraform.lock.hcl</li>
+      </ul>
+    </ScreenFrame>
+  );
+}
+
+function FlashcardScreen() {
+  const reduced = useReducedMotion();
+  return (
+    <ScreenFrame>
+      <div className="relative h-[150px] [perspective:900px]">
+        <motion.div
+          className="relative size-full [transform-style:preserve-3d]"
+          animate={reduced ? undefined : { rotateY: [0, 0, 180, 180, 0] }}
+          transition={{ duration: 7, repeat: Infinity, times: [0, 0.4, 0.5, 0.9, 1], ease: "easeInOut" }}
+        >
+          <div className="absolute inset-0 flex flex-col justify-between rounded-xl border border-white/[.1] bg-gradient-to-br from-violet-500/20 to-transparent p-4 [backface-visibility:hidden]">
+            <span className="text-xs text-violet-200">Docker</span>
+            <p className="text-sm font-medium leading-6 text-white">What does a multi-stage build give you?</p>
+            <span className="text-xs text-zinc-500">Tap to flip</span>
+          </div>
+          <div className="absolute inset-0 flex flex-col justify-center rounded-xl border border-emerald-400/20 bg-emerald-400/[.07] p-4 [backface-visibility:hidden] [transform:rotateY(180deg)]">
+            <p className="text-sm leading-6 text-emerald-50">A small final image: build tools stay in the first stage, only the output is copied into the runtime stage.</p>
+          </div>
+        </motion.div>
+      </div>
+      <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+        <span className="flex h-8 items-center justify-center rounded-lg border border-white/[.1] text-zinc-300">Again</span>
+        <span className="flex h-8 items-center justify-center rounded-lg bg-emerald-400/15 font-medium text-emerald-200">Got it</span>
+      </div>
+    </ScreenFrame>
   );
 }
 
@@ -327,17 +406,19 @@ function Steps() {
 function Course() {
   return (
     <section className="border-b border-white/[.06] py-16 sm:py-20">
-      <div className="mx-auto grid max-w-6xl gap-6 px-4 sm:px-6 md:grid-cols-[auto_1fr] md:items-start md:gap-8">
-        <span className="grid size-14 place-items-center rounded-2xl bg-violet-400/10 text-violet-200"><GraduationCap size={26} /></span>
-        <div className="max-w-2xl">
-          <h2 className="text-2xl font-semibold tracking-[-.02em] text-white sm:text-3xl">Want a mentor in your corner?</h2>
-          <p className="mt-3 text-[15px] leading-7 text-zinc-300">
-            When you're ready for more than self-study, the {siteConfig.course.name} adds {siteConfig.course.pitch.charAt(0).toLowerCase() + siteConfig.course.pitch.slice(1)}
-          </p>
-          <p className="mt-3 text-sm text-zinc-400">Start with the free platform. You can request a callback from inside the app whenever you like.</p>
-          {siteConfig.course.url && (
-            <a href={siteConfig.course.url} target="_blank" rel="noreferrer" className="mt-5 inline-flex h-11 items-center rounded-xl border border-white/[.12] px-5 text-sm text-zinc-100 hover:border-white/25">About the course</a>
-          )}
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <div className="flex flex-col gap-6 md:flex-row md:items-start md:gap-8">
+          <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-violet-400/10 text-violet-200"><GraduationCap size={26} /></span>
+          <div className="max-w-2xl">
+            <h2 className="text-2xl font-semibold tracking-[-.02em] text-white sm:text-3xl">Want a mentor in your corner?</h2>
+            <p className="mt-3 text-[15px] leading-7 text-zinc-300">
+              When you're ready for more than self-study, the {siteConfig.course.name} adds {siteConfig.course.pitch.charAt(0).toLowerCase() + siteConfig.course.pitch.slice(1)}
+            </p>
+            <p className="mt-3 text-sm text-zinc-400">Start with the free platform. You can request a callback from inside the app whenever you like.</p>
+            {siteConfig.course.url && (
+              <a href={siteConfig.course.url} target="_blank" rel="noreferrer" className="mt-5 inline-flex h-11 items-center rounded-xl border border-white/[.12] px-5 text-sm text-zinc-100 hover:border-white/25">About the course</a>
+            )}
+          </div>
         </div>
       </div>
     </section>

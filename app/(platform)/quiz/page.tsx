@@ -22,7 +22,7 @@ import {
   X,
   Zap,
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Badge, Button, Card, ProgressBar } from "@/components/ui";
 import { useContentCatalog } from "@/lib/hooks/use-content-catalog";
 import {
@@ -85,6 +85,7 @@ export default function QuizPage() {
   const [sessionQuestions, setSessionQuestions] = useState<Question[]>([]);
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
+  const reduceMotion = useReducedMotion();
   const [writtenAnswers, setWrittenAnswers] = useState<Record<string, string>>({});
   const [ratings, setRatings] = useState<Record<string, number>>({});
   const [revealed, setRevealed] = useState<Record<string, boolean>>({});
@@ -338,23 +339,58 @@ export default function QuizPage() {
                 <div className="mt-8 grid gap-3">
                   {current.options?.map((option, optionIndex) => {
                     const selected = chosen === optionIndex;
+                    // Instant feedback: once an option is picked, lock it and show right / wrong.
+                    const answered = chosen !== undefined && typeof current.correctOption === "number";
+                    const isCorrectOption = optionIndex === current.correctOption;
+                    const wrongPick = answered && selected && !isCorrectOption;
                     return (
                       <motion.button
                         key={`${current.id}-${optionIndex}`}
-                        whileTap={{ scale: 0.995 }}
-                        onClick={() => setAnswers((items) => ({ ...items, [current.id]: optionIndex }))}
-                        className={`flex min-h-14 items-center gap-4 rounded-2xl border p-4 text-left text-sm transition ${selected ? "border-violet-400/35 bg-violet-400/[.09] text-violet-100" : "border-white/[.07] bg-white/[.025] text-zinc-400 hover:border-white/[.14] hover:bg-white/[.045]"}`}
+                        whileTap={answered ? undefined : { scale: 0.995 }}
+                        animate={wrongPick && !reduceMotion ? { x: [0, -7, 7, -4, 4, 0] } : { x: 0 }}
+                        transition={{ duration: 0.4 }}
+                        disabled={answered}
+                        aria-pressed={selected}
+                        onClick={() => { if (!answered) setAnswers((items) => ({ ...items, [current.id]: optionIndex })); }}
+                        className={`flex min-h-14 items-center gap-4 rounded-2xl border p-4 text-left text-[15px] transition disabled:cursor-default ${answered
+                          ? isCorrectOption
+                            ? "border-emerald-400/50 bg-emerald-400/[.1] text-emerald-50"
+                            : wrongPick
+                              ? "border-rose-400/50 bg-rose-400/[.1] text-rose-50"
+                              : "border-white/[.05] bg-white/[.015] text-zinc-500"
+                          : selected ? "border-violet-400/35 bg-violet-400/[.09] text-violet-100" : "border-white/[.07] bg-white/[.025] text-zinc-400 hover:border-white/[.14] hover:bg-white/[.045]"}`}
                       >
-                        <span className={`grid size-7 shrink-0 place-items-center rounded-lg border font-mono text-xs ${selected ? "border-violet-400 bg-violet-500 text-white" : "border-white/10 text-zinc-600"}`}>{String.fromCharCode(65 + optionIndex)}</span>
+                        <span className={`grid size-7 shrink-0 place-items-center rounded-lg border font-mono text-xs ${answered
+                          ? isCorrectOption ? "border-emerald-400 bg-emerald-500 text-white" : wrongPick ? "border-rose-400 bg-rose-500 text-white" : "border-white/10 text-zinc-600"
+                          : selected ? "border-violet-400 bg-violet-500 text-white" : "border-white/10 text-zinc-600"}`}>{String.fromCharCode(65 + optionIndex)}</span>
                         <span>{option}</span>
-                        {selected && <Check size={16} className="ml-auto text-violet-300" />}
+                        {answered && isCorrectOption && <Check size={17} className="ml-auto shrink-0 text-emerald-300" />}
+                        {wrongPick && <X size={17} className="ml-auto shrink-0 text-rose-300" />}
+                        {!answered && selected && <Check size={16} className="ml-auto text-violet-300" />}
                       </motion.button>
                     );
                   })}
+                  {chosen !== undefined && typeof current.correctOption === "number" && (
+                    <motion.div
+                      initial={reduceMotion ? false : { opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      role="status"
+                      className={`rounded-2xl border p-4 ${chosen === current.correctOption ? "border-emerald-400/25 bg-emerald-400/[.06]" : "border-rose-400/25 bg-rose-400/[.06]"}`}
+                    >
+                      <p className={`text-[15px] font-semibold ${chosen === current.correctOption ? "text-emerald-200" : "text-rose-200"}`}>
+                        {chosen === current.correctOption
+                          ? "Correct!"
+                          : `Not quite. The answer is ${String.fromCharCode(65 + current.correctOption)}.`}
+                      </p>
+                      {current.answer?.trim() && current.answer.trim() !== current.options?.[current.correctOption]?.trim() && (
+                        <p className="mt-1.5 whitespace-pre-wrap text-sm leading-6 text-zinc-300">{current.answer}</p>
+                      )}
+                    </motion.div>
+                  )}
                 </div>
               ) : (
                 <div className="mt-7">
-                  <label className="text-xs font-medium uppercase tracking-[.16em] text-zinc-600">
+                  <label className="text-sm font-medium text-zinc-400">
                     {mode === "Hands-on" ? "Commands / code" : "Your response"}
                   </label>
                   <textarea
@@ -556,7 +592,7 @@ export default function QuizPage() {
             <span className="text-xs text-zinc-500">{Math.round(attempt.score / Math.max(1, attempt.total) * 100)}%</span>
             <span className="text-xs text-zinc-600">{new Date(attempt.createdAt).toLocaleString()}</span>
           </div>
-        )) : <p className="p-8 text-center text-xs text-zinc-600">No attempts yet. Complete your first quiz to create history.</p>}
+        )) : <p className="p-8 text-center text-sm leading-6 text-zinc-400">Your quiz results will show up here.<br />Ten questions takes about five minutes, so start one above.</p>}
       </Card>
     </div>
   );

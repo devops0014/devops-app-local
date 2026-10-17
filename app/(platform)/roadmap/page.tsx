@@ -127,7 +127,7 @@ export default function RoadmapPage() {
         <div className="absolute right-[-60px] top-[-100px] size-72 rounded-full bg-violet-500/10 blur-3xl" />
         <div className="relative grid gap-7 xl:grid-cols-[1fr_380px] xl:items-center">
           <div>
-            <p className="flex items-center gap-2 font-mono text-xs uppercase tracking-[.18em] text-violet-300"><Route size={13} /> Your adaptive path</p>
+            <p className="flex items-center gap-2 text-sm text-violet-300"><Route size={13} /> Your adaptive path</p>
             <h1 className="mt-3 max-w-3xl text-3xl font-semibold tracking-[-.05em] sm:text-4xl">From DevOps fundamentals to production interview mastery.</h1>
             <p className="mt-4 max-w-2xl text-xs leading-6 text-zinc-500">Every phase unlocks the knowledge required by the next. Your path adapts using confidence, quiz accuracy and revision history.</p>
             <div className="mt-6 flex flex-wrap gap-2">
@@ -139,7 +139,7 @@ export default function RoadmapPage() {
           <div className="rounded-2xl border border-white/[.07] bg-black/25 p-5 backdrop-blur-xl">
             <div className="flex items-end justify-between">
               <div>
-                <p className="text-xs uppercase tracking-[.14em] text-zinc-600">Overall completion</p>
+                <p className="text-sm text-zinc-400">Overall completion</p>
                 <p className="mt-2 text-3xl font-semibold">{overall}%</p>
               </div>
               <span className="grid size-11 place-items-center rounded-2xl bg-violet-400/10 text-violet-300"><Map size={21} /></span>
@@ -204,7 +204,7 @@ export default function RoadmapPage() {
 
         <aside className="space-y-4 xl:sticky xl:top-24 xl:self-start">
           <Card className="p-5">
-            <p className="text-xs font-semibold uppercase tracking-[.15em] text-violet-400">Recommended next</p>
+            <p className="text-sm font-medium text-violet-400">Recommended next</p>
             <h2 className="mt-3 text-base font-semibold">Jenkins Pipeline Reliability</h2>
             <p className="mt-2 text-[11px] leading-5 text-zinc-600">Your recent answers show strong syntax knowledge but weaker production troubleshooting structure.</p>
             <div className="mt-4 rounded-xl border border-white/[.06] bg-white/[.025] p-3">

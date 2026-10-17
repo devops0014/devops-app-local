@@ -1,9 +1,9 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import { LoaderCircle, PhoneOff, ShieldCheck, UserPlus, UsersRound } from "lucide-react";
+import { PhoneOff, ShieldCheck, UserPlus, UsersRound } from "lucide-react";
 import { RoleGate } from "@/components/access-gate";
-import { Badge, Button, Card } from "@/components/ui";
+import { Badge, Button, Card, SkeletonRows } from "@/components/ui";
 import { useCurrentUser } from "@/lib/hooks/use-current-user";
 import { formatIst } from "@/lib/leads";
 import { roleDescriptions, roleLabels, roles, type Role } from "@/lib/rbac";
@@ -80,9 +80,9 @@ function TeamManager() {
 
       <Card className="mt-4 overflow-hidden">
         {loading ? (
-          <div className="grid min-h-40 place-items-center"><LoaderCircle className="animate-spin text-violet-400" /></div>
+          <SkeletonRows rows={3} label="Loading team" />
         ) : !members.length ? (
-          <div className="grid min-h-40 place-items-center text-center"><div><UsersRound size={26} className="mx-auto text-zinc-600" /><p className="mt-2 text-xs text-zinc-500">No team members yet.</p></div></div>
+          <div className="grid min-h-40 place-items-center p-6 text-center"><div><span className="mx-auto grid size-12 place-items-center rounded-2xl bg-violet-400/10 text-violet-300"><UsersRound size={22} /></span><p className="mt-3 text-base text-zinc-200">It&rsquo;s just you for now</p><p className="mt-1 text-sm text-zinc-400">Ask a teammate to sign up, then add their email above.</p></div></div>
         ) : members.map((member) => {
           const self = member.id === profile?.id;
           return (
@@ -141,9 +141,9 @@ function BlockedNumbers() {
       {error && <p className="mt-3 rounded-xl border border-rose-400/15 bg-rose-400/[.05] p-3 text-sm text-rose-300">{error}</p>}
       <Card className="mt-4 overflow-hidden">
         {rows === null ? (
-          <div className="grid min-h-32 place-items-center"><LoaderCircle className="animate-spin text-violet-400" /></div>
+          <SkeletonRows rows={2} label="Loading blocked numbers" />
         ) : !rows.length ? (
-          <p className="p-6 text-center text-sm text-zinc-500">No blocked numbers.</p>
+          <p className="p-6 text-center text-sm text-zinc-400">No blocked numbers. Every removed account will show up here.</p>
         ) : rows.map((row) => (
           <div key={row.id} className="grid gap-2 border-b border-white/[.05] p-4 last:border-0 sm:grid-cols-[1fr_auto] sm:items-center">
             <div className="min-w-0">

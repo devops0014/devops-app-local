@@ -2,9 +2,9 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, BriefcaseBusiness, LoaderCircle, MapPin, Sparkles } from "lucide-react";
+import { ArrowRight, BriefcaseBusiness, MapPin, Sparkles } from "lucide-react";
 import { Brand } from "@/components/brand";
-import { Badge, Button } from "@/components/ui";
+import { Badge, Button, Skeleton } from "@/components/ui";
 import { experienceLabels, goalLabels } from "@/lib/leads";
 import { supabase } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
@@ -78,7 +78,7 @@ export default function WelcomePage() {
         <div className="mb-8"><Brand /></div>
         <div className="rounded-[26px] border border-white/[.08] bg-[#111214]/90 p-6 shadow-[0_40px_120px_rgba(0,0,0,.5)] backdrop-blur-xl sm:p-8">
           {!ready ? (
-            <div className="grid min-h-60 place-items-center"><LoaderCircle className="animate-spin text-violet-400" /></div>
+            <div role="status" aria-label="Loading" className="space-y-4"><Skeleton className="h-6 w-40 rounded-full" /><Skeleton className="h-8 w-3/4" /><Skeleton className="h-4 w-2/3" /><Skeleton className="mt-6 h-12 w-full rounded-xl" /><Skeleton className="h-12 w-full rounded-xl" /></div>
           ) : (
             <form onSubmit={submit}>
               <Badge tone="violet"><Sparkles size={12} className="mr-1" /> Last step · 15 seconds</Badge>

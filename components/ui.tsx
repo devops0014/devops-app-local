@@ -134,13 +134,36 @@ export function SectionTitle({
     <div className="flex items-end justify-between gap-4">
       <div>
         {eyebrow && (
-          <p className="mb-1 text-[11px] font-semibold uppercase tracking-[.18em] text-violet-400">
+          <p className="mb-1 text-sm font-medium text-violet-400">
             {eyebrow}
           </p>
         )}
         <h2 className="text-lg font-semibold tracking-tight sm:text-xl">{title}</h2>
       </div>
       {action}
+    </div>
+  );
+}
+
+/** Placeholder block shown while content loads (instead of a spinner). */
+export function Skeleton({ className = "" }: { className?: string }) {
+  return <span aria-hidden className={`block animate-pulse rounded-lg bg-white/[.06] motion-reduce:animate-none ${className}`} />;
+}
+
+/** A few placeholder rows shaped like a list of people or items. */
+export function SkeletonRows({ rows = 4, label = "Loading" }: { rows?: number; label?: string }) {
+  return (
+    <div role="status" aria-label={label} className="divide-y divide-white/[.05]">
+      {Array.from({ length: rows }, (_, index) => (
+        <div key={index} className="flex items-center gap-3 p-4">
+          <Skeleton className="size-10 shrink-0 rounded-xl" />
+          <div className="min-w-0 flex-1 space-y-2">
+            <Skeleton className="h-3.5 w-2/5" />
+            <Skeleton className="h-3 w-3/5" />
+          </div>
+          <Skeleton className="hidden h-8 w-24 sm:block" />
+        </div>
+      ))}
     </div>
   );
 }

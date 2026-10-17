@@ -61,7 +61,7 @@ export function CourseCallout({ context, headline, compact = false }: { context:
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
         <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-violet-400/15 text-violet-200"><GraduationCap size={22} /></span>
         <div className="min-w-0 flex-1">
-          <p className="text-xs font-medium uppercase tracking-[.14em] text-violet-300">{siteConfig.course.name}</p>
+          <p className="text-sm font-medium text-violet-300">{siteConfig.course.name}</p>
           <h2 className="mt-1 text-lg font-semibold tracking-[-.02em] text-white">{headline ?? "Want structured, mentor-led preparation?"}</h2>
           <p className="mt-1 text-sm leading-6 text-zinc-300">{siteConfig.course.pitch}</p>
           {error && <p className="mt-2 text-sm text-rose-300">{error}</p>}

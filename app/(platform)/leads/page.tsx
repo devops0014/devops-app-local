@@ -3,11 +3,11 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import {
-  BadgeCheck, BellRing, CalendarClock, CalendarDays, ChevronLeft, ChevronRight, Download, Flame, LoaderCircle, Mail,
+  BadgeCheck, BellRing, CalendarClock, CalendarDays, ChevronLeft, ChevronRight, Download, Flame, Mail,
   MessageCircle, MessageSquareText, Phone, PhoneOff, RefreshCw, Search, Send, UserRound, UsersRound, X,
 } from "lucide-react";
 import { RoleGate } from "@/components/access-gate";
-import { Badge, Button, Card } from "@/components/ui";
+import { Badge, Button, Card, Skeleton, SkeletonRows } from "@/components/ui";
 import { useCurrentUser } from "@/lib/hooks/use-current-user";
 import {
   experienceLabels, formatIst, goalLabels, heatLabel, istShift, istToday, leadStatuses, leadStatusMeta, sourceLabel, topicLabel,
@@ -267,11 +267,11 @@ function LeadsDashboard() {
 
       {/* Lead list */}
       <Card className="mt-4 overflow-hidden">
-        <div className="hidden grid-cols-[1.35fr_1.15fr_.95fr_1.05fr_1.2fr] gap-4 border-b border-white/[.06] px-5 py-3 text-xs uppercase tracking-[.1em] text-zinc-500 xl:grid">
+        <div className="hidden grid-cols-[1.35fr_1.15fr_.95fr_1.05fr_1.2fr] gap-4 border-b border-white/[.06] px-5 py-3 text-sm text-zinc-500 xl:grid">
           <span>Student</span><span>Contact</span><span>Signal</span><span>Status</span><span>Latest note</span>
         </div>
         {loading && !leads.length ? (
-          <div className="grid min-h-64 place-items-center"><LoaderCircle className="animate-spin text-violet-400" /></div>
+          <SkeletonRows rows={6} label="Loading students" />
         ) : !leads.length ? (
           <div className="grid min-h-64 place-items-center p-6 text-center">
             <div>
@@ -488,7 +488,7 @@ function LeadDrawer({ lead, today, callers, canUpdate, onClose, onPatch, onNoteA
 
               {lead.doNotContact && <p className="mt-4 flex items-center gap-2 rounded-xl border border-rose-400/20 bg-rose-400/[.06] p-3 text-sm text-rose-200"><PhoneOff size={15} /> This student withdrew consent. Don't call or message them.</p>}
 
-              <p className="mb-2 mt-5 text-xs font-medium uppercase tracking-[.12em] text-zinc-500">Call status</p>
+              <p className="mb-2 mt-5 text-sm font-medium text-zinc-500">Call status</p>
               <div className="grid grid-cols-2 gap-2">
                 {leadStatuses.map((key) => (
                   <button key={key} disabled={locked} onClick={() => pickStatus(key)} className={cn("flex items-center gap-2 rounded-xl border px-3 py-2.5 text-sm transition disabled:cursor-not-allowed disabled:opacity-60", lead.status === key ? "border-violet-400/50 bg-violet-400/[.1] text-white" : "border-white/[.08] text-zinc-300 hover:border-white/[.16]")}>
@@ -499,14 +499,14 @@ function LeadDrawer({ lead, today, callers, canUpdate, onClose, onPatch, onNoteA
 
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 <label className="block">
-                  <span className="mb-1.5 block text-xs font-medium uppercase tracking-[.12em] text-zinc-500">Call again on</span>
+                  <span className="mb-1.5 block text-sm font-medium text-zinc-500">Call again on</span>
                   <div className="flex gap-1.5">
                     <input type="date" min={today} disabled={locked} value={lead.followUpAt ?? ""} onChange={(event) => void apply({ followUpAt: event.target.value || null })} className="h-10 min-w-0 flex-1 rounded-lg border border-white/[.08] bg-white/[.03] px-2.5 text-sm text-zinc-200 disabled:opacity-60" />
                     {lead.followUpAt && !locked && <button onClick={() => void apply({ followUpAt: null })} className="h-10 rounded-lg border border-white/[.08] px-2.5 text-xs text-zinc-400 hover:text-white">Clear</button>}
                   </div>
                 </label>
                 <label className="block">
-                  <span className="mb-1.5 block text-xs font-medium uppercase tracking-[.12em] text-zinc-500">Owner</span>
+                  <span className="mb-1.5 block text-sm font-medium text-zinc-500">Owner</span>
                   <select disabled={!canUpdate} value={lead.assignedTo ?? ""} onChange={(event) => void apply({ assignedTo: event.target.value || null })} className="h-10 w-full rounded-lg border border-white/[.08] bg-[var(--panel)] px-2.5 text-sm text-zinc-200 disabled:opacity-60">
                     <option value="">Unassigned</option>
                     {callers.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
@@ -543,12 +543,12 @@ function LeadDrawer({ lead, today, callers, canUpdate, onClose, onPatch, onNoteA
             )}
 
             <div className="p-5 sm:px-6">
-              <p className="mb-3 text-xs font-medium uppercase tracking-[.12em] text-zinc-500">History</p>
+              <p className="mb-3 text-sm font-medium text-zinc-500">History</p>
               {error && <p className="mb-3 rounded-xl border border-rose-400/15 bg-rose-400/[.05] p-3 text-sm text-rose-300">{error}</p>}
               {loading && !activity.length ? (
-                <LoaderCircle className="mx-auto mt-6 animate-spin text-violet-400" />
+                <div className="space-y-2"><Skeleton className="h-14 w-full rounded-xl" /><Skeleton className="h-14 w-full rounded-xl" /></div>
               ) : !activity.length ? (
-                <p className="text-sm text-zinc-500">No calls logged yet.</p>
+                <p className="text-sm text-zinc-400">No calls logged yet. Set a call status or add a note and it will show here.</p>
               ) : (
                 <ol className="space-y-3">
                   {activity.map((item) => (

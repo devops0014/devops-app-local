@@ -8,7 +8,7 @@ export function Brand({ compact = false, href = "/" }: { compact?: boolean; href
         <TerminalSquare size={19} strokeWidth={2.4} />
       </span>
       {!compact && (
-        <span className="text-[17px] font-semibold tracking-[-0.04em]">
+        <span className="font-display text-[18px] font-bold tracking-[-0.03em]">
           DevOps<span className="text-violet-400">Crack</span>
         </span>
       )}

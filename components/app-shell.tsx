@@ -153,7 +153,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
 
         <div className="px-3">
-          <p className="px-3 pb-2 pt-3 text-xs font-semibold uppercase tracking-[.18em] text-zinc-600">
+          <p className="px-3 pb-2 pt-3 text-sm font-medium text-zinc-400">
             Workspace
           </p>
           <nav className="space-y-1">
@@ -191,7 +191,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             })}
           </nav>
           {staffItems.length > 0 && <>
-            <p className="px-3 pb-2 pt-5 text-xs font-semibold uppercase tracking-[.18em] text-zinc-600">
+            <p className="px-3 pb-2 pt-5 text-sm font-medium text-zinc-400">
               Team workspace
             </p>
             <nav className="space-y-1">
@@ -261,7 +261,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </kbd>
           </button>
           <div className="ml-auto flex items-center gap-1 sm:gap-2">
-            <div aria-live="polite" aria-label={`Cloud status: ${cloudStatus}`} className={`hidden items-center gap-1.5 rounded-lg border px-2 py-1.5 text-[11px] uppercase tracking-wider md:flex ${
+            <div aria-live="polite" aria-label={`Cloud status: ${cloudStatus}`} className={`hidden items-center gap-1.5 rounded-lg border px-2 py-1.5 text-xs md:flex ${
               cloudStatus === "synced"
                 ? "border-emerald-400/10 bg-emerald-400/[.04] text-emerald-300"
                 : cloudStatus === "connecting"
@@ -384,7 +384,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <kbd className="rounded-md border border-white/[.08] px-1.5 py-0.5 text-xs text-zinc-600">ESC</kbd>
             </div>
             <div className="max-h-[390px] overflow-y-auto p-2">
-              <p className="px-2 pb-2 pt-1 text-xs font-semibold uppercase tracking-[.16em] text-zinc-600">
+              <p className="px-2 pb-2 pt-1 text-sm font-medium text-zinc-400">
                 {query ? "Search results" : "Recommended for you"}
               </p>
               {searchResults.map((question) => (
