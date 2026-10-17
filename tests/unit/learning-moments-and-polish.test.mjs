@@ -67,3 +67,17 @@ test("forms post, so a password can never end up in the address bar", () => {
     assert.doesNotMatch(read(page), /<form (?![^>]*method="post")/, page);
   }
 });
+
+test("hero tool picker is a 3D keycap board with keyboard shortcuts", () => {
+  const landing = read("app/page.tsx");
+  assert.match(landing, /className="kc-stage"/);
+  assert.match(landing, /aria-keyshortcuts=\{item\.key\}/);
+  assert.match(landing, /tool\.key === event\.key\.toUpperCase\(\)/);
+  assert.match(landing, /if \(reduced\) return \(\) => observer\.disconnect\(\);/);
+  const keys = [...landing.matchAll(/key: "([A-Z])" \}/g)].map((match) => match[1]);
+  assert.equal(keys.length, 12);
+  assert.equal(new Set(keys).size, 12, "every tool needs its own shortcut letter");
+  const css = read("app/globals.css");
+  assert.match(css, /\.kc-board \{[\s\S]*transform-style: preserve-3d/);
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\) \{\s*\.kc-top/);
+});
