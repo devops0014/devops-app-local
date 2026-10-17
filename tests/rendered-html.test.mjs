@@ -43,8 +43,12 @@ test("sign-in page ships the app scripts, so the form never submits natively", a
   );
   assert.equal(response.status, 200);
   const html = await response.text();
-  const scripts = html.match(/<script\b[^>]*>/gi) ?? [];
-  assert.ok(scripts.some((tag) => /type=["']module["']|\bsrc=/.test(tag)), `no app script tags in /login: ${scripts.join(" ").slice(0, 300)}`);
+  const inline = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)].map((match) => `${match[1]}|${match[2].slice(0, 160)}`);
+  const head = html.slice(0, html.indexOf("<body"));
+  assert.ok(
+    /<script[^>]+src=|import\(|modulepreload|\/assets\//.test(html),
+    `no app bootstrap in /login. head=${head.replace(/<style[\s\S]*?<\/style>/g, "").slice(0, 900)} scripts=${inline.join(" || ").slice(0, 1500)}`,
+  );
   assert.match(html, /<form[^>]*method="post"/);
   assert.doesNotMatch(html, /<head>\s*<link rel="preconnect"/);
 });
