@@ -152,7 +152,7 @@ export default function LoginPage() {
             Continue with Google
           </button>
           <div className="my-5 flex items-center gap-3"><span className="h-px flex-1 bg-white/[.07]" /><span className="text-sm text-zinc-500">or email</span><span className="h-px flex-1 bg-white/[.07]" /></div>
-          <form onSubmit={submitAuth} className="space-y-4">
+          <form method="post" onSubmit={submitAuth} className="space-y-4">
             {mode === "signup" && (
               <label className="block">
                 <span className="mb-2 block text-xs font-medium text-zinc-500">Full name</span>

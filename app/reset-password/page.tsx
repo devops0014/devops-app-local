@@ -43,7 +43,7 @@ export default function ResetPasswordPage() {
           <span className="grid size-12 place-items-center rounded-2xl bg-violet-400/10 text-violet-300"><LockKeyhole size={21} /></span>
           <h1 className="mt-5 text-2xl font-semibold tracking-[-.04em]">Choose a new password</h1>
           <p className="mt-2 text-xs text-zinc-600">Use at least eight characters and avoid a password used elsewhere.</p>
-          <form onSubmit={submit} className="mt-7 space-y-4">
+          <form method="post" onSubmit={submit} className="mt-7 space-y-4">
             {["password", "confirmation"].map((name, index) => (
               <label key={name} className="block">
                 <span className="mb-2 block text-xs font-medium text-zinc-500">{index === 0 ? "New password" : "Confirm password"}</span>

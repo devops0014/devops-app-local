@@ -141,10 +141,8 @@ test("new students get a Start here screen instead of a dashboard of zeros", () 
 });
 
 test("brand fonts are actually loaded and applied", () => {
-  const layout = read("app/layout.tsx");
-  assert.match(layout, /fonts\.googleapis\.com\/css2\?family=Bricolage\+Grotesque/);
-  assert.match(layout, /Figtree/);
   const css = read("app/globals.css");
+  assert.match(css, /fonts\.googleapis\.com\/css2\?family=Bricolage\+Grotesque/);
   assert.match(css, /--font-sans: "Figtree"/);
   assert.match(css, /@layer base \{\s*h1, h2 \{\s*font-family: "Bricolage Grotesque"/);
   assert.doesNotMatch(css, /"Inter"/);

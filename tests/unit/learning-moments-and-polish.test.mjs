@@ -56,3 +56,14 @@ test("no tiny all-caps labels outside the flashcard swipe stamps", () => {
   }
   assert.doesNotMatch(read("components/access-gate.tsx"), /animate-spin/);
 });
+
+test("root layout leaves <head> to the framework so page scripts load", () => {
+  assert.doesNotMatch(read("app/layout.tsx"), /<head>/);
+  assert.match(read("app/globals.css"), /^@import url\("https:\/\/fonts\.googleapis\.com/);
+});
+
+test("forms post, so a password can never end up in the address bar", () => {
+  for (const page of ["app/login/page.tsx", "app/reset-password/page.tsx", "app/change-password/page.tsx", "components/account-menu.tsx"]) {
+    assert.doesNotMatch(read(page), /<form (?![^>]*method="post")/, page);
+  }
+});
